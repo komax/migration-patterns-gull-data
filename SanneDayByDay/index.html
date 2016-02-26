@@ -1,0 +1,191 @@
+<html>
+<head>
+	<title>Gull visualisation concept</title>
+	<script src="ol.js"></script>
+	<script src="gulldata.js"></script>
+	<link rel="stylesheet" href="ol.css">
+	<style>
+
+body {
+	margin: 0;
+	font-family: 'Droid Sans mono', sans-serif;
+}
+
+#header {
+	background-color: bisque;
+	color: sienna;
+	width: 100%;
+	height: 5em;
+	box-shadow: inset 0 -.25em 1em saddlebrown;
+}
+#header h1 {
+	text-align: center;
+	padding-top: .5em;
+}
+#slider-names {
+	position: absolute;
+	left: 2em;
+	top: 2em;
+}
+
+#map {
+	position: fixed;
+	top: 5em;
+	left: 0;
+	width: 100%;
+	height: calc(100% - 5em);
+	background-color: skyblue;
+}
+
+#timeline {
+	display: block;
+	position: fixed;
+	top: calc(100% - 1.5em);
+	left: 0;
+	width: 100%;
+	height: 15em;
+	background-color: bisque;
+	box-shadow: inset 0 .25em 1em saddlebrown;
+}
+
+	</style>
+</head>
+<body>
+	<header id="header">
+		<h1>Gull visualisation concept</h1>
+		<input id="slider-names" type="range" min="0" max="100" value="0">
+	</header>
+	<div id="map"></div>
+	<div id="timeline">
+		<div id="from-ui" style="visibility:hidden;"> From: <input type="date" id="from-date-picker"/></div>
+		<div id="animation-ui" style="visibility:hidden;"> <button type="button" id="start-animation" onclick="StartAnimation()">Start</button></div>
+	</div>
+	<script type="text/javascript">
+
+// Initiate map
+var namesLayer = new ol.layer.Tile({
+		source: new ol.source.MapQuest({ layer: 'hyb'}),
+		opacity: 0,
+	}),
+	map = new ol.Map({
+	target: 'map',
+	layers: [
+		new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'watercolor' }) }),
+		namesLayer,
+	],
+	view: new ol.View({
+		center: ol.proj.fromLonLat([5.488196, 51.4475088]),
+		zoom: 5,
+	})
+});
+
+// Convert gull coordinates
+var gull = gulldata.L909887,
+	points = [];
+for (var i = 0; i < gull.length; ++i)
+	points.push(ol.proj.transform([gull[i][3], gull[i][2], gull[i][4], gull[i][5]], 'EPSG:4326', 'EPSG:3857'));
+
+function AddGullWithPoints(points) {
+	// Add gull track to map
+	var gullFeature = new ol.Feature({
+			name: 'Sanne',
+			geometry: new ol.geom.LineString(points, 'XYZM'),
+		}),
+		gullLayer = new ol.layer.Vector({
+			source: new ol.source.Vector({
+				features: [gullFeature],
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: [220, 20, 60, .8],
+					width: 3,
+				}),
+			}),
+		});
+	map.addLayer(gullLayer);
+	return gullLayer;
+}
+var gullLayer = AddGullWithPoints(points);
+
+// Topology overlay control
+var sldName = document.getElementById('slider-names');
+sldName.onchange = sldName.oninput = function ()
+{
+	namesLayer.setOpacity(+sldName.value / 100);
+}
+
+// Timeline control
+var timeline = document.getElementById('timeline');
+var from_ui = document.getElementById('from-ui');
+var animation_ui = document.getElementById('animation-ui');
+timeline.onmouseover = function ()
+{
+	timeline.style.top = 'calc(100% - 15em)';	
+	from_ui.style.visibility = 'visible';
+	animation_ui.style.visibility = 'visible';
+}
+timeline.onmouseout = function ()
+{
+	timeline.style.top = 'calc(100% - 1.5em)';
+	from_ui.style.visibility = 'hidden';
+	animation_ui.style.visibility = 'hidden';
+}
+
+function GetPointsForDate(date)
+{
+	var gull = gulldata.L909887,
+		points = [];
+	for (var i = 0; i < gull.length; ++i)
+		if(gull[i][0].substring(0,gull[i][0].indexOf('T')) == date)
+			points.push(ol.proj.transform([gull[i][3], gull[i][2], gull[i][4], gull[i][5]], 'EPSG:4326', 'EPSG:3857'));
+	return points;
+}
+
+var from_date_picker = document.getElementById('from-date-picker');
+function ShowDataForDate()
+{
+  if(from_date_picker.value == "")
+    return;
+  
+  map.removeLayer(gullLayer);
+  points = GetPointsForDate(from_date_picker.value);
+  gullLayer = AddGullWithPoints(points); 
+} 
+from_date_picker.addEventListener("change", ShowDataForDate);
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+Date.prototype.addDays = function(days)
+{
+    var dat = new Date(this.valueOf());
+    dat.setDate(dat.getDate() + days);
+    return dat;
+}
+
+function IncreaseDate()
+{
+	var date = new Date(from_date_picker.value);
+	date = date.addDays(1);
+	from_date_picker.value = formatDate(date);
+	ShowDataForDate();
+}
+
+function StartAnimation()
+{
+	setInterval(function(){ IncreaseDate(); }, 500);
+}
+
+
+	</script>
+</body>
+</html>
