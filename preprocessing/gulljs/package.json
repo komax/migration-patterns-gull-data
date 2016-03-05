@@ -1,0 +1,16 @@
+{
+  "name": "gulljs",
+  "version": "0.0.0",
+  "description": "Gull data convertor and processer",
+  "main": "index.js",
+  "bin": {
+    "gulljs": "./index.js"
+  },
+  "dependencies": {
+    "line-reader": "^0.3.0",
+    "minimist": "^1.2.0"
+  },
+  "devDependencies": {},
+  "author": "Ferry Timmers",
+  "license": "MIT"
+}
