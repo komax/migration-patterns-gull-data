@@ -24,13 +24,14 @@ header h1 {
 	top: 3em;
 	bottom: 1.5em;
 	width: 100%;
-	flex-direction: column;
+	flex-flow: column nowrap;
 }
 #views {
 	display: block;
 	display: flex;
 	flex: 1 1 auto;
-	flex-direction: row;
+	flex-flow: row nowrap;
+	min-height: 0;
 	background-color: skyblue;
 }
 #left-view, #right-view {
@@ -42,12 +43,14 @@ header h1 {
 	width: calc(50% - .5em);
 	min-width: 15%;
 	max-width: 85%;
+	min-height: 0;
 }
 #right-view {
 	flex: 1 1 auto;
+	min-height: 0;
 }
 .map {
-	width: 100%;
+	height: 100%;
 }
 #pane {
 	display: block;
@@ -77,4 +80,9 @@ body footer {
 	width: 100%;
 	text-align: center;
 	background-color: sienna;
+}
+
+/* Hack for IE 10+ */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+	#views { height: 0; }
 }
