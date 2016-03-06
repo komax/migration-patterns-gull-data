@@ -1,0 +1,202 @@
+<html>
+<head>
+	<title>Gull visualisation concept</title>
+	<script src="ol.js"></script>
+	<script src="gulldata4.js"></script>
+	<link rel="stylesheet" href="ol.css">
+	<style>
+
+body {
+	margin: 0;
+	background-color: bisque;
+	font-family: 'Droid Sans mono', sans-serif;
+}
+
+#header {
+	color: sienna;
+	width: 100%;
+	height: 5em;
+}
+#header h1 {
+	text-align: center;
+	padding-top: .5em;
+}
+#slider-names {
+	position: absolute;
+	left: 2em;
+	top: 2em;
+}
+
+#map {
+	position: fixed;
+	top: 5em;
+	left: 0;
+	width: 100%;
+	height: calc(100% - 7.5em);
+	background-color: skyblue;
+	box-shadow: 0 -.25em 1em saddlebrown, 0 .25em 1em saddlebrown;
+}
+
+#footer {
+	display: block;
+	position: fixed;
+	top: calc(100% - 1.5em);
+	left: 0;
+	width: 100%;
+	height: 15em;
+}
+
+	</style>
+</head>
+<body>
+	<header id="header">
+		<h1>Gull visualisation concept</h1>
+		<input id="slider-names" type="range" min="0" max="100" value="0">
+	</header>
+	<div id="map"></div>
+	<footer id="footer"></footer>
+	<script type="text/javascript">
+
+// Initiate map
+var namesLayer = new ol.layer.Tile({
+		source: new ol.source.MapQuest({ layer: 'hyb'}),
+		opacity: 0,
+	}),
+	map = new ol.Map({
+	target: 'map',
+	layers: [
+		new ol.layer.Tile({ source: new ol.source.Stamen({ layer: 'watercolor' }) }),
+		namesLayer,
+	],
+	view: new ol.View({
+		center: ol.proj.fromLonLat([5.488196, 51.4475088]),
+		zoom: 5,
+	})
+});
+
+ol.proj.fromLatLon = function (arr)
+{
+	return ol.proj.fromLonLat([arr[1], arr[0]]);
+}
+
+window.onload = function()
+{
+
+function load(gull)
+{
+	// Process data
+	var //gull = gulldata.L909887,
+		features = [],
+		styles = [
+			new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: [220, 20, 60, .8],
+					width: 3,
+				}),
+			}),
+			new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: [40, 10, 40, .8],
+					width: 3,
+				}),
+			}),
+		], last;
+	if (!gull.trajectory)
+		return;
+	gull.trajectory.legs.forEach(function (leg)
+	{
+		// Convert gull coordinates
+		var points = [];
+		if (last)
+			points.push(last);
+		for (var i = 0; i < leg.coords.length; ++i)
+			points.push(last = ol.proj.fromLatLon(leg.coords[i]));
+		var feature = new ol.Feature({
+			//name: '',
+			geometry: new ol.geom.LineString(points, 'XY'),
+		});
+		feature.setStyle(styles[leg.type == 'day' ? 0 : 1]);
+		features.push(feature);
+	});
+
+	// Add gull track to map
+	var gullLayer = new ol.layer.Vector({
+			source: new ol.source.Vector({
+				features: features,
+			}),
+		});
+	map.addLayer(gullLayer);
+}
+
+for (var x in gulldata)
+	load(gulldata[x]);
+
+(function stops()
+{
+	var features = [],
+		style = function (feature)
+		{
+			var features = feature.get('features'),
+				text = features[0].get('name');
+			for (var i = features.length - 1; i >= 0; --i)
+			{
+				if (features[i].get('name') != text)
+				{
+					text = '';
+					break;
+				}
+			}
+			if (features.length > 1)
+				text = '' + features.length + (text ? '\n' + text : '');
+			return new ol.style.Style({
+				image: new ol.style.Circle({
+					radius: text.length > 4 ? 20 : 10,
+					stroke: new ol.style.Stroke({
+						color: 'white',
+					}),
+					fill: new ol.style.Fill({
+						color: features.length > 1 ? 'deepskyblue' : 'skyblue',
+					}),
+				}),
+				text: new ol.style.Text({
+					text: text,
+					fill: new ol.style.Fill({ color: 'black' }),
+				}),
+			});
+		};
+	for (var id in gulldata)
+	{
+		gulldata[id].stops.forEach(function (stop)
+		{
+			var feature = new ol.Feature({
+				geometry: new ol.geom.Point(ol.proj.fromLatLon(stop)),
+			});
+			feature.set('name', gulldata[id].name);
+			features.push(feature);
+		});
+	}	
+	var source = new ol.source.Cluster({
+			distance: 40,
+			source: new ol.source.Vector({
+				features: features,
+			}),
+		}),
+		layer = new ol.layer.Vector({
+			source: source,
+			style: style,
+		});
+	map.addLayer(layer);
+})();
+
+} /* * */
+
+// Topology overlay control
+var sldName = document.getElementById('slider-names');
+sldName.onchange = sldName.oninput = function ()
+{
+	namesLayer.setOpacity(+sldName.value / 100);
+}
+
+	</script>
+</body>
+</html>
