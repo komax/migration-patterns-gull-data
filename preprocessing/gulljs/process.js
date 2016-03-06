@@ -1,12 +1,18 @@
 var fs = require('fs'),
 	args = require('minimist')(process.argv.slice(2)),
+	utils = require('./lib/utils.js'),
+	cluster = require('./lib/clusterer.js'),
 	input = args._[0],
-	output = args._[1];
+	output = args._[1],
+	jsonp = args.p || args.jsonp,
+	space = args.s || args.space;
 
 if (!input || !output)
 {
 	console.log('Gull data processing')
-	console.log('Usage:\n\t' + process.argv.slice(0, 2).join(' ') + ' <input.json> <output.json>');
+	console.log('Usage:\n\t' + process.argv.slice(0, 2).join(' ') + '[flags] <input.json> <output.json>\n\n'+
+		'\t-p -jsonp=<name>\t\toutputs jsonp instead of json, prepends "var name = "\n'+
+		'\t-s --space=[string]\t\tformats json using optimally a whitespace string');
 	process.exit();
 }
 
@@ -22,23 +28,25 @@ var STOP_THESHOLD = 3.5,
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 var preprocessor = [
-		function filter(gulls)
+		/** /function filter(gulls)
 		{
-			/*for (var id in gulls)
+			for (var id in gulls)
 				if (gulls[id].organismName != 'Sanne')
-					delete gulls[id];*/
-		},
+					delete gulls[id];
+		},//*/
 		function find_idlespots(gulls, data)
 		{
-			data.idlespots = [];
+			data.idlespots = {};
 			for (var id in gulls)
 			{
+				data.idlespots[id] = [];
+
 				var gull = gulls[id],
 					len = gull.secondsSinceLastOccurrence.length;
 				for (var i = 1; i < len; ++i)
 				{
 					var dtime = gull.secondsSinceLastOccurrence[i],
-						ddist = distance(
+						ddist = utils.distance(
 							gull.decimalLatitude[i],
 							gull.decimalLongitude[i],
 							gull.decimalLatitude[i - 1],
@@ -49,89 +57,21 @@ var preprocessor = [
 						// Linear interpolation between segment points, error should be small enough
 						var lat = (gull.decimalLatitude[i] + gull.decimalLatitude[i - 1]) / 2,
 							lon = (gull.decimalLongitude[i] + gull.decimalLongitude[i - 1]) / 2;
-						data.idlespots.push([lat, lon]);
+						data.idlespots[id].push([lat, lon]);
 					}
 				}
 			}
 		},
 		function find_stops(gulls, data)
 		{
-			/*
-			data.stops = []
-			for (var i = data.idlespots.length - 1; i >= 0; --i)
-				data.stops.push({ center: data.idlespots[i], });
-			return;/**/
+			var count = 0,
+				total = Object.keys(gulls).length;
 
-			// Sort points on lattitude
-			data.idlespots.sort(function (a, b) { return a[0] - b[0]; });
-
-			// clustering datastructure
-			var clusters = [];
-			function find(a)
+			data.stops = {};
+			for (var id in gulls)
 			{
-				if (!clusters[a])
-					return clusters[a] = a;
-				while (clusters[a] != a)
-					a = clusters[a] = clusters[clusters[a]];
-				return a;
-			}
-			function cluster(a, b)
-			{
-				a = find(a);
-				b = find(b);
-				if (a != b)
-					clusters[b] = a;
-			}
-
-			// clustering on distance disks, uses fact that points are sorted on lattitude
-			var spots = data.idlespots;
-			for (var i = 0, top = 0, l = spots.length; i < l; ++i)
-			{
-				if (!(i % 5000))
-					console.log(((i / l) * 100).toFixed(2) + '%', top - i);
-
-				while ((top + 1 < l) && distance(spots[top + 1][0], 0, spots[i][0], 0) <= STOP_DISTANCE)
-					++top;
-
-				for (var j = i + 1; j <= top; ++j)
-					if (distance(spots[i][0], spots[i][1], spots[j][0], spots[j][1]) <= STOP_DISTANCE)
-						cluster(i, j);
-			}
-
-			var stops = {};
-			for (var i = spots.length - 1; i >= 0; --i)
-			{
-				var j = find(clusters[i]);
-				if (!(j in stops))
-					stops[j] = [spots[i]];
-				else
-					stops[j].push(spots[i]);
-			}
-			clusters = null;
-			delete data.idlespots;
-
-			// write clusters
-			data.stops = [];
-			for (var x in stops)
-			{
-				var cluster = stops[x],
-					lat = 0,
-					lon = 0,
-					dist = 0;
-				for (var j = cluster.length - 1; j >= 0; --j)
-				{
-					lat += cluster[j][0];
-					lon += cluster[j][1];
-				}
-				lat /= cluster.length;
-				lon /= cluster.length;
-				for (var j = cluster.length - 1; j >= 0; --j)
-					dist = Math.max(dist, distance(lat, lon, cluster[j][0], cluster[j][1]));
-				data.stops.push({
-					center: [lat, lon],
-					radius: dist + STOP_DISTANCE,
-					coords: cluster,
-				});
+				data.stops[id] = cluster(data.idlespots[id], STOP_DISTANCE);
+				console.log((count++ / total * 100).toFixed(2)+'%');
 			}
 		},
 	];
@@ -144,7 +84,7 @@ var processor = {
 	/*$idle: function (gull, data)
 	{
 		var dtime = gull.secondsSinceLastOccurrence,
-			ddist = distance(
+			ddist = utils.distance(
 				gull.decimalLatitude,
 				gull.decimalLongitude,
 				gull.last.decimalLatitude,
@@ -157,113 +97,45 @@ var processor = {
 		var row = {}
 		row.date = gull.eventDate;
 		row.coords = [gull.decimalLatitude, gull.decimalLongitude];
-		row.daynight = gull.daynight = daynight(
+		row.daynight = gull.daynight = utils.daynight(
 			gull.eventDate,
 			gull.decimalLatitude,
 			gull.decimalLongitude);
-
-		var dtime = gull.secondsSinceLastOccurrence,
-			ddist = distance(
-				gull.decimalLatitude,
-				gull.decimalLongitude,
-				gull.last.decimalLatitude,
-				gull.last.decimalLongitude);
-		gull.idle = Math.log(dtime / ddist);
-
-		/*if (gull.idle > STOP_THESHOLD || gull.last.stopdist)
-		{
-			var stopdist = closest_stop(
-				data.stops,
+		gull.stop = utils.closest_stop(
+				data.stops[gull.id],
 				gull.decimalLatitude,
 				gull.decimalLongitude);
-			if (!gull.last.stopdist || gull.last.stopdist[0] == stopdist[0])
-				gull.stopdist = stopdist;
-		}*/
+
+		// Filter out all inter and in-stop data points.
+		if (!gull.first
+		&& gull.stop[1] <= STOP_THESHOLD == gull.last.stop[1] < STOP_DISTANCE)
+			return;
 
 		if (gull.first
-		|| gull.idle > STOP_THESHOLD
-		|| (gull.last.stopdist && !gull.stopdist))
+		|| gull.daynight > 0 != gull.last.daynight)
 		{
 			row.type = (data.odd = !data.odd) ? 'day' : 'night';
 			row = new Segment(row);
 		}
 		return { legs: row };
 	},
+	stops: function (gull, data)
+	{
+		return data.stops[gull.id].map(function (stop)
+		{
+			return stop.center;
+		});
+	}
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 var postprocessor = [
-	function write_stops(gulls, data)
+	/*function write_stops(gulls, data)
 	{
 		gulls.stops = data.stops;
-	}
+	},*/
 ];
-
-//------------------------------------------------------------------------------
-
-// Geodistance between two corodinates
-function distance(lat1, lon1, lat2, lon2)
-{
-	var alat = Math.sin((lat2 - lat1) * Math.PI / 360),
-		alon = Math.sin((lon2 - lon1) * Math.PI / 360),
-		clat1 = Math.cos(lat1 * Math.PI / 180),
-		clat2 = Math.cos(lat2 * Math.PI / 180),
-		a = (alat * alat) + (alon * alon) * clat1 * clat2,
-		c = Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 2;
-	return c * 6371000; // radius of Earth more or less
-}
-
-// Returns the time of day at a specific longitude,
-// Range: [ 0 , 24 )
-function timeofday(utc, lon)
-{
-	var timeofday = ((utc - (3600 * 1000)) / (3600 * 1000)) % 24;
-	return (24 + timeofday + (lon / 15)) % 24; // Correct for longitude
-}
-
-// Returns the length of day in hours (approximated obviously)
-// Based on: http://mathforum.org/library/drmath/view/56478.html
-function lengthofday(utc, lat)
-{
-	var J = (utc - (new Date((new Date(utc)).getUTCFullYear(), 0, 1))) / (24 * 3600 * 1000),
-		P = Math.asin(.39795 * Math.cos(.2163108
-			+ Math.atan(.9671396 * Math.tan(.00860 * (J - 186))) * 2)),
-		L = lat * Math.PI / 180,
-		D = Math.acos((Math.sin(.8333 * Math.PI / 180) + Math.sin(L) * Math.sin(P)) /
-			(Math.cos(L) * Math.cos(P)));
-	return 24 - D * (24 / Math.PI);
-}
-
-// Returns daylight figure where 1 is noon and -1 is midnight and 0 is sun set.
-function daynight(utc, lat, lon)
-{
-	var T = timeofday(utc, lon),
-		Dh = lengthofday(utc, lat) / 2,
-		O = Dh - Math.abs(T - 12);
-	if (O < 0)
-		Dh = 12 - Dh;
-	return O / Dh;
-}
-
-// Finds the closest stop in an array of stops to a certain coordinate
-// Returns [index of stop, distance to stop center]
-function closest_stop(stops, lat, lon)
-{
-	var min = Infinity,
-		index = undefined;
-	for (var i = stops.length - 1; i >= 0; --i)
-	{
-		var c =  stops[i].center,
-			d = distance(lat, lon, c[0], c[1]);
-		if (d < min)
-		{
-			min = d;
-			index = i;
-		}
-	}
-	return [index, min];
-}
 
 ///\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ 
 
@@ -290,6 +162,7 @@ for (var id in indata)
 {
 	console.log(id + '...');
 	outdata[id] = {};
+	indata[id].id = id;
 	for (var x in processor)
 	{
 		if (x[0] == '$')
@@ -299,7 +172,7 @@ for (var id in indata)
 	}
 }
 
-console.log('Postprocessing:');
+console.log('\nPostprocessing:');
 for (var i = 0, l = postprocessor.length; i < l; ++i)
 {
 	console.log(postprocessor[i].name + '...');
@@ -307,7 +180,12 @@ for (var i = 0, l = postprocessor.length; i < l; ++i)
 }
 
 console.log('\nWriting...');
-fs.writeFileSync(output, JSON.stringify(outdata));
+if (space && typeof space != 'string')
+	space = '\t';
+if (jsonp)
+	fs.writeFileSync(output, 'var ' + jsonp + ' = ' + JSON.stringify(outdata, null, space));
+else
+	fs.writeFileSync(output, JSON.stringify(outdata, null, space));
 console.log('Done!');
 
 function all(func, obj, data)
@@ -378,82 +256,4 @@ function Segment(x)
 	this.value = x;
 }
 
-/*
-var filename1 = 'lesser_black_gulls.txt',
-	filename2 = 'organism.txt',
-	data = {},
-	last,
-	leg = 0,
-	filter = function (id, data)
-	{
-		return id in {
-			'L909887': 1,
-		};
-	},
-	process = function (row, last)
-	{
-		row.push(distance(last[1][0], last[1][1], row[1][0], row[1][1])); // displacement
-		row.push(row[2] * 1000 / (row[0] - last[0]) || 0); // 'speed'
-		row.push(daynight(row[0], row[1][0], row[1][1])); // 'light figure'
-		row.push((row[0] - last[0]) / 1000);
-		return row;
-	},
-	segment = function (row, last)
-	{
-		return (row[4] < 0) != (last[4] < 0);
-	};
-
-// file1:
-// <organismID>
-// [eventDate] [secondsSinceLastOccurrence]
-// [decimalLatitude] [decimalLongitude]
-// [minimumDistanceAboveSurfaceInMeters] [coordinateUncertaintyInMeters]
-
-// file2:
-// <organismID>
-// [deviceInfoSerial] [organismName] [sex] [scientificName]
-
-lr.eachLine(filename1, function (line)
-{
-	var row = line.split('\t'),
-		id = row.shift();
-	if (!filter(id, data)) return;
-	if (!(id in data))
-	{
-		data[id] = {
-			trajectory: { legs: [ { coords: [], type: 'day' } ], },
-		}
-		last = undefined;
-	}
-	row = [
-		+(new Date(row[0])),
-		[+row[2], +row[3]],
-	];
-	if (!last) last = row;
-	row = process(row, last);
-	if (segment(row, last))
-	{
-		data[id].trajectory.legs[leg].coords.push(row);
-		++leg;
-		data[id].trajectory.legs[leg] = { coords: [], type: row[4] >= 0 ? 'day' : 'night' };
-	}
-	data[id].trajectory.legs[leg].coords.push(row);
-	last = row;
-}, function ()
-{
-	lr.eachLine(filename2, function (line)
-	{
-		var row = line.split('\t'),
-			id = row.shift();
-		if (!filter(id, data)) return;
-		if (!(id in data)) data[id] = {};
-		data[id].name = row[1];
-		data[id].sex = row[2];
-		data[id].species = row[3];
-	}, function ()
-	{
-		//fs.writeFileSync('gulldata.js', 'var gulldata = ' + JSON.stringify(data) + ';');
-		fs.writeFileSync('gulldata.js', JSON.stringify(data));
-	});
-});
-*/
+//------------------------------------------------------------------------------
