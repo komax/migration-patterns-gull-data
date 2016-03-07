@@ -73,6 +73,47 @@ var preprocessor = [
 				data.stops[id] = cluster(data.idlespots[id], STOP_DISTANCE);
 				console.log((count++ / total * 100).toFixed(2)+'%');
 			}
+			console.log('100%');
+		},
+		function find_stop_events(gulls, data)
+		{
+			data.events = {};
+			for (var id in gulls)
+			{
+				var gull = gulls[id],
+					len = gull.secondsSinceLastOccurrence.length;
+				data.events[id] = [];
+				for (var i = data.stops[id].length - 1; i >= 0; --i)
+				{
+					var stop = data.stops[id][i],
+						index = undefined,
+						min = Infinity;
+					for (var j = 0; j < len; ++j)
+					{
+						var lat = gull.decimalLatitude[j],
+							lon = gull.decimalLongitude[j],
+							center = stop.center,
+							dist = utils.distance(
+								lat, lon, center[0], center[1]) - stop.radius - STOP_DISTANCE;
+						if (dist < 0)
+						{
+							if (dist < min)
+							{
+								min = dist;
+								index = gull.eventDate[j];
+							}
+						}
+						else if (index)
+						{
+							data.events[id].push(index);
+							index = undefined;
+							min = Infinity;
+						}
+					}
+					if (index)
+						data.events[id].push(index);
+				}
+			}
 		},
 	];
 
@@ -107,12 +148,12 @@ var processor = {
 				gull.decimalLongitude);
 
 		// Filter out all inter and in-stop data points.
-		if (!gull.first
+		/*if (!gull.first
 		&& gull.stop[1] <= STOP_THESHOLD == gull.last.stop[1] < STOP_DISTANCE)
-			return;
+			return;*/
 
 		if (gull.first
-		|| gull.daynight > 0 != gull.last.daynight)
+		|| data.events[gull.id].indexOf(gull.last.eventDate) >= 0)
 		{
 			row.type = (data.odd = !data.odd) ? 'day' : 'night';
 			row = new Segment(row);
