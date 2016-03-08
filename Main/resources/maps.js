@@ -16,6 +16,12 @@ var layers = maps.layers = {
 	topology: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'hyb'}),
 	}),
+	positron: new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
+          format: new ol.format.KML()
+        })
+    }),
 	natural: new ol.layer.Tile({
 		title: 'Global Imagery',
 		source: new ol.source.TileWMS({
@@ -34,7 +40,7 @@ maps.view = new ol.View({
 // For heatmap
 maps.left = new ol.Map({
 	target: 'left-map',
-	layers: [ layers.natural ],
+	layers: [ layers.positron ],
 	view: maps.view,
 });
 
