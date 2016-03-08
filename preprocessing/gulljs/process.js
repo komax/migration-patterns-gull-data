@@ -65,19 +65,18 @@ var preprocessor = [
 		},
 		function find_stops(gulls, data)
 		{
-			var count = 0,
-				total = Object.keys(gulls).length;
-
+			var status = new utils.Percentage(Object.keys(gulls).length);
 			data.stops = {};
 			for (var id in gulls)
 			{
 				data.stops[id] = cluster(data.idlespots[id], STOP_DISTANCE);
-				console.log((count++ / total * 100).toFixed(2)+'%');
+				status.increase();
 			}
-			console.log('100%');
+			status.done();
 		},
 		function find_stop_events(gulls, data)
 		{
+			var status = new utils.Percentage(Object.keys(gulls).length);
 			data.events = {};
 			for (var id in gulls)
 			{
@@ -114,6 +113,9 @@ var preprocessor = [
 					if (index)
 						data.events[id].push(index);
 				}
+				status.increase();
+			}
+			status.done();
 			}
 		},
 	];
@@ -195,14 +197,15 @@ var indata = JSON.parse(fs.readFileSync(input)),
 console.log('Preprocessing:');
 for (var i = 0, l = preprocessor.length; i < l; ++i)
 {
-	console.log(preprocessor[i].name + '...');
+	process.stdout.write(preprocessor[i].name + '... ');
 	preprocessor[i](indata, data);
+	process.stdout.write('\n');
 }
 
 console.log('\nProcessing:');
 for (var id in indata)
 {
-	console.log(id + '...');
+	process.stdout.write(id + '... ');
 	outdata[id] = {};
 	indata[id].id = id;
 	for (var x in processor)
@@ -212,13 +215,15 @@ for (var id in indata)
 		else
 			outdata[id][x] = processor[x](indata[id], data);
 	}
+	process.stdout.write('\n');
 }
 
 console.log('\nPostprocessing:');
 for (var i = 0, l = postprocessor.length; i < l; ++i)
 {
-	console.log(postprocessor[i].name + '...');
+	process.stdout.write(postprocessor[i].name + '... ');
 	postprocessor[i](outdata, data);
+	process.stdout.write('\n');
 }
 
 console.log('\nWriting...');

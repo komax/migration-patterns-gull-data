@@ -1,4 +1,6 @@
 
+var rl = require('readline');
+
 //------------------------------------------------------------------------------
 
 // Geodistance between two coordinates
@@ -74,6 +76,44 @@ function closest_stop(stops, lat, lon)
 }
 
 //------------------------------------------------------------------------------
+// Component that prints status information interactively on the command line
+
+function Percentage(total)
+{
+	this.total = total;
+	this.count = 0;
+	this.lastLength = 0;
+	this.set(0);
+}
+
+Percentage.prototype.set = function set(count)
+{
+	if (this.lastLength === null)
+		return;
+	this.count = count;
+	var text = (this.count * 100 / this.total).toFixed(2) + '%';
+
+	rl.moveCursor(process.stdout, -this.lastLength);
+	rl.clearLine(process.stdout, 1);
+	process.stdout.write(text);
+	this.lastLength = text.length;
+}
+
+Percentage.prototype.increase = function increase(number)
+{
+	number = number || 1;
+	this.set(this.count + number);
+}
+
+Percentage.prototype.done = function done()
+{
+	rl.moveCursor(process.stdout, -this.lastLength);
+	rl.clearLine(process.stdout, 1);
+	process.stdout.write('done!');
+	this.lastLength = null;
+}
+
+//------------------------------------------------------------------------------
 // Union-find data structure with path compression for effective set-union
 
 function Forest(range)
@@ -106,6 +146,7 @@ module.exports.timeofday = timeofday;
 module.exports.lengthofday = lengthofday;
 module.exports.daynight = daynight;
 module.exports.closest_stop = closest_stop;
+module.exports.Percentage = Percentage;
 module.exports.Forest = Forest;
 
 //------------------------------------------------------------------------------
