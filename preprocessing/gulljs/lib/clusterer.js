@@ -45,25 +45,9 @@ function cluster(coords, distance)
 	// process clusters
 	for (var x in hash)
 	{
-		var cluster = hash[x],
-			lat = 0,
-			lon = 0,
-			dist = 0;
-		for (var j = cluster.length - 1; j >= 0; --j)
-		{
-			lat += cluster[j][0];
-			lon += cluster[j][1];
-		}
-		lat /= cluster.length;
-		lon /= cluster.length;
-		for (var j = cluster.length - 1; j >= 0; --j)
-			dist = Math.max(dist, utils.distance(
-				lat, lon, cluster[j][0], cluster[j][1]));
-		clusters.push({
-			center: [lat, lon],
-			radius: dist,
-			coords: cluster,
-		});
+		var cluster = utils.fast_enclosing_circle(hash[x]);
+		cluster.coords = hash[x];
+		clusters.push(cluster);
 	}
 
 	return clusters;

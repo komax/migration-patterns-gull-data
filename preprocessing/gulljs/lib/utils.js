@@ -140,6 +140,67 @@ Forest.prototype.union = function (a, b)
 }
 
 //------------------------------------------------------------------------------
+// Ritter's enclosing circle algorithm
+// We can certainly do better than this
+
+function fast_enclosing_circle(circles)
+{
+	circles = circles.map(function (circle)
+	{
+		if (Array.isArray(circle))
+			return [circle[0], circle[1], 0];
+		else
+			return [circle.center[0], circle.center[1], circle.radius];
+	});
+
+	if (circles.length < 2)
+		return { center: [circles[0][0], circles[0][1]], radius: circles[0][2] };
+		
+	var x = circles[(circles.length * Math.random()) << 0],
+		y = extract_furthest(circles, x),
+		z = extract_furthest(circles, y),
+		circle = enclose(y, z);
+
+	while (circles.length)
+		circle = enclose(circle, circles.pop());
+
+	return { center: [circle[0], circle[1]], radius: circle[2] };
+}
+
+function extract_furthest(circles, x)
+{
+	var y = undefined,
+		j = undefined,
+		max = -Infinity;
+	for (var i = circles.length - 1; i >= 0; --i)
+	{
+		if (circles[i] == x) continue;
+		var d = distance(x[0], x[1], circles[i][0], circles[i][1]);
+		if (d > max)
+		{
+			y = circles[i];
+			j = i;
+			max = d;
+		}
+	}
+	circles.splice(j, 1);
+	return y;
+}
+
+function enclose(c1, c2)
+{
+	var vx = c2[0] - c1[0],
+		vy = c2[1] - c1[1],
+		rs = c1[2] + c2[2],
+		d = distance(c1[0], c1[1], c2[0], c2[1]);
+	if (d <= rs) return c1;
+	var r = (d + rs) / 2,
+		cx = c1[0] + vx * (r - c1[2]) / d,
+		cy = c1[1] + vy * (r - c1[2]) / d;
+	return [cx, cy, r];
+}
+
+//------------------------------------------------------------------------------
 
 module.exports.distance = distance;
 module.exports.timeofday = timeofday;
@@ -148,5 +209,6 @@ module.exports.daynight = daynight;
 module.exports.closest_stop = closest_stop;
 module.exports.Percentage = Percentage;
 module.exports.Forest = Forest;
+module.exports.fast_enclosing_circle = fast_enclosing_circle;
 
 //------------------------------------------------------------------------------

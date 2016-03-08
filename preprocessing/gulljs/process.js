@@ -213,10 +213,26 @@ var processor = {
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 var postprocessor = [
-	/*function write_stops(gulls, data)
+	function write_stops(gulls, data)
 	{
-		gulls.stops = data.stops;
-	},*/
+		var dist = 15000;
+		function collect(node)
+		{
+			if (typeof node[2] == 'object')
+				return [node[2]];
+			return collect(node[0]).concat(collect(node[1]));
+		}
+		function fold(node)
+		{
+			if (typeof node[2] == 'object')
+				return node;
+			else if (node[2] < dist)
+				return utils.fast_enclosing_circle(collect(node));
+			else
+				return [fold(node[0]), fold(node[1]), node[2]];
+		}
+		gulls.stops = fold(data.stoptree);
+	},
 ];
 
 ///\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ /\ 
