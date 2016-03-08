@@ -8,7 +8,7 @@ var utils = require('./utils.js');
 function cluster(coords, distance)
 {
 	var count = coords.length,
-		forest = new Forest(count),
+		forest = new utils.Forest(count),
 		hash = {},
 		clusters = [];
 
@@ -67,31 +67,6 @@ function cluster(coords, distance)
 	}
 
 	return clusters;
-}
-
-//------------------------------------------------------------------------------
-// Union-find data structure with path compression fro effective set-union
-
-function Forest(range)
-{
-	this.clusters = Array(range);
-}
-
-Forest.prototype.find = function (a)
-{
-	var parent = this.clusters;
-	if (!parent[a])
-		return parent[a] = a;
-	if (parent[a] != a)
-		parent[a] = this.find(parent[a]);
-	return parent[a];
-}
-
-Forest.prototype.union = function (a, b)
-{
-	a = this.find(a);
-	b = this.find(b);
-	this.clusters[b] = a;
 }
 
 //------------------------------------------------------------------------------

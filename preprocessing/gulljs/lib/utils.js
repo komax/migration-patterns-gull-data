@@ -74,11 +74,38 @@ function closest_stop(stops, lat, lon)
 }
 
 //------------------------------------------------------------------------------
+// Union-find data structure with path compression for effective set-union
+
+function Forest(range)
+{
+	this.clusters = Array(range);
+}
+
+Forest.prototype.find = function (a)
+{
+	var parent = this.clusters;
+	if (parent[a] === undefined)
+		return parent[a] = a;
+	if (parent[a] != a)
+		parent[a] = this.find(parent[a]);
+	return parent[a];
+}
+
+Forest.prototype.union = function (a, b)
+{
+	a = this.find(a);
+	b = this.find(b);
+	this.clusters[b] = a;
+	return a != b;
+}
+
+//------------------------------------------------------------------------------
 
 module.exports.distance = distance;
 module.exports.timeofday = timeofday;
 module.exports.lengthofday = lengthofday;
 module.exports.daynight = daynight;
 module.exports.closest_stop = closest_stop;
+module.exports.Forest = Forest;
 
 //------------------------------------------------------------------------------
