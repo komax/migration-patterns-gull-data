@@ -116,7 +116,45 @@ var preprocessor = [
 				status.increase();
 			}
 			status.done();
+		},
+		function cluster_stops(gulls, data)
+		{
+			var points = [],
+				lut = [];
+			for (var id in gulls)
+			{
+				data.stops[id].forEach(function (stop, i)
+				{
+					points.push(stop.center);
+					delete stop.coords; // We don't really need them
+					lut.push([id, i, stop]);
+				});
 			}
+			data.stoptree = cluster2(points, function (a, b)
+			{
+				a = lut[a][2];
+				b = lut[b][2];
+				return utils.distance(
+					a.center[0],
+					a.center[1],
+					b.center[0],
+					b.center[1]) - a.radius - b.radius;
+			});
+			(function lookup(node)
+			{
+				if (!Array.isArray(node))
+					return;
+
+				if (Array.isArray(node[0]))
+					lookup(node[0]);
+				else
+					node[0] = lut[node[0]];
+
+				if (Array.isArray(node[1]))
+					lookup(node[1]);
+				else
+					node[1] = lut[node[1]];
+			})(data.stoptree);
 		},
 	];
 

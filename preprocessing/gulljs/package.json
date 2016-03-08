@@ -7,6 +7,7 @@
     "gulljs": "./index.js"
   },
   "dependencies": {
+    "delaunay-triangulate": "^1.1.6",
     "line-reader": "^0.3.0",
     "minimist": "^1.2.0"
   },
