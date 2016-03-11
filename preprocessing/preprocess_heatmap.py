@@ -5,6 +5,7 @@ import datetime
 from datetime import timedelta as timedelta
 from collections import OrderedDict, defaultdict
 from skimage.measure import find_contours
+from skimage.measure import points_in_poly
 import matplotlib.pyplot as plt
 from pyproj import Proj, transform
 import pickle
@@ -242,6 +243,13 @@ def FindNextStartEnd(contours, lookfrom, xmax, ymax, start, counter = 0):
 		else:
 			return FindNextStartEnd(contours, [0, 0], xmax, ymax, start, counter + 1)
 
+def PolygonIsClockwise(polygon):
+	# http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+	orientationsum = 0
+	for i in range(len(polygon)):
+		j = i+1 if (i < len(polygon) - 1) else 0
+		orientationsum += (polygon[j][0]-polygon[i][0]) * (polygon[j][1]-polygon[i][1]) 
+	return orientationsum > 0
 
 def FindContourLoop(contours):	
 	contour, n = FindNextStartEnd(contours, [0,0], lon_bins-1, lat_bins-1, start=False)
@@ -317,7 +325,7 @@ else:
 		pickle.dump([normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins], fh)
 
 #for i in range(1, len(bin_values)):
-contours = find_contours(normalized_heatmap, 4.5)
+contours = find_contours(normalized_heatmap, 5.0)
 del normalized_heatmap
 
 # http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.find_contours
@@ -326,7 +334,9 @@ del normalized_heatmap
 # (The closed-ness of a contours can be tested by checking whether the beginning point is the same as the end point.)
 # So, we need to find the contours which belong together
 nonclosed = []
-closed = []
+interiors = []
+exteriors = []
+closed=[]
 for n, contour in enumerate(contours):
 	startDiffersFromEnd = (contour[len(contour)-1][0] != contour[0][0] or contour[len(contour)-1][1] != contour[0][1])
 	startAtBorder = (contour[0][0] == 0 or contour[0][1] == 0 or contour[0][0] == lon_bins-1 or contour[0][1] == lat_bins-1)
@@ -337,6 +347,11 @@ for n, contour in enumerate(contours):
 		print("%r, %r, %r"%(startDiffersFromEnd, startAtBorder, endAtBorder))
 		nonclosed.append(contour)
 	else:
+		# contours will wind counter-clockwise (i.e. in positive orientation) around islands of low-valued pixels.
+		#if(PolygonIsClockwise(contour)):
+		#	exteriors.append([contour])
+		#else:
+		#	interiors.append(contour)
 		closed.append(contour)
 
 def DeleteFromList(lst, indices):
@@ -345,26 +360,135 @@ def DeleteFromList(lst, indices):
 	for idx in indices:
 		del lst[idx]
 
-def PolygonIsClockwise(polygon):
-	# http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
-	orientationsum = 0
-	for i in range(len(polygon)):
-		j = i+1 if (i < len(polygon) - 1) else 0
-		orientationsum += (polygon[j][0]-polygon[i][0]) * (polygon[j][1]-polygon[i][1]) 
-	return orientationsum > 0
 
-print("1.")
 contour_loop, used_contours =  FindContourLoop(nonclosed)
 while(contour_loop is not None):
 	DeleteFromList(nonclosed, used_contours)
+	#if(PolygonIsClockwise(contour)):
+	#	exteriors.append([np.concatenate(contour_loop)])
+	#else:
+	#	interiors.append(np.concatenate(contour_loop))
 	closed.append(np.concatenate(contour_loop))
 	if(len(nonclosed)>0):
-		print("2.")
 		contour_loop, used_contours = FindContourLoop(nonclosed)
 	else:
 		break
 
-WriteContoursToFile('gull_heatmap.js', closed)
+
+# This tests only if we are sure that polygons don't intersect (which should be the case for contour lines)
+# Hence, we only need to test if a point of the proposed interior is actually inside the exterior
+def PolygonIsInsidePolygon(inside, outside):
+	return points_in_poly(inside, outside)[0]
+
+# Now for each interior polygon, determine of which exterior polygon they are interior.
+# Because the number of big exterior polygons is small, and the size of interior polygons is also small
+def FitInteriorPolygonsToExteriorPolygons(interiors, exteriors):
+	for interior in interiors:
+		k = 0
+		for exterior in exteriors:
+			if(PolygonIsInsidePolygon(interior, exterior[0])):
+				print("Added an interior polygon to an exterior one.")
+				exterior.append(interior)
+				break
+
+
+print("closed:%i"%(len(closed)))
+#FitInteriorPolygonsToExteriorPolygons(interiors, exteriors)
+polyorder = defaultdict(lambda : [])
+outermost = [True]*len(closed)
+for n, poly1 in enumerate(closed):
+	for m, poly2 in enumerate(closed):
+		if(n!=m and all(points_in_poly(poly1, poly2))):
+			polyorder[m].append(n)
+			outermost[n] = False
+			break
+
+finalpolys = defaultdict(lambda:[])
+def doOrdering(polyorder, toorder):
+		orderedList = sorted(toorder, key=lambda x: -len(polyorder[x]))
+
+		ordering = []
+		filteredList = [n for n in orderedList]
+		while(len(filteredList)>0):
+			first = filteredList[0]
+			del filteredList[0]
+			filteredList = [n for n in filteredList if n not in polyorder[first]]
+			innerorderedList = sorted(polyorder[first], key=lambda x: -len(polyorder[x]))
+			innerfilteredList = []
+			secondlevel = []
+			while(len(innerorderedList)>0):
+				innerfirst = innerorderedList[0]
+				secondlevel.append(innerfirst)
+				del innerorderedList[0]
+				innerfilteredList = [n for n in innerorderedList if n not in polyorder[innerfirst]]	
+				ordering += doOrdering(polyorder, polyorder[innerfirst])
+			ordering.append([first, secondlevel])
+		return ordering
+
+def WriteOrderingToFile(ordering, polygons):
+	print('Writing to file')
+	inProj = Proj(init='epsg:4326')
+	outProj = Proj(init='epsg:3857')
+	with open('gull_heatmap.js', 'w') as fh:
+		fh.write('var contours = {\n')
+		fh.write('\t\'type\': \'FeatureCollection\',\n')
+		fh.write('\t\'crs\': {\n')
+		fh.write('\t\t\'type\':\'name\',\n')
+		fh.write('\t\t\'properties\': {\'name\':\'EPSG:3857\'}\n')
+		fh.write('\t},\n')
+		fh.write('\t\'features\': [\n')	
+		for n, pairing in enumerate(ordering):	
+			if(pairing == []): continue	
+
+			fh.write('\t\t{\n')
+			fh.write('\t\t\t\'type\': \'feature\',\n')
+			fh.write('\t\t\t\'geometry\': {\n')
+			fh.write('\t\t\t\t\'type\': \'Polygon\',\n')
+			fh.write('\t\t\t\t\'coordinates\': [\n')
+			for i in [pairing[0]]+pairing[1]:
+				fh.write('\t\t\t\t\t[')
+				contour = closed[i]
+				for vertex in contour:
+					lon = vertex[0]*lon_bin_size + min_lon #(lon_bin_size / 2) +
+					lat = vertex[1]*lat_bin_size + min_lat #(lat_bin_size / 2) + 
+					x,y = transform(inProj,outProj,lon,lat)
+					fh.write('[%f,%f],'%(x, y))
+				fh.write('\t\t\t\t\t],\n')
+
+			fh.write(']\n')		
+			fh.write('\t\t\t}\n')
+			fh.write('\t\t},\n')
+
+		fh.write('\t]\n')
+		fh.write('}\n')
+
+print("Lens: %i, %i"%(len(polyorder),len(range(len(closed)))))
+final_ordering = doOrdering(polyorder, range(len(closed)))
+print(final_ordering)
+WriteOrderingToFile(final_ordering, closed)
+"""
+finalpolys = defaultdict(lambda:[])
+def doOrdering(polyorder, toorder):
+#for key in polyorder:
+#	if outermost[key]:
+		innerpolys = polyorder[key]
+		innerorder = [polyorder[m] for m in innerpolys]
+		orderedList = sorted(innerpolys, key=lambda x: -len(innerorder[x]))
+
+		immediateInterior = []
+		filteredList = [n for n in orderedList]
+		while(len(filteredList)>0):
+			first = filteredList[0]
+			immediateInterior.append(first)
+			del filteredList[0]
+			filteredList = [n for n in filteredList if n not in innerorder[first]]
+
+sum1 = 0
+for key, val in finalpolys.iter_items():
+	sum1 += 1 + len(val)
+print("closed:%i"%(len(closed)))
+"""
+#WriteContoursToFile('gull_heatmap.js', [exterior[0] for exterior in exteriors])
 
 
 """
