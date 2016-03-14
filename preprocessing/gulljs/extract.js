@@ -49,6 +49,34 @@ var extractor = [
 		}
 		return output;
 	},
+	function schematic(gulls)
+	{
+		if (!gulls.migration || !gulls.migration[500]) return;
+		var migration = gulls.migration[500];
+		return {
+			filename: 'schematic_500.geojsonp',
+			padding: ['jsonpArrive(', ');'],
+			data: {
+				type: 'FeatureCollection',
+				features: migration.nodes.map(function (d)
+				{
+					return {
+						type: 'Feature',
+						geometry: {
+							type: 'Point',
+							coordinates: [d.center[1], d.center[0]],
+						},
+						properties: {
+							radii: d.radii
+								.map(utils.decimals(0))
+								.join(','),
+						},
+					};
+				}),
+				crs: { type: 'name', properties: { name: 'EPSG:4326' } },
+			},
+		};
+	},
 ];
 
 

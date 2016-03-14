@@ -38,6 +38,7 @@ var layers = maps.layers = {
 		})
 	}),
 	journey: Journey.main.layer,
+	schematic: Schematic.main.layer,
 };
 
 maps.view = new ol.View({
@@ -55,7 +56,7 @@ maps.left = new ol.Map({
 // For migration map
 maps.right = new ol.Map({
 	target: 'right-map',
-	layers: [ layers.positronRight, layers.mapquest ],
+	layers: [ layers.positronLeft, layers.schematic ],
 	view: maps.view,
 });
 
