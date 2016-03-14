@@ -6,14 +6,18 @@ var fs = require('fs'),
 	input = args._[0],
 	output = args._[1],
 	jsonp = args.p || args.jsonp,
-	space = args.s || args.space;
+	space = args.s || args.space,
+	names = args.names ? args.names.split(',') : undefined;
 
 if (!input || !output)
 {
 	console.log('Gull data processing')
 	console.log('Usage:\n\t' + process.argv.slice(0, 2).join(' ') + '[flags] <input.json> <output.json>\n\n'+
 		'\t-p -jsonp=<name>\t\toutputs jsonp instead of json, prepends "var name = "\n'+
-		'\t-s --space=[string]\t\tformats json using optimally a whitespace string');
+		'\t-s --space=[string]\t\tformats json using optimally a whitespace string\n'+
+		'\t--stop-threshold=[number]\n'+
+		'\t--stop-distance=[number]\n'+
+		'\t--names=name[,name2]\t\tonly process gulls with specified names (default is all birds)');
 	process.exit();
 }
 
@@ -23,18 +27,19 @@ if (!input || !output)
 
 //\/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ 
 
-var STOP_THESHOLD = 3.5,
-	STOP_DISTANCE = 500; // meter
+var STOP_THRESHOLD = args['stop-threshold'] || 3.5,
+	STOP_DISTANCE = args['stop-distance'] || 500; // meter
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 var preprocessor = [
-		/** /function filter(gulls)
+		function filter(gulls)
 		{
+			if (!names) return;
 			for (var id in gulls)
-				if (gulls[id].organismName != 'Sanne')
+				if (names.indexOf(gulls[id].organismName) < 0)
 					delete gulls[id];
-		},//*/
+		},
 		function find_idlespots(gulls, data)
 		{
 			data.idlespots = {};
@@ -53,7 +58,7 @@ var preprocessor = [
 							gull.decimalLatitude[i - 1],
 							gull.decimalLongitude[i - 1]),
 						idle = Math.log(dtime / ddist);
-					if (idle > STOP_THESHOLD)
+					if (idle > STOP_THRESHOLD)
 					{
 						// Linear interpolation between segment points, error should be small enough
 						var lat = (gull.decimalLatitude[i] + gull.decimalLatitude[i - 1]) / 2,
@@ -172,7 +177,7 @@ var processor = {
 				gull.last.decimalLatitude,
 				gull.last.decimalLongitude),
 			idle = Math.log(dtime / ddist);
-		return +(idle > STOP_THESHOLD);
+		return +(idle > STOP_THRESHOLD);
 	},*/
 	$trajectory: function (gull, data)
 	{
