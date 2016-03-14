@@ -6,6 +6,11 @@
 
 //------------------------------------------------------------------------------
 
+var test = { something: 3,
+              anotherthing: 'hi' };
+console.log(test.something);
+console.log(test.anotherthing);
+
 $('header h1').text(document.title);
 
 $('#pane').resizable({
