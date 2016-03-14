@@ -16,6 +16,19 @@ var layers = maps.layers = {
 	topology: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'hyb'}),
 	}),
+	positronLeft: new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
+          format: new ol.format.KML()
+        })
+    }),
+	positronRight: new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
+          format: new ol.format.KML()
+        }),
+        visible: false
+    }),
 	natural: new ol.layer.Tile({
 		title: 'Global Imagery',
 		source: new ol.source.TileWMS({
@@ -34,15 +47,24 @@ maps.view = new ol.View({
 // For heatmap
 maps.left = new ol.Map({
 	target: 'left-map',
-	layers: [ layers.natural ],
+	layers: [ layers.positronLeft],
 	view: maps.view,
 });
 
 // For migration map
 maps.right = new ol.Map({
 	target: 'right-map',
-	layers: [ layers.mapquest ],
+	layers: [ layers.mapquest, layers.positronRight ],
 	view: maps.view,
+});
+
+// Since mapquest doesn't show images at a zoom level higher than 11, we want
+// to switch to positron if zoomed in further. Hence we need a hook on the zoom event.
+maps.right.getView().on('change:resolution', function() {
+  var zoomLevel = maps.right.getView().getZoom();
+  var usePositron = (zoomLevel >= 12);
+  layers.mapquest.setVisible(!usePositron)
+  layers.positronRight.setVisible(usePositron)
 });
 
 //------------------------------------------------------------------------------
