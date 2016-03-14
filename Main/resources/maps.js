@@ -8,7 +8,6 @@ var maps = {};
 
 //------------------------------------------------------------------------------
 
-// Todo: select appropriate layers
 var layers = maps.layers = {
 	mapquest: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'sat'}),
@@ -46,13 +45,21 @@ maps.view = new ol.View({
 
 // For heatmap
 maps.left = new ol.Map({
+	controls: ol.control.defaults()
+    					.extend([
+      new window.interface.expandControl('#right-view')
+    ]),
 	target: 'left-map',
 	layers: [ layers.positronLeft],
 	view: maps.view,
 });
 
 // For migration map
-maps.right = new ol.Map({
+maps.right = new ol.Map({	
+    controls: ol.control.defaults()
+    					.extend([
+      new window.interface.expandControl('#left-view')
+    ]),
 	target: 'right-map',
 	layers: [ layers.mapquest, layers.positronRight ],
 	view: maps.view,
@@ -66,7 +73,6 @@ maps.right.getView().on('change:resolution', function() {
   layers.mapquest.setVisible(!usePositron)
   layers.positronRight.setVisible(usePositron)
 });
-
 //------------------------------------------------------------------------------
 
 maps.resize = function resize()

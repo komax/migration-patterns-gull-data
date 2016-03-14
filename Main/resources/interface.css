@@ -41,8 +41,8 @@ header h1 {
 	flex: 0 1 auto;
 	width: 50%;
 	width: calc(50% - .5em);
-	min-width: 15%;
-	max-width: 85%;
+	min-width: 0%;
+	max-width: 100%;
 	min-height: 0;
 }
 #right-view {
@@ -73,6 +73,15 @@ header h1 {
 	width: .5em;
 	cursor: col-resize;
 }
+
+.expand-view {
+    top: 65px;
+    left: .5em;
+}		
+.ol-touch .expand-view {
+	top: 80px;
+}
+
 body footer {
 	position: absolute;
 	bottom: 0;
@@ -86,3 +95,4 @@ body footer {
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
 	#views { height: 0; }
 }
+
