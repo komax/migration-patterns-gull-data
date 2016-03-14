@@ -217,6 +217,14 @@ function enclose(c1, c2)
 }
 
 //------------------------------------------------------------------------------
+// Returns a rounder function for <num> decimals
+
+function decimals (d) { return function (num)
+{
+	return +(Math.round(num + 'e' + d) + 'e' + (-d));
+}; }
+
+//------------------------------------------------------------------------------
 
 module.exports.distance = distance;
 module.exports.timeofday = timeofday;
@@ -227,5 +235,6 @@ module.exports.closest_stop = closest_stop;
 module.exports.Percentage = Percentage;
 module.exports.Forest = Forest;
 module.exports.fast_enclosing_circle = fast_enclosing_circle;
+module.exports.decimals = decimals;
 
 //------------------------------------------------------------------------------
