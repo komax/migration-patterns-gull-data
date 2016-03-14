@@ -132,13 +132,13 @@ var preprocessor = [
 				{
 					points.push(stop.center);
 					delete stop.coords; // We don't really need them
-					lut.push([id, i, stop]);
+					lut.push({ id: id, stopid: i, stop: stop});
 				});
 			}
 			data.stoptree = cluster2(points, function (a, b)
 			{
-				a = lut[a][2];
-				b = lut[b][2];
+				a = lut[a].stop;
+				b = lut[b].stop;
 				return utils.distance(
 					a.center[0],
 					a.center[1],
@@ -181,36 +181,62 @@ var processor = {
 	},*/
 	$trajectory: function (gull, data)
 	{
-		var row = {}
-		row.date = gull.eventDate;
-		row.coords = [gull.decimalLatitude, gull.decimalLongitude];
-		row.daynight = gull.daynight = utils.daynight(
+		gull.daynight = utils.daynight(
 			gull.eventDate,
 			gull.decimalLatitude,
 			gull.decimalLongitude);
-		gull.stop = utils.closest_stop(
+
+
+		var row = {};
+		if (gull.first
+		|| data.events[gull.id].indexOf(gull.eventDate) >= 0)
+		{
+			var stopid = utils.closest_stop(
 				data.stops[gull.id],
 				gull.decimalLatitude,
-				gull.decimalLongitude);
+				gull.decimalLongitude)[0],
+				stop = data.stops[gull.id][stopid];
 
-		// Filter out all inter and in-stop data points.
-		/*if (!gull.first
-		&& gull.stop[1] <= STOP_THESHOLD == gull.last.stop[1] < STOP_DISTANCE)
-			return;*/
+			row = new Segment({
+				date: gull.eventDate,
+				coords: [gull.decimalLatitude, gull.decimalLongitude],
+				daynight: gull.daynight,
+				source: stopid,
+			}, {
+				date: gull.eventDate,
+				coords: [gull.decimalLatitude, gull.decimalLongitude],
+				daynight: gull.daynight,
+				destination: stopid,
+			});
 
-		if (gull.first
-		|| data.events[gull.id].indexOf(gull.last.eventDate) >= 0)
-		{
-			row.type = (data.odd = !data.odd) ? 'day' : 'night';
-			row = new Segment(row);
+			data.stopindex = data.stopindex || {};
+			if (!(gull.id in data.stopindex))
+			{
+				data.stopindex[gull.id] = 0;
+				(stop.incomming = stop.incomming || []).push(0);
+				(stop.outgoing = stop.outgoing || []).push(0);
+			}
+			else
+			{
+				var index = data.stopindex[gull.id]++;
+				(stop.incomming = stop.incomming || []).push(index);
+				(stop.outgoing = stop.outgoing || []).push(index + 1);
+			}
 		}
+		else
+			row = {
+				date: gull.eventDate,
+				coords: [gull.decimalLatitude, gull.decimalLongitude],
+				daynight: gull.daynight,
+			}
+
 		return { legs: row };
 	},
 	stops: function (gull, data)
 	{
 		return data.stops[gull.id].map(function (stop)
 		{
-			return stop.center;
+			return stop;
 		});
 	}
 };
@@ -218,7 +244,7 @@ var processor = {
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 var postprocessor = [
-	function write_stops(gulls, data)
+	/*function write_stops(gulls, data)
 	{
 		var dist = 15000;
 		function collect(node)
@@ -237,6 +263,198 @@ var postprocessor = [
 				return [fold(node[0]), fold(node[1]), node[2]];
 		}
 		gulls.stops = fold(data.stoptree);
+	},*/
+	function generate_schematree(gulls, data)
+	{
+		function Node(stops, legs)
+		{
+			var points = stops.slice(0);
+			for (var i = legs.length - 1; i >= 0; --i)
+				Array.prototype.push.apply(points, legs[i].coords);
+			this.center = utils.fast_enclosing_circle(points).center;
+			this.radii = [];
+
+			// Calculate quartiles for leg distances from center
+			if (!legs || !legs.length) return;
+			var dists = [],
+				times = 0;
+			for (var i = legs.length - 1; i >= 0; --i)
+			{
+				for (var j = legs[i].coords.length - 2; j >= 0; --j)
+				{
+					var time = (legs[i].date[j+1] - legs[i].date[j]) / 1000,
+						a = legs[i].coords[j+1],
+						b = legs[i].coords[j],
+						c = this.center,
+						dist = (utils.distance(a[0], a[1], c[0], c[1])
+							+ utils.distance(b[0], b[1], c[0], c[1])) / 2;
+					dists.push([time, dist]);
+					times += time;
+				}
+			}
+			dists.sort(function (a, b) { return b[1] - a[1]; });
+			this.radii.push(dists[0][1]);
+			times /= 4;
+			for (var i = 0, l = dists.length, q = 0; i < l; q += dists[i++][0])
+			{
+				if (q <= times) continue;
+				q -= times;
+				this.radii.push(dists[i][1]);
+			}
+		}
+
+		function Edge(left, right, edges)
+		{
+			this.u = utils.fast_enclosing_circle(left).center;
+			this.v = utils.fast_enclosing_circle(right).center;
+			this.uv = edges[0].length;
+			this.vu = edges[1].length;
+		}
+
+		function find_stops(node)
+		{
+			if (!Array.isArray(node))
+				return [node.stop];
+			var arr = [];
+			Array.prototype.push.apply(arr, find_stops(node[0]));
+			Array.prototype.push.apply(arr, find_stops(node[1]));
+			return arr;
+		}
+
+		function stop_find_loops(leaf /*= {id: ..., stopid: ..., stop: ...}*/ )
+		{
+			var gull = gulls[leaf.id],
+				stop = leaf.stop,
+				legs = [];
+			if (!('incomming' in stop))
+				return legs;
+			for (var i = stop.incomming.length - 1; i >= 0; --i)
+			{
+				var legid = stop.incomming[i];
+				if (stop.outgoing.indexOf(legid) >= 0)
+					legs.push(gull.trajectory.legs[legid]);
+			}
+			return legs;
+		}
+
+		function hash_nodes(node, hash)
+		{
+			hash = hash || {};
+			if (Array.isArray(node))
+			{
+				hash_nodes(node[0], hash);
+				hash_nodes(node[1], hash);
+				return hash;
+			}
+			hash[node.id] = hash[node.id] || {
+				incomming: {},
+				outgoing: {},
+			};
+			if ('incomming' in node.stop)
+				for (var i = node.stop.incomming.length - 1; i >= 0; --i)
+					hash[node.id].incomming[node.stop.incomming[i]] = true;
+			if ('outgoing' in node.stop)
+				for (var i = node.stop.outgoing.length - 1; i >= 0; --i)
+					hash[node.id].outgoing[node.stop.outgoing[i]] = true;
+			return hash;
+		}
+
+		function find_loops(node)
+		{
+			var hash = hash_nodes(node),
+				legs = [];
+			for (var id in hash)
+				for (var legid in hash[id].incomming)
+					if (legid in hash[id].outgoing)
+						legs.push(gulls[id].trajectory.legs[legid]);
+			return legs;
+		}
+
+		function find_edges(left, right)
+		{
+			var lefthash = hash_nodes(left),
+				righthash = hash_nodes(right),
+				ids = Object.keys(lefthash).concat(Object.keys(righthash)),
+				legs = [[],[]];
+			for (var i = ids - 1, id; i >= 0; --i)
+			{
+				id = ids[i];
+				for (var legid in lefthash[id].outgoing)
+					if (legid in righthash[id].incomming)
+						legs[0].push(gulls[id].trajectory.legs[legid]);
+				for (var legid in righthash[id].outgoing)
+					if (legid in lefthash[id].incomming)
+						legs[1].push(gulls[id].trajectory.legs[legid]);
+			}
+			return legs;
+		}
+
+		function parseEdge(left, right)
+		{
+			var edges = find_edges(left, right),
+				leftdepth = Array.isArray(left) ? left[3] : -1,
+				rightdepth = Array.isArray(right) ? right[3] : -1;
+			if (!edges[0] && !edges[1])
+				return undefined;
+
+			var leftstops = find_stops(left),
+				rightstops = find_stops(right),
+				edge = new Edge(leftstops, rightstops, edges);
+			if (leftdepth > rightdepth)
+				return [leftdepth, edge,
+					parseEdge(left[0], right), parseEdge(left[1], right)];
+			else if (rightdepth > leftdepth)
+				return [rightdepth, edge,
+					parseEdge(left, right[0]), parseEdge(left, right[1])];
+			else
+			{
+				if (leftdepth >= 0)
+					throw new Error('Edge depth inconsistency detected!');
+				return [-1, edge];
+			}
+		}
+
+		data.schematree = (function parseNode(node /*= [left, right, dist, depth]*/)
+		{
+			if (!Array.isArray(node)) // node is a leaf
+				return [-1, new Node([node.stop], stop_find_loops(node))];
+
+			var left = parseNode(node[0]),
+				right = parseNode(node[1]),
+				obj = new Node(find_stops(node), find_loops(node)),
+				edges = parseEdge(node[0], node[1]);
+
+			return [node[3], obj, left, right, edges];
+		})(data.stoptree);
+	},
+
+	function extract_schema(gulls, data)
+	{
+		var depth = 500,
+			nodes = [],
+			edges = [];
+
+		function parse_node(node)
+		{
+			if (node[0] < depth)
+				return nodes.push(node[1]);
+			parse_node(node[2]);
+			parse_node(node[3]);
+			parse_edge(node[4]);
+		}
+
+		function parse_edge(edge)
+		{
+			if (edge[0] < depth)
+				return edges.push(edge[1]);
+			parse_edge(edge[2]);
+			parse_edge(edge[3]);
+		}
+
+		parse_node(data.schematree);
+
+		gulls.migration = {};
+		gulls.migration[depth] = { nodes:nodes, edges: edges };
 	},
 ];
 
@@ -330,8 +548,10 @@ function all(func, obj, data)
 					else
 						dst[x] = [dst[x]];
 				}
+				else if (src[x].last)
+					set(dst[x], src[x].last);
 				dst[x].push({});
-				set(dst[x], src[x].value);
+				set(dst[x], src[x].first);
 			}
 			else if (src[x] && src[x].constructor == Object)
 			{
@@ -340,8 +560,17 @@ function all(func, obj, data)
 			}
 			else if (src[x] !== undefined)
 			{
-				if (!dst[x]) dst[x] = [];
-				dst[x].push(src[x]);
+				if (!dst[x])
+					dst[x] = src[x];
+				else
+				{
+					if (!Array.isArray(dst[x]) || !dst[x].$)
+					{
+						dst[x] = [dst[x]];
+						dst[x].$ = true;
+					}
+					dst[x].push(src[x]);
+				}
 			}
 		}
 	}
@@ -357,9 +586,10 @@ function all(func, obj, data)
 	return dst._;
 }
 
-function Segment(x)
+function Segment(first, last)
 {
-	this.value = x;
+	this.first = first;
+	this.last = last;
 }
 
 //------------------------------------------------------------------------------

@@ -27,7 +27,8 @@ function cluster(coords, distfunc)
 	edges.sort(function (a, b) { return b[2] - a[2]; });
 	tri = null;
 
-	var status = new utils.Percentage(edges.length);
+	var status = new utils.Percentage(edges.length),
+		depth = 0;
 	while (edges.length)
 	{
 		var edge = edges.pop(),
@@ -38,7 +39,8 @@ function cluster(coords, distfunc)
 			tree = forest2[u] = [
 				forest2[u] || edge[0],
 				forest2[v] || edge[1],
-				edge[2]
+				edge[2],
+				depth++
 			];
 			if (v in forest2)
 				delete forest2[v];
