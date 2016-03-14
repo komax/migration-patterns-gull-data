@@ -14,7 +14,7 @@ var color = d3.scale.linear().range(["white", '#002b53'])
     .domain([0, 1])
     
 var svg = d3.select(".calender-map").selectAll("svg")
-    .data(d3.range(2011, 2015))
+    .data(d3.range(2013, 2016))
   .enter().append("svg")
     .attr("width", '100%')
     .attr("data-height", '0.5678')
@@ -68,6 +68,7 @@ svg.selectAll(".month")
     .attr("id", function(d,i){ return month[i] })
     .attr("d", monthPath);
 
+// FIXME Change to read the stop overs.
 d3.csv("data.csv", function(error, csv) {
 
   csv.forEach(function(d) {
