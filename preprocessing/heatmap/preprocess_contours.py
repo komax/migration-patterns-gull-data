@@ -24,7 +24,7 @@ def FindNextStartEnd(contours, lookfrom, xmax, ymax, start, counter = 0):
 	if(counter == 5):
 		# Walked along all edges and did not find another end/start 
 		# This should only be possible if there are no contours touching an edge
-		return None 
+		return None, None
 
 	# Can probably find a way to simplify the cases into one case (with some multiplication and such)
 	# but I have too much of a headache to figure that out right now
@@ -138,53 +138,54 @@ def findOrdering(polyorder, toorder):
 		ordering.append([first, secondlevel])
 	return ordering
 
-def WriteOrderingToFile(ordering, polygons, fileout, min_lon, min_lat, lon_bin_size, lat_bin_size):
+def WriteOrderingToFile(ordering, polygons, fh, min_lon, min_lat, lon_bin_size, lat_bin_size):
 	print('Writing to file')
 	inProj = Proj(init='epsg:4326')
 	outProj = Proj(init='epsg:3857')
-	with open(fileout, 'w') as fh:
-		fh.write('var contours = {\n')
-		fh.write('\t\'type\': \'FeatureCollection\',\n')
-		fh.write('\t\'crs\': {\n')
-		fh.write('\t\t\'type\':\'name\',\n')
-		fh.write('\t\t\'properties\': {\'name\':\'EPSG:3857\'}\n')
-		fh.write('\t},\n')
-		fh.write('\t\'features\': [\n')	
-		for n, pairing in enumerate(ordering):	
-			if(pairing == []): continue	
 
-			fh.write('\t\t{\n')
-			fh.write('\t\t\t\'type\': \'feature\',\n')
-			fh.write('\t\t\t\'geometry\': {\n')
-			fh.write('\t\t\t\t\'type\': \'Polygon\',\n')
-			fh.write('\t\t\t\t\'coordinates\': [\n')
-			for i in [pairing[0]]+pairing[1]:
-				fh.write('\t\t\t\t\t[')
-				contour = polygons[i]
-				for vertex in contour:
-					lon = vertex[0]*lon_bin_size + min_lon #(lon_bin_size / 2) +
-					lat = vertex[1]*lat_bin_size + min_lat #(lat_bin_size / 2) + 
-					x,y = transform(inProj,outProj,lon,lat)
-					fh.write('[%f,%f],'%(x, y))
-				fh.write('\t\t\t\t\t],\n')
+	fh.write('{\n')
+	fh.write('\t\'type\': \'FeatureCollection\',\n')
+	fh.write('\t\'crs\': {\n')
+	fh.write('\t\t\'type\':\'name\',\n')
+	fh.write('\t\t\'properties\': {\'name\':\'EPSG:3857\'}\n')
+	fh.write('\t},\n')
+	fh.write('\t\'features\': [\n')	
+	for n, pairing in enumerate(ordering):	
+		if(pairing == []): continue	
 
-			fh.write(']\n')		
-			fh.write('\t\t\t}\n')
-			fh.write('\t\t},\n')
+		fh.write('\t\t{\n')
+		fh.write('\t\t\t\'type\': \'feature\',\n')
+		fh.write('\t\t\t\'geometry\': {\n')
+		fh.write('\t\t\t\t\'type\': \'Polygon\',\n')
+		fh.write('\t\t\t\t\'coordinates\': [\n')
+		for i in [pairing[0]]+pairing[1]:
+			fh.write('\t\t\t\t\t[')
+			contour = polygons[i]
+			for vertex in contour:
+				lon = vertex[0]*lon_bin_size + min_lon #(lon_bin_size / 2) +
+				lat = vertex[1]*lat_bin_size + min_lat #(lat_bin_size / 2) + 
+				x,y = transform(inProj,outProj,lon,lat)
+				fh.write('[%f,%f],'%(x, y))
+			fh.write('\t\t\t\t\t],\n')
 
-		fh.write('\t]\n')
-		fh.write('}\n')
+		fh.write(']\n')		
+		fh.write('\t\t\t}\n')
+		fh.write('\t\t},\n')
 
-def contourizeHeatmap(filein, fileout, source):
+	fh.write('\t]\n')
+	fh.write('}\n')
+
+def contourizeHeatmap(filein, fileout, source, contourlevel):
 	if(os.path.isfile(filein)):
 		with open(filein, 'rb') as fh:
-			[normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins] = pickle.load(fh)		
-		lon_bin_size = (max_lon - min_lon) / lon_bins
-		lat_bin_size = (max_lat - min_lat) / lat_bins
+			[normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins] = pickle.load(fh)
 	else:
-		[normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins] = generate_heatmap(source, filein)
+		[normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins] = generate_heatmap(source, filein, 400, 800)	
 
-	contours = find_contours(normalized_heatmap, 5.0)
+	lon_bin_size = (max_lon - min_lon) / lon_bins
+	lat_bin_size = (max_lat - min_lat) / lat_bins
+
+	contours = find_contours(normalized_heatmap, contourlevel)
 	del normalized_heatmap
 
 	# http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.find_contours
@@ -226,3 +227,21 @@ def contourizeHeatmap(filein, fileout, source):
 
 	final_ordering = findOrdering(polyorder, range(len(closed)))
 	WriteOrderingToFile(final_ordering, closed, fileout, min_lon, min_lat, lon_bin_size, lat_bin_size)
+
+
+
+#======================================================================================================================
+output_file = 'heatmap_contours.js' # This will be the name of the output file
+heatmap_file = 'heatmap.pkl'		# This is the file where the intermediate heatmap will be loaded from,
+									# if it does not exist, it will generate the heatmap and store it there.
+gull_source = 'lesser_black_gulls.txt' # If it needs to re-generate the heatmap, it will use this data.
+
+with open(output_file, 'w') as fh:
+	fh.write('var contours = {\n')
+	for i in range(1, 6):		
+		fh.write('contour%i : \n'%(i))
+		contourizeHeatmap(heatmap_file, fh, gull_source, i)		
+		fh.write(',\n')
+
+	fh.write('};')
+	
