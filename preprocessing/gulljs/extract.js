@@ -25,7 +25,7 @@ var extractor = [
 			if (!gulls[id].journey) continue;
 			output.push({
 				filename: 'journey_' + id.replace(' ', '_') + '.geojsonp',
-				padding: ['JSONP.callback(', ');'],
+				padding: ['jsonpArrive(', ');'],
 				data: {
 					type: 'FeatureCollection',
 					features: [
@@ -33,15 +33,17 @@ var extractor = [
 							type: 'Feature',
 							geometry: {
 								type: 'LineString',
-								coords: gulls[id].journey.coords,
-								properties: {
-									idle: gulls[id].journey.idle
-										.map(utils.decimals(2))
-										.map(function (d) { return Math.max(d, 1); }),
-								},
+								coordinates: gulls[id].journey.coords
+								.map(function (d) { return [d[1], d[0]]; }),
 							},
-						}
-					]
+							properties: {
+								idle: gulls[id].journey.idle
+									.map(utils.decimals(2))
+									.map(function (d) { return Math.max(d, 1); }),
+							},
+						},
+					],
+					crs: { type: 'name', properties: { name: 'EPSG:4326' } },
 				},
 			});
 		}

@@ -37,6 +37,7 @@ var layers = maps.layers = {
 			//params: { LAYERS: 'nasa:bluemarble', VERSION: '1.1.1' }
 		})
 	}),
+	journey: Journey.main.layer,
 };
 
 maps.view = new ol.View({
@@ -47,14 +48,14 @@ maps.view = new ol.View({
 // For heatmap
 maps.left = new ol.Map({
 	target: 'left-map',
-	layers: [ layers.positronLeft],
+	layers: [ layers.positronLeft, layers.journey ],
 	view: maps.view,
 });
 
 // For migration map
 maps.right = new ol.Map({
 	target: 'right-map',
-	layers: [ layers.mapquest, layers.positronRight ],
+	layers: [ layers.positronRight, layers.mapquest ],
 	view: maps.view,
 });
 
