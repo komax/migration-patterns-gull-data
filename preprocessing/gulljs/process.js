@@ -179,13 +179,49 @@ var processor = {
 			idle = Math.log(dtime / ddist);
 		return +(idle > STOP_THRESHOLD);
 	},*/
+	$journey: function (gull, data)
+	{
+		gull.daynight = utils.daynight(
+			gull.eventDate,
+			gull.decimalLatitude,
+			gull.decimalLongitude);
+		gull.twilight = utils.twilight(
+			gull.eventDate,
+			gull.decimalLatitude);
+		gull.designation = gull.daynight > 0 ? 'day'
+			: gull.daynight < gull.twilight ? 'night'
+			: 'twilight';
+
+		var dtime = gull.secondsSinceLastOccurrence,
+			ddist = utils.distance(
+				gull.decimalLatitude,
+				gull.decimalLongitude,
+				gull.last.decimalLatitude,
+				gull.last.decimalLongitude);
+		gull.idle = Math.log(dtime / ddist);
+
+		var row = {
+			date: gull.eventDate,
+			coords: [gull.decimalLatitude, gull.decimalLongitude],
+			idle: gull.idle,
+		};
+		/*if (gull.first || gull.last.designation != gull.designation)
+		{
+			var row2 = {
+				date: row.date,
+				coords: row.coords,
+				type: gull.designation,
+			}
+			row = new Segment(row2, row);
+		}*/
+		return row;
+	},
 	$trajectory: function (gull, data)
 	{
 		gull.daynight = utils.daynight(
 			gull.eventDate,
 			gull.decimalLatitude,
 			gull.decimalLongitude);
-
 
 		var row = {};
 		if (gull.first

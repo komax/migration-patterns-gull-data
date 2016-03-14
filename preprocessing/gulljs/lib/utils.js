@@ -55,6 +55,22 @@ function daynight(utc, lat, lon)
 
 //------------------------------------------------------------------------------
 
+// Returns the daylight figure of (civil) twilight
+function twilight(utc, lat)
+{
+	var J = (utc - (new Date((new Date(utc)).getUTCFullYear(), 0, 1))) / (24 * 3600 * 1000),
+		P = Math.asin(.39795 * Math.cos(.2163108
+			+ Math.atan(.9671396 * Math.tan(.00860 * (J - 186))) * 2)),
+		L = lat * Math.PI / 180,
+		D = Math.acos((Math.sin(.8333 * Math.PI / 180) + Math.sin(L) * Math.sin(P)) /
+			(Math.cos(L) * Math.cos(P)));
+		N = Math.acos(Math.min((Math.sin(6 * Math.PI / 180) + Math.sin(L) * Math.sin(P)) /
+			(Math.cos(L) * Math.cos(P)), 1));
+	return (N - D) / (D * 2);
+}
+
+//------------------------------------------------------------------------------
+
 // Finds the closest stop in an array of stops to a certain coordinate
 // Returns [index of stop, distance to stop center]
 function closest_stop(stops, lat, lon)
@@ -206,6 +222,7 @@ module.exports.distance = distance;
 module.exports.timeofday = timeofday;
 module.exports.lengthofday = lengthofday;
 module.exports.daynight = daynight;
+module.exports.twilight = twilight;
 module.exports.closest_stop = closest_stop;
 module.exports.Percentage = Percentage;
 module.exports.Forest = Forest;
