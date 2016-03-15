@@ -6,6 +6,27 @@
 
 //------------------------------------------------------------------------------
 
+var defaults = {
+	day: new ol.style.Style({
+		stroke: new ol.style.Stroke({
+			color: [220, 20, 60, .8],
+			width: 3,
+		}),
+	}),
+	night: new ol.style.Style({
+		stroke: new ol.style.Stroke({
+			color: [40, 10, 40, .8],
+			width: 3,
+		}),
+	}),
+	twilight: new ol.style.Style({
+		stroke: new ol.style.Stroke({
+			color: [90, 180, 220, .8],
+			width: 3,
+		}),
+	}),
+};
+
 function JSONfile(id)
 {
 	return 'data/journey_' + id.replace(' ', '_') + '.geojsonp';
@@ -14,7 +35,14 @@ function JSONfile(id)
 function Journey()
 {
 	this.source = new ol.source.Vector({});
-	this.layer = new ol.layer.Vector({ source: this.source });
+	this.layer = new ol.layer.Vector({
+		source: this.source,
+		style: function (feature, resolution)
+		{
+			var type = feature.get('type');
+			return defaults[type];
+		},
+	});
 }
 
 Journey.prototype.load = function load(id)

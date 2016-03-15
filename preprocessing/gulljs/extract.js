@@ -28,21 +28,27 @@ var extractor = [
 				padding: ['jsonpArrive(', ');'],
 				data: {
 					type: 'FeatureCollection',
-					features: [
-						{
+					features: gulls[id].journey.map(function (segment)
+					{
+						if (!Array.isArray(segment.idle))
+							segment.idle = [segment.idle];
+						return {
 							type: 'Feature',
 							geometry: {
 								type: 'LineString',
-								coordinates: gulls[id].journey.coords
-								.map(function (d) { return [d[1], d[0]]; }),
+								coordinates: segment.coords
+									.map(function (d) { return [d[1], d[0]]; }),
 							},
 							properties: {
-								idle: gulls[id].journey.idle
+								type: segment.type,
+								//day: segment.day,
+								date: segment.date[0],
+								idle: segment.idle
 									.map(utils.decimals(2))
 									.map(function (d) { return Math.max(d, 1); }),
 							},
-						},
-					],
+						};
+					}),
 					crs: { type: 'name', properties: { name: 'EPSG:4326' } },
 				},
 			});

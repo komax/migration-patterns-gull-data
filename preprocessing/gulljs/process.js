@@ -191,6 +191,7 @@ var processor = {
 		gull.designation = gull.daynight > 0 ? 'day'
 			: gull.daynight < gull.twilight ? 'night'
 			: 'twilight';
+		gull.day = gull.last.day || 1;
 
 		var dtime = gull.secondsSinceLastOccurrence,
 			ddist = utils.distance(
@@ -205,15 +206,18 @@ var processor = {
 			coords: [gull.decimalLatitude, gull.decimalLongitude],
 			idle: gull.idle,
 		};
-		/*if (gull.first || gull.last.designation != gull.designation)
+		if (gull.first || gull.last.designation != gull.designation)
 		{
 			var row2 = {
 				date: row.date,
 				coords: row.coords,
 				type: gull.designation,
+				day: gull.day,
 			}
+			if (gull.designation == 'night')
+				gull.day++;
 			row = new Segment(row2, row);
-		}*/
+		}
 		return row;
 	},
 	$trajectory: function (gull, data)
