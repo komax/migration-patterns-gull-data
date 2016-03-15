@@ -410,22 +410,16 @@ var postprocessor = [
 		{
 			var lefthash = hash_nodes(left),
 				righthash = hash_nodes(right),
-				ids = {},
 				legs = [[],[]];
 
-			function hasid(d) { ids[d] = true; }
-			Object.keys(lefthash).forEach(hasid);
-			Object.keys(righthash).forEach(hasid);
-
-			for (var id in ids)
-			{
+			for (var id in lefthash)
 				for (var legid in lefthash[id].outgoing)
-					if (legid in righthash[id].incomming)
+					if (id in righthash && legid in righthash[id].incomming)
 						legs[0].push(gulls[id].trajectory.legs[legid]);
+			for (var id in righthash)
 				for (var legid in righthash[id].outgoing)
-					if (legid in lefthash[id].incomming)
+					if (id in lefthash && legid in lefthash[id].incomming)
 						legs[1].push(gulls[id].trajectory.legs[legid]);
-			}
 			return legs;
 		}
 
@@ -470,7 +464,7 @@ var postprocessor = [
 
 	function extract_schema(gulls, data)
 	{
-		var depths = [5, 10, 20, 40, 50],
+		var depths = 20,
 			max = data.schematree[0];
 
 		function extract_depth(depth)
@@ -501,8 +495,8 @@ var postprocessor = [
 		}
 
 		gulls.migration = {};
-		for (var i = 0, l = depths.length; i < l; ++i)
-			gulls.migration[depths[i]] = extract_depth(max - depths[i]);
+		for (var i = 0; i < depths; ++i)
+			gulls.migration[i] = extract_depth(max - (i * max / 100) << 0);
 	},
 ];
 
