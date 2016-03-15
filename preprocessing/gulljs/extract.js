@@ -51,31 +51,54 @@ var extractor = [
 	},
 	function schematic(gulls)
 	{
-		if (!gulls.migration || !gulls.migration[500]) return;
-		var migration = gulls.migration[500];
-		return {
-			filename: 'schematic_500.geojsonp',
-			padding: ['jsonpArrive(', ');'],
-			data: {
-				type: 'FeatureCollection',
-				features: migration.nodes.map(function (d)
-				{
-					return {
-						type: 'Feature',
-						geometry: {
-							type: 'Point',
-							coordinates: [d.center[1], d.center[0]],
-						},
-						properties: {
-							radii: d.radii
-								.map(utils.decimals(0))
-								.join(','),
-						},
-					};
-				}),
-				crs: { type: 'name', properties: { name: 'EPSG:4326' } },
-			},
-		};
+		if (!gulls.migration) return;
+
+		var output = [];
+		for (var depth in gulls.migration)
+		{
+			var migration = gulls.migration[depth];
+			output.push({
+				filename: 'schematic_' + depth + '.geojsonp',
+				padding: ['jsonpArrive(', ');'],
+				data: {
+					type: 'FeatureCollection',
+					features: migration.nodes.map(function (d)
+					{
+						return {
+							type: 'Feature',
+							geometry: {
+								type: 'Point',
+								coordinates: [d.center[1], d.center[0]],
+							},
+							properties: {
+								type: 'node',
+								radii: d.radii
+									.map(utils.decimals(0))
+									.join(','),
+							},
+						};
+					}).concat(migration.edges.map(function (d)
+					{
+						return {
+							type: 'Feature',
+							geometry: {
+								type: 'LineString',
+								coordinates: [
+									[d.u[1], d.u[0]],
+									[d.v[1], d.v[0]],
+								],
+							},
+							properties: {
+								type: 'edge',
+								count: d.uv + d.vu,
+							},
+						};
+					})),
+					crs: { type: 'name', properties: { name: 'EPSG:4326' } },
+				},
+			});
+		}
+		return output;
 	},
 ];
 
@@ -94,7 +117,7 @@ for (var i = 0, l = extractor.length; i < l; ++i)
 	var out = extractor[i](indata);
 	if (Array.isArray(out))
 		Array.prototype.push.apply(outdata, out);
-	else
+	else if (out)
 		outdata.push(out);
 	process.stdout.write('\n');
 }

@@ -410,11 +410,15 @@ var postprocessor = [
 		{
 			var lefthash = hash_nodes(left),
 				righthash = hash_nodes(right),
-				ids = Object.keys(lefthash).concat(Object.keys(righthash)),
+				ids = {},
 				legs = [[],[]];
-			for (var i = ids - 1, id; i >= 0; --i)
+
+			function hasid(d) { ids[d] = true; }
+			Object.keys(lefthash).forEach(hasid);
+			Object.keys(righthash).forEach(hasid);
+
+			for (var id in ids)
 			{
-				id = ids[i];
 				for (var legid in lefthash[id].outgoing)
 					if (legid in righthash[id].incomming)
 						legs[0].push(gulls[id].trajectory.legs[legid]);
@@ -430,7 +434,7 @@ var postprocessor = [
 			var edges = find_edges(left, right),
 				leftdepth = Array.isArray(left) ? left[3] : -1,
 				rightdepth = Array.isArray(right) ? right[3] : -1;
-			if (!edges[0] && !edges[1])
+			if (!edges[0].length && !edges[1].length)
 				return undefined;
 
 			var leftstops = find_stops(left),
@@ -458,39 +462,47 @@ var postprocessor = [
 			var left = parseNode(node[0]),
 				right = parseNode(node[1]),
 				obj = new Node(find_stops(node), find_loops(node)),
-				edges = parseEdge(node[0], node[1]);
+				edge = parseEdge(node[0], node[1]);
 
-			return [node[3], obj, left, right, edges];
+			return [node[3], obj, left, right, edge];
 		})(data.stoptree);
 	},
 
 	function extract_schema(gulls, data)
 	{
-		var depth = 500,
-			nodes = [],
-			edges = [];
+		var depths = [5, 10, 20, 40, 50],
+			max = data.schematree[0];
 
-		function parse_node(node)
+		function extract_depth(depth)
 		{
-			if (node[0] < depth)
-				return nodes.push(node[1]);
-			parse_node(node[2]);
-			parse_node(node[3]);
-			parse_edge(node[4]);
-		}
+			var nodes = [],
+				edges = [];
 
-		function parse_edge(edge)
-		{
-			if (edge[0] < depth)
-				return edges.push(edge[1]);
-			parse_edge(edge[2]);
-			parse_edge(edge[3]);
-		}
+			function parse_node(node)
+			{
+				if (node[0] < depth)
+					return nodes.push(node[1]);
+				parse_node(node[2]);
+				parse_node(node[3]);
+				parse_edge(node[4]);
+			}
 
-		parse_node(data.schematree);
+			function parse_edge(edge)
+			{
+				if (!edge) return;
+				if (edge[0] < depth)
+					return edges.push(edge[1]);
+				parse_edge(edge[2]);
+				parse_edge(edge[3]);
+			}
+
+			parse_node(data.schematree);
+			return { nodes: nodes, edges: edges };
+		}
 
 		gulls.migration = {};
-		gulls.migration[depth] = { nodes:nodes, edges: edges };
+		for (var i = 0, l = depths.length; i < l; ++i)
+			gulls.migration[depths[i]] = extract_depth(max - depths[i]);
 	},
 ];
 
