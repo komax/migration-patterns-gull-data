@@ -60,11 +60,18 @@ def FillHeatmap(gull_data, heatmap, min_lon, min_lat, lon_bin_size, lat_bin_size
 			if(last_observation is None or (last_sample_time + sample_interval <= observation_time)):
 				lat_bin = math.ceil((lat - min_lat)/lat_bin_size)-1
 				lon_bin = math.ceil((lon - min_lon)/lon_bin_size)-1
-				heatmap[lon_bin][lat_bin] += 2
-				heatmap[max(lon_bin-1,0)][lat_bin] += 1
-				heatmap[min(lon_bin+1,lon_bins-1)][lat_bin] += 1
-				heatmap[lon_bin][max(lat_bin-1,0)] += 1
-				heatmap[lon_bin][min(lat_bin+1,lat_bins-1)] += 1
+
+				# TODO: Experiment with other convolutions (Gaussian?)
+				convolute = False
+				if(convolute):
+					heatmap[lon_bin][lat_bin] += 2
+					heatmap[max(lon_bin-1,0)][lat_bin] += 1
+					heatmap[min(lon_bin+1,lon_bins-1)][lat_bin] += 1
+					heatmap[lon_bin][max(lat_bin-1,0)] += 1
+					heatmap[lon_bin][min(lat_bin+1,lat_bins-1)] += 1
+				else:
+					heatmap[lon_bin][lat_bin] += 1
+
 			#for interpolation next iteration
 			last_observation = observation
 
@@ -120,5 +127,7 @@ def generate_heatmap(filein, fileout, nrlonbins = 200, nrlatbins = 400):
 
 	with open(fileout, 'wb') as fh:
 		pickle.dump([normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins], fh)
+
+	return [normalized_heatmap, min_lon, max_lon, min_lat, max_lat, lon_bins, lat_bins]
 
 
