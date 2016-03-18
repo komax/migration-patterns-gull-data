@@ -22,10 +22,10 @@ $('#left-view').resizable({
 //------------------------------------------------------------------------------
 
 window.interface = {}
-window.interface.expandControl = function(id)
+window.interface.expandControl = function(expandElement, collapseElement, expandCharacter, collapseCharacter)
 {
 	var button = document.createElement('button');
-	button.innerHTML = 'E';
+	button.innerHTML = expandCharacter;
 	var viewIsExpanded = false;
 
 	var collapseToggle = function ()
@@ -33,12 +33,14 @@ window.interface.expandControl = function(id)
 		// By only setting the left view, we automatically also collapse or 
 		// expand the right-view as they take up 100% width together (minus the hdivider)
 		if(viewIsExpanded) {
-			$('#left-view').css('width', 'calc(50% - .5em)');
-			button.innerHTML = 'E';
+			$(collapseElement).css('width', 'calc(50% - .5em)');
+			$(expandElement).css('width', 'calc(50% - .5em)');
+			button.innerHTML = expandCharacter;
 		}
 		else {
-			$(id).css('width', 0);
-			button.innerHTML = 'C';
+			$(collapseElement).css('width', 0);
+			$(expandElement).css('width', '100%');
+			button.innerHTML = collapseCharacter;
 		}
 
 		viewIsExpanded = !viewIsExpanded;
