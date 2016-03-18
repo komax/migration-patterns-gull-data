@@ -43,10 +43,11 @@ function nodeStyle(feature, resolution)
 
 function edgeStyle(feature, resolution)
 {
+	var count = Math.min(feature.get('count'), 10)
 	return new ol.style.Style({
 		stroke: new ol.style.Stroke({
-			color: [90, 45, 180, 1],
-			width: Math.min(feature.get('count'), 10),
+			color: [90, 45, 180, count / 10],
+			width: count / 1.5,
 		}),
 	});
 }

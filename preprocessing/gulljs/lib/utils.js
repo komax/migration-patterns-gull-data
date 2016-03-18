@@ -225,6 +225,55 @@ function decimals (d) { return function (num)
 }; }
 
 //------------------------------------------------------------------------------
+// Datastructure for a set of disjoined ranges of numbers
+
+function Range()
+{
+	this.list = [];
+}
+
+Range.prototype.add = function add(left, right)
+{
+	if (left > right)
+		throw new Error('Range.add failed: ' + left + ' > ' + right);
+	this.list.push([left, right]);
+	return this;
+}
+
+Range.prototype.merge = function merge(fudge)
+{
+	fudge = fudge || 0;
+	if (this.list.length < 2) return this;
+	this.list.sort(function (a, b) { return a[0] - b[0]; });
+	var list = [],
+		range = this.list.pop(),
+		head = undefined;
+	while (this.list.length > 0)
+	{
+		head = this.list.pop();
+		if (range[0] > head[1] + 1 + fudge)
+			list.unshift(range);
+		else if (range[1] > head[1])
+			head[1] = range[1];
+		range = head;
+	}
+	list.unshift(range);
+	this.list = list;
+	return this;
+}
+
+Range.prototype.toArray = function toArray()
+{
+	var arr = [];
+	for (var i = 0, l = this.list.length; i < l; ++i)
+	{
+		arr.push(this.list[i][0]);
+		arr.push(this.list[i][1]);
+	}
+	return arr;
+}
+
+//------------------------------------------------------------------------------
 
 module.exports.distance = distance;
 module.exports.timeofday = timeofday;
@@ -236,5 +285,6 @@ module.exports.Percentage = Percentage;
 module.exports.Forest = Forest;
 module.exports.fast_enclosing_circle = fast_enclosing_circle;
 module.exports.decimals = decimals;
+module.exports.Range = Range;
 
 //------------------------------------------------------------------------------

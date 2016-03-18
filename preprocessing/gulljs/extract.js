@@ -43,9 +43,9 @@ var extractor = [
 								type: segment.type,
 								//day: segment.day,
 								date: segment.date[0],
-								idle: segment.idle
-									.map(utils.decimals(2))
-									.map(function (d) { return Math.max(d, 1); }),
+								//idle: segment.idle
+								//	.map(utils.decimals(2))
+								//	.map(function (d) { return Math.max(d, 1); }),
 							},
 						};
 					}),
@@ -81,6 +81,7 @@ var extractor = [
 								radii: d.radii
 									.map(utils.decimals(0))
 									.join(','),
+								events: d.events,
 							},
 						};
 					}).concat(migration.edges.map(function (d)

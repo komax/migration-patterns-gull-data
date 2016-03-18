@@ -244,6 +244,7 @@ var processor = {
 				coords: [gull.decimalLatitude, gull.decimalLongitude],
 				daynight: gull.daynight,
 				source: stopid,
+				id: gull.id,
 			}, {
 				date: gull.eventDate,
 				coords: [gull.decimalLatitude, gull.decimalLongitude],
@@ -343,6 +344,20 @@ var postprocessor = [
 				q -= times;
 				this.radii.push(dists[i][1]);
 			}
+
+			// Generate arrival, departure string
+			this.events = {};
+			for (var i = legs.length - 1; i >= 0; --i)
+			{
+				var id = legs[i].id,
+					departure = legs[i].date[0],
+					arrival = legs[i].date[legs[i].date.length - 1];
+				if (!(id in this.events))
+					this.events[id] = new utils.Range();
+				this.events[id].add(departure, arrival);
+			}
+			for (var id in this.events)
+				this.events[id] = this.events[id].merge().toArray();
 		}
 
 		function Edge(left, right, edges)
