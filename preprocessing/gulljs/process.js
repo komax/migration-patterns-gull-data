@@ -7,7 +7,8 @@ var fs = require('fs'),
 	output = args._[1],
 	jsonp = args.p || args.jsonp,
 	space = args.s || args.space,
-	names = args.names ? args.names.split(',') : undefined;
+	names = args.names ? args.names.split(',') : undefined,
+	depths = args.depth || 20;
 
 if (!input || !output)
 {
@@ -17,6 +18,7 @@ if (!input || !output)
 		'\t-s --space=[string]\t\tformats json using optimally a whitespace string\n'+
 		'\t--stop-threshold=[number]\n'+
 		'\t--stop-distance=[number]\n'+
+		'\t--depth=[number]\t\tnumber of nodes the schematic contains\n'+
 		'\t--names=name[,name2]\t\tonly process gulls with specified names (default is all birds)');
 	process.exit();
 }
@@ -351,6 +353,13 @@ var postprocessor = [
 			this.vu = edges[1].length;
 		}
 
+		function countLeafs(node)
+		{
+			return Array.isArray(node)
+				? countLeafs(node[0]) + countLeafs(node[1])
+				: 1;
+		}
+
 		function find_stops(node)
 		{
 			if (!Array.isArray(node))
@@ -452,10 +461,21 @@ var postprocessor = [
 			}
 		}
 
+		var count = countLeafs(data.stoptree),
+			status = new utils.Percentage(count),
+			maxdepth = data.stoptree[3] - depths - 1;
 		data.schematree = (function parseNode(node /*= [left, right, dist, depth]*/)
 		{
 			if (!Array.isArray(node)) // node is a leaf
+			{
+				status.increase();
 				return [-1, new Node([node.stop], stop_find_loops(node))];
+			}
+			else if (node[3] < maxdepth)
+			{
+				status.increase(countLeafs(node));
+				return [node[3], new Node(find_stops(node), find_loops(node))];
+			}
 
 			var left = parseNode(node[0]),
 				right = parseNode(node[1]),
@@ -464,13 +484,11 @@ var postprocessor = [
 
 			return [node[3], obj, left, right, edge];
 		})(data.stoptree);
+		status.done();
 	},
 
 	function extract_schema(gulls, data)
 	{
-		var depths = 20,
-			max = data.schematree[0];
-
 		function extract_depth(depth)
 		{
 			var nodes = [],
@@ -478,6 +496,7 @@ var postprocessor = [
 
 			function parse_node(node)
 			{
+				if (!node) return;
 				if (node[0] < depth)
 					return nodes.push(node[1]);
 				parse_node(node[2]);
@@ -499,8 +518,8 @@ var postprocessor = [
 		}
 
 		gulls.migration = {};
-		for (var i = 0; i < depths; ++i)
-			gulls.migration[i] = extract_depth(max - (i * max / 100) << 0);
+		for (var i = 0, max = data.schematree[0]; i < depths; ++i)
+			gulls.migration[i] = extract_depth(max - i);
 	},
 ];
 

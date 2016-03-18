@@ -57,8 +57,8 @@ var layers = maps.layers = {
 };
 
 maps.view = new ol.View({
-	center: ol.proj.fromLonLat([5.488196, 51.4475088]),
-	zoom: 9,
+	center: ol.proj.fromLonLat([-0.234747,38.0422329]),
+	zoom: 4.25,
 });
 
 // For heatmap
@@ -68,8 +68,9 @@ maps.left = new ol.Map({
 			new window.interface.expandControl('#left-view', '#right-view','->', '<-')
 		]),
 	target: 'left-map',
-	layers: [ layers.positronLeft, layers.journey ]
-		.concat(heatmapLayers),
+	layers: [ layers.positronLeft]
+		.concat(heatmapLayers)
+		.concat([Journey.main.layer]),
 	view: maps.view,
 });
 
