@@ -9,7 +9,8 @@
 var defaults = {
 	day: new ol.style.Style({
 		stroke: new ol.style.Stroke({
-			color: [220, 20, 60, .8],
+			//color: [220, 20, 60, .8],
+			color: [120, 200, 240, .8],
 			width: 3,
 		}),
 	}),
@@ -21,7 +22,8 @@ var defaults = {
 	}),
 	twilight: new ol.style.Style({
 		stroke: new ol.style.Stroke({
-			color: [90, 180, 220, .8],
+			//color: [90, 180, 220, .8],
+			color: [180, 90, 220, .8],
 			width: 3,
 		}),
 	}),
