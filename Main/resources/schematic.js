@@ -101,8 +101,7 @@ Schematic.prototype.load = function load(id)
 		url: JSONfile(id),
 		dataType: 'jsonp',
 		crossDomain: true,
-		jsonp: 'jsonpArrive',
-		jsonpCallback: 'jsonpArrive',
+		jsonpCallback: 'schemetic_' + id,
 		success: function (data)
 		{
 			var geojson = new ol.format.GeoJSON(),

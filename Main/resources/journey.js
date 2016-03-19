@@ -29,9 +29,14 @@ var defaults = {
 	}),
 };
 
+function JSONkey(id)
+{
+	return 'journey_' + id.replace(' ', '_');
+}
+
 function JSONfile(id)
 {
-	return 'data/journey_' + id.replace(' ', '_') + '.geojsonp';
+	return 'data/' + JSONkey(id) + '.geojsonp';
 }
 
 function Journey()
@@ -54,8 +59,7 @@ Journey.prototype.load = function load(id)
 		url: JSONfile(id),
 		dataType: 'jsonp',
 		crossDomain: true,
-		jsonp: 'jsonpArrive',
-		jsonpCallback: 'jsonpArrive',
+		jsonpCallback: JSONkey(id),
 		success: function (data)
 		{
 			var geojson = new ol.format.GeoJSON(),

@@ -23,9 +23,10 @@ var extractor = [
 		for (var id in gulls)
 		{
 			if (!gulls[id].journey) continue;
+			var key = 'journey_' + id.replace(' ', '_');
 			output.push({
-				filename: 'journey_' + id.replace(' ', '_') + '.geojsonp',
-				padding: ['jsonpArrive(', ');'],
+				filename:  key + '.geojsonp',
+				padding: [key + '(', ');'],
 				data: {
 					type: 'FeatureCollection',
 					features: gulls[id].journey.map(function (segment)
@@ -65,7 +66,7 @@ var extractor = [
 			var migration = gulls.migration[depth];
 			output.push({
 				filename: 'schematic_' + depth + '.geojsonp',
-				padding: ['jsonpArrive(', ');'],
+				padding: ['schemetic_' + depth + '(', ');'],
 				data: {
 					type: 'FeatureCollection',
 					features: migration.nodes.map(function (d)
