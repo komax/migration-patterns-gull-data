@@ -8,11 +8,13 @@
 	<script src="resources/jquery-2.2.1.min.js"></script>
 	<script src="resources/jquery-ui.min.js"></script>
 	<!-- Components: -->
+	<script src="resources/main.js"></script>
 	<script src="resources/interface.js"></script>
 	<link rel="stylesheet" href="resources/interface.css">
 	<script src="resources/journey.js"></script>
 	<script src="resources/schematic.js"></script>
 	<script src="resources/maps.js"></script>
+	<link rel="stylesheet" href="resources/overview.css">
 	<script src="resources/calendarmap.js"></script>
 	<link rel="stylesheet" href="resources/calendarmap.css">
 	<!-- Data: -->
@@ -34,12 +36,20 @@
 		</div>
 		<div id="vdivider" class="ui-resizable-handle ui-resizable-n">&nbsp;</div>
 		<div id="pane">
-			<div id="global-overview"></div>
+			<div id="global-overview">
+				<div id="schema-settings">
+					<label for="schema-slider">Abstraction level:</label>
+					<input type="range" id="schema-slider" min="0">
+				</div>
+				<h3>Gulls:</h3>
+				<ul class="gull-list"></ul>
+			</div>
 			<div id="selection-overview">
 				<div class="calendar-map"></div>
 			</div>
 		</div>
 	</div>
-	<footer>&nbsp;</footer>
+	<footer><span>We can put some attribution information here</span></footer>
+	<script>$(function() { Main.initialize(); })</script>
 </body>
 </html>

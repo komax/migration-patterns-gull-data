@@ -108,6 +108,23 @@ var extractor = [
 		}
 		return output;
 	},
+	function organism(gulls)
+	{
+		var output = {};
+		for (var id in gulls)
+		{
+			var gull = gulls[id];
+			output[id] = {
+				name: gull.name,
+				sex: gull.sex,
+			}
+		}
+		return {
+			filename: 'organisms.jsonp',
+			padding: ['organisms(', ');'],
+			data: output,
+		};
+	},
 ];
 
 

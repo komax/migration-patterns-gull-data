@@ -1,0 +1,37 @@
+#global-overview {
+	padding: 2em;
+}
+#selection-overview {
+	display: none;
+	padding: 2em;
+}
+
+#schema-settings {
+	margin-bottom: 2em;
+}
+#schema-slider {
+	margin-left: 1em;
+	width: 50%;
+}
+
+
+.gull-list {
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+}
+.gull-list li {
+	display: inline;
+	float: left;
+	width: 10%;
+	cursor: pointer;
+}
+.gull-list li:hover {
+	text-decoration: underline;
+}
+.female {
+	color: #8B1314;
+}
+.male {
+	color: #138B87;
+}

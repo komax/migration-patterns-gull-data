@@ -55,12 +55,11 @@ header h1 {
 #pane {
 	display: block;
 	flex: 0 0 auto;
+	height: 0;
 	min-height: 0;
 	max-height: 85%;
 	box-shadow: inset 0 .25em 1em saddlebrown;
-}
-#selectiob-overview {
-	display: none;
+	overflow: hidden;
 }
 
 #vdivider, #hdivider {
@@ -108,6 +107,13 @@ body footer {
 	width: 100%;
 	text-align: center;
 	background-color: sienna;
+}
+body footer span {
+	display: inline-block;
+	position: relative;
+	top: .25em;
+	color: rgba(120,50,0,1);
+	font-size: .75em;
 }
 
 /* Hack for IE 10+ */
