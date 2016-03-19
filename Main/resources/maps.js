@@ -65,7 +65,7 @@ maps.view = new ol.View({
 maps.left = new ol.Map({
 	controls: ol.control.defaults()
 		.extend([
-			new window.interface.expandControl('#left-view', '#right-view','->', '<-')
+			new window.interface.expandControl('#left-view', '#right-view','_|', '_|_')
 		]),
 	target: 'left-map',
 	layers: [ layers.positronLeft]
@@ -78,11 +78,13 @@ maps.left = new ol.Map({
 maps.right = new ol.Map({	
 	controls: ol.control.defaults()
 		.extend([
-			new window.interface.expandControl('#right-view', '#left-view','<-', '->')
+			new window.interface.expandControl('#right-view', '#left-view','|_', '_|_')
 		]),
 	target: 'right-map',
 	layers: [ layers.positronLeft, layers.schematic ],
 	view: maps.view,
+	interactions: ol.interaction.defaults()
+		.extend([ Schematic.main.select ]),
 });
 
 // Since mapquest doesn't show images at a zoom level higher than 11, we want
