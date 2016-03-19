@@ -11,12 +11,17 @@ $('header h1').text(document.title);
 $('#pane').resizable({
 	axis: 'y',
 	handles: { n: $('#vdivider') },
-	resize: function() { Maps.resize() },
+	resize: function ()
+	{
+		if ($(this).height() <= 32)
+			$(this).height(0);
+		Maps.resize();
+	},
 });
 $('#left-view').resizable({
 	axis: 'x',
 	handles: { e: $('#hdivider') },
-	resize: function() { Maps.resize() },
+	resize: function () { Maps.resize() },
 });
 
 //------------------------------------------------------------------------------
@@ -60,6 +65,39 @@ window.interface.expandControl = function(expandElement, collapseElement, expand
 };
 
 ol.inherits(window.interface.expandControl, ol.control.Control);
+
+//------------------------------------------------------------------------------
+
+window.interface.paneControl = function(paneElement, defaultHeight, expandCharacter, collapseCharacter)
+{
+	var button = $('<button>').text(expandCharacter),
+		paneIsExpanded = false;
+
+	button.on('click touchstart', function collapseToggle()
+	{
+		if (paneIsExpanded)
+		{
+			$(paneElement).height(0);
+			button.text(expandCharacter);
+		}
+		else
+		{
+			$(paneElement).height(defaultHeight);
+			button.text(collapseCharacter);
+		}
+
+		paneIsExpanded = !paneIsExpanded;
+		Maps.resize();
+	});
+
+	ol.control.Control.call(this, {
+		element: $('<div>')
+			.attr('class', 'expand-pane ol-unselectable ol-control')
+			.append(button)[0],
+	});
+}
+
+ol.inherits(window.interface.paneControl, ol.control.Control);
 
 //------------------------------------------------------------------------------
 

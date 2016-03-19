@@ -65,7 +65,7 @@ maps.view = new ol.View({
 maps.left = new ol.Map({
 	controls: ol.control.defaults()
 		.extend([
-			new window.interface.expandControl('#left-view', '#right-view','_|', '_|_')
+			new window.interface.expandControl('#left-view', '#right-view','_|', '_|_'),
 		]),
 	target: 'left-map',
 	layers: [ layers.positronLeft]
@@ -78,7 +78,8 @@ maps.left = new ol.Map({
 maps.right = new ol.Map({	
 	controls: ol.control.defaults()
 		.extend([
-			new window.interface.expandControl('#right-view', '#left-view','|_', '_|_')
+			new window.interface.expandControl('#right-view', '#left-view','|_', '_|_'),
+			new window.interface.paneControl('#pane', '45%', '=', '_'),
 		]),
 	target: 'right-map',
 	layers: [ layers.positronLeft, layers.schematic ],
