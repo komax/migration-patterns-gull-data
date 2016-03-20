@@ -13,6 +13,12 @@ var defaults = {
 			fill: new ol.style.Fill({ color: color }),
 		})
 	},
+	features : function(level){
+		var a = contours["contour"+level];
+		var geojson = new ol.format.GeoJSON(),
+			features = geojson.readFeatures(contours["contour"+level]);
+		return features;
+	},
 	heatmap_host : 'http://localhost:5000/'
 };
 
@@ -23,6 +29,7 @@ function Heatmap()
 
 	for (var i = 0; i < 5; i++){
 		this.sources.push(new ol.source.Vector({}));
+		this.sources[i].addFeatures(defaults.features(i+1));
 		this.layers.push(new ol.layer.Vector({
 			source: this.sources[i],
 			style: defaults.style(defaults.colors[i]),
@@ -54,12 +61,12 @@ Heatmap.prototype.load = function load(ids)
 				self.sources[i].addFeatures(features);
 			}
 
-    		console.log("Succesfully loaded heatmap.")
+			console.log("Succesfully loaded heatmap.")
 		},
 		error: function (xhr, status, error)
 		{
-    		console.log(error)
-    		console.log("Could not retrieve heatmap.")
+			console.log(error)
+			console.log("Could not retrieve heatmap.")
 		},
 	});
 }
@@ -69,6 +76,7 @@ Heatmap.prototype.clear = function clear()
 	for (var i = 0; i < this.layers.length; i++)
 	{
 		this.sources[i].clear();
+		this.sources[i].addFeatures(defaults.features(i+1));
 	}
 }
 
