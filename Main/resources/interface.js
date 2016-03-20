@@ -26,6 +26,29 @@ $('#left-view').resizable({
 
 //------------------------------------------------------------------------------
 
+function decode(str)
+{
+	var map = [], str2 = '';
+	for (var i = str.length - 1; i >= 0; --i)
+		if (map.indexOf(str[i]) < 0)
+			map.push(str[i]);
+	map.sort();
+	for (var i = 0, l = str.length; i < l; ++i)
+		str2 += map[map.length - map.indexOf(str[i]) - 1];
+	return str2;
+}
+
+$('a[data-code]').on('mouseover', function ()
+{
+	var a = $(this);
+	a
+		.attr('href', decode(a.attr('data-code')))
+		.off('mouseover')
+	;
+});
+
+//------------------------------------------------------------------------------
+
 window.interface = {}
 window.interface.expandControl = function(expandElement, collapseElement, expandCharacter, collapseCharacter)
 {
