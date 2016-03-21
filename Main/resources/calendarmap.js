@@ -84,11 +84,27 @@ d3.json("data/eventsample.json", function(error, json) {
     data = json;
 
     // FIXME Dynamic passing of arguments to the calendar.
-    //visualizeCalendar(data, ["L907322", "L907257"]);
-    visualizeCalendar(data, ["L907322"]);
+    visualizeCalendar(data, ["L907322", "L907257"]);
+    //visualizeCalendar(data, ["L907322"]);
 });
 
 function visualizeCalendar(data, gullIDs) {
+    function dateToString(date) {
+        var formattedString = "";
+        formattedString += date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) {
+            formattedString += "0";
+        }
+        formattedString += month;
+        var day = date.getDate();
+        if (day < 10) {
+            formattedString += "0";
+        }
+        formattedString += day;
+        return formattedString;
+    }
+
     // Compute the counts of stops for each day.
     var stopoverDays = {};
 
@@ -102,10 +118,12 @@ function visualizeCalendar(data, gullIDs) {
                 var endDate = new Date(data[gullID][i + 1]);
 
                 while (startDate <= endDate) {
-                    if (!(stopoverDays.hasOwnProperty(startDate))) {
-                        stopoverDays[startDate] = 0;
+                    // Consider only yearmonthdays and not times anymore.
+                    var formattedDate = dateToString(startDate);
+                    if (!(stopoverDays.hasOwnProperty(formattedDate))) {
+                        stopoverDays[formattedDate] = 0;
                     }
-                    stopoverDays[startDate]++;
+                    stopoverDays[formattedDate]++;
                     var newDate = startDate.setDate(startDate.getDate() + 1);
                     startDate = new Date(newDate);
                 }
@@ -114,50 +132,24 @@ function visualizeCalendar(data, gullIDs) {
             } while (i < length);
         }
     }
-    console.log(stopoverDays);
     
     // Compute the max count in the stop overs.
     var maxValue = Number.MIN_VALUE;
 
-    for (value in Object.keys(stopoverDays)) {
+    var counts = $.map(stopoverDays, function(v) { return v; });
+    counts.forEach(function(value) {
         if (value > maxValue) {
             maxValue = value;
         }
-    }
-    console.log(maxValue);
-
-    // Normalize the counts.
-    for (day in stopoverDays) {
-        stopoverDays[day] = Math.sqrt(stopoverDays[day] / maxValue);
-    }
-    console.log(stopoverDays);
+    });
+    //console.log(maxValue);
 
     // Visualize the results.
-    rect.filter(function(d) { console.log(new Date(d)); return new Date(d) in stopoverDays; })
-        .attr("fill", function(d) { return color(data[d]); })
-        .attr("data-title", function(d) { return "value : "+Math.round(data[d]*100)});   
+    rect.filter(function(d) { return stopoverDays[d]; })
+        .attr("fill", function(d) { return color(stopoverDays[d] / maxValue); })
+        .attr("data-title", function(d) { return "Stops: "+Math.round(stopoverDays[d])});
        $("rect").tooltip({container: 'body', html: true, placement:'top'}); 
 }
-// FIXME Change to read the stop overs.
-/*d3.csv("data.csv", function(error, csv) {
-
-  csv.forEach(function(d) {
-    d.Comparison_Type = parseInt(d.Comparison_Type);
-  });
-
- var Comparison_Type_Max = d3.max(csv, function(d) { return d.Comparison_Type; });
- 
-  var data = d3.nest()
-    .key(function(d) { return d.Date; })
-    .rollup(function(d) { return  Math.sqrt(d[0].Comparison_Type / Comparison_Type_Max); })
-    .map(csv);
-	
-  rect.filter(function(d) { return d in data; })
-      .attr("fill", function(d) { return color(data[d]); })
-	  .attr("data-title", function(d) { return "value : "+Math.round(data[d]*100)});   
-	$("rect").tooltip({container: 'body', html: true, placement:'top'}); 
-});
-*/
 
 function numberWithCommas(x) {
     x = x.toString();
