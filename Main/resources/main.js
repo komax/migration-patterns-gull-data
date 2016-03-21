@@ -58,6 +58,44 @@ main.initialize = function initialize()
 			Schematic.main.load(slider.val());
 			next();
 		})
+		.queue(function (next)
+		{
+			var slider = $('#sat-slider-left')
+				.on('change input', function ()
+				{
+					var opacity = slider.val() / 100.0;
+					Maps.layers.mapquestLeft.setOpacity(opacity);
+				})
+				.val(0);
+
+			Maps.layers.mapquestLeft.setOpacity(slider.val());
+			next();
+		})
+		.queue(function (next)
+		{
+			var slider = $('#sat-slider-right')
+				.val(100)
+				.on('change input', function ()
+				{
+					var opacity = slider.val() / 100.0;
+					Maps.layers.mapquestRight.setOpacity(opacity);
+				});
+
+			Maps.layers.mapquestRight.setOpacity(slider.val());
+			next();
+		})
+		.queue(function (next)
+		{
+			var slider = $('#heatmap-slider')
+				.val(80)
+				.on('change input', function ()
+				{
+					var opacity = slider.val() / 100.0;
+					Heatmap.main.setOpacity(opacity);
+				})
+			;
+			next();
+		})
 		.go()
 	;
 }

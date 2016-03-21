@@ -125,6 +125,37 @@ ol.inherits(window.interface.paneControl, ol.control.Control);
 
 //------------------------------------------------------------------------------
 
+window.interface.settingsControl = function(controlElement)
+{
+	var button = $('<button>').text('*').attr('title', 'Show/hide map toolbar'),
+		toolbarShown = true;
+
+	button.on('click touchstart', function collapseToggle()
+	{
+		if (toolbarShown)
+		{
+			$(controlElement).hide();
+		}
+		else
+		{
+			$(controlElement).show();
+		}
+
+		toolbarShown = !toolbarShown;
+		Maps.resize();
+	});
+
+	ol.control.Control.call(this, {
+		element: $('<div>')
+			.attr('class', 'expand-settings ol-unselectable ol-control')
+			.append(button)[0],
+	});
+}
+
+ol.inherits(window.interface.settingsControl, ol.control.Control);
+
+//------------------------------------------------------------------------------
+
 }); })(window || this);
 
 //------------------------------------------------------------------------------
