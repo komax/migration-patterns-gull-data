@@ -24,10 +24,10 @@ def normalize_array_heatmap(heatmap, valuebins, lons, lats):
 	print('start normalizing')
 	normalized_hm = np.zeros([lons, lats])
 	factor = 10.0/len(valuebins)
-	for i in range(len(heatmap)):
-		for j in range(len(heatmap[i])):
+	for i in range(lons):
+		for j in range(lats):
 			for b in range(1,len(valuebins)+1):
-				if(heatmap[i][j]<= valuebins[b-1]):
+				if(heatmap[i][j]<= valuebins[b-1] and heatmap[i][j] > 0):
 					normalized_hm[i,j] = 1+b#*factor
 					break;
 	print('stop normalizing')
@@ -176,7 +176,7 @@ def generate_heatmap_for_gulls(gull_ids, fileout = None, nrlonbins = 200, nrlatb
 
 	values = [heatmap[i][j] for i in range(lon_bins) for j in range(lat_bins) if heatmap[i][j] > 0]
 	bin_values = determine_bin_boundaries(values, 5)
-
+	
 	normalized_heatmap = normalize_array_heatmap(heatmap, bin_values, lon_bins, lat_bins)
 	del heatmap	
 

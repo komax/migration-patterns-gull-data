@@ -9,24 +9,23 @@ var maps = {};
 //------------------------------------------------------------------------------
 
 var layers = maps.layers = {
-	mapquest: new ol.layer.Tile({
+	mapquestLeft: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'sat'}),
 	}),
-	topology: new ol.layer.Tile({
+	mapquestRight: new ol.layer.Tile({
+		source: new ol.source.MapQuest({ layer: 'sat'}),
+	}),
+	topologyLeft: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'hyb'}),
 	}),
-	positronLeft: new ol.layer.Tile({
+	topologyRight: new ol.layer.Tile({
+		source: new ol.source.MapQuest({ layer: 'hyb'}),
+	}),
+	positron: new ol.layer.Tile({
 		source: new ol.source.XYZ({
 			url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
 			format: new ol.format.KML()
 		})
-	}),
-	positronRight: new ol.layer.Tile({
-		source: new ol.source.XYZ({
-			url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
-			format: new ol.format.KML()
-		}),
-		visible: false
 	}),
 	natural: new ol.layer.Tile({
 		title: 'Global Imagery',
@@ -50,9 +49,10 @@ maps.left = new ol.Map({
 	controls: ol.control.defaults()
 		.extend([
 			new window.interface.expandControl('#left-view', '#right-view','_|', '_|_'),
+			new window.interface.settingsControl('#left-toolbar', '#right-view','_|', '_|_'),
 		]),
 	target: 'left-map',
-	layers: [ layers.positronLeft]
+	layers: [ layers.positron, layers.mapquestLeft]
 		.concat(Heatmap.main.layers)
 		.concat([Journey.main.layer]),
 	view: maps.view,
@@ -63,10 +63,11 @@ maps.right = new ol.Map({
 	controls: ol.control.defaults()
 		.extend([
 			new window.interface.expandControl('#right-view', '#left-view','|_', '_|_'),
+			new window.interface.settingsControl('#right-toolbar', '#right-view','_|', '_|_'),
 			new window.interface.paneControl('#pane', '45%', '=', '_'),
 		]),
 	target: 'right-map',
-	layers: [ layers.positronLeft, layers.schematic ],
+	layers: [ layers.positron, layers.mapquestRight, layers.schematic ],
 	view: maps.view,
 	interactions: ol.interaction.defaults()
 		.extend([ Schematic.main.select ]),
@@ -79,7 +80,6 @@ maps.right.getView().on('change:resolution', function()
 	var zoomLevel = maps.right.getView().getZoom();
 	var usePositron = (zoomLevel >= 12);
 	layers.mapquest.setVisible(!usePositron);
-	layers.positronRight.setVisible(usePositron);
 });
 
 //------------------------------------------------------------------------------

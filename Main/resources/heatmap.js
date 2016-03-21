@@ -71,6 +71,13 @@ Heatmap.prototype.load = function load(ids)
 	});
 }
 
+Heatmap.prototype.setOpacity = function setOpacity(val)
+{
+	for (var i = 0; i < this.layers.length; i++){
+		this.layers[i].setOpacity(val);
+	}
+}
+
 Heatmap.prototype.clear = function clear()
 {
 	for (var i = 0; i < this.layers.length; i++)
