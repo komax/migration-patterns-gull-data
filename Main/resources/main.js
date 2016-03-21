@@ -116,12 +116,15 @@ main.selectGulls = function selectGulls(selected)
 		$('#global-overview').hide();
 		$('#selection-overview').show();
 
-		Heatmap.main.load(selected);
-
-		if (selected.length == 1)
+		if (selected.length == 1){
 			Journey.main.load(selected[0]);
-		else
+			// Heatmap of a single gull is not very useful, since the trajectory is shown.
+			Heatmap.main.clear(); 
+		}
+		else {
 			Journey.main.clear();
+			Heatmap.main.load(selected);
+		}
 	}
 }
 
