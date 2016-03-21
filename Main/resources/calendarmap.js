@@ -22,7 +22,7 @@ var color = d3.scale.linear().range(["white", '#002b53'])
     .domain([0, 1])
     
 var svg = d3.select(".calendar-map").selectAll("svg")
-    .data(d3.range(2011, 2015))
+    .data(d3.range(2013, 2016))
   .enter().append("svg")
     .attr("width", '100%')
     .attr("data-height", '0.5678')
@@ -76,8 +76,70 @@ svg.selectAll(".month")
     .attr("id", function(d,i){ return month[i] })
     .attr("d", monthPath);
 
+// FIXME Dynamic loading instead of static.
+d3.json("data/eventsample.json", function(error, json) {
+    if (error)
+        return console.warn(error);
+
+    data = json;
+
+    // FIXME Dynamic passing of arguments to the calendar.
+    //visualizeCalendar(data, ["L907322", "L907257"]);
+    visualizeCalendar(data, ["L907322"]);
+});
+
+function visualizeCalendar(data, gullIDs) {
+    // Compute the counts of stops for each day.
+    var stopoverDays = {};
+
+    var gullID;
+    for (gullID of gullIDs) {
+        if (data.hasOwnProperty(gullID)) {
+            var length = data[gullID].length;
+            var i = 0;
+            do {
+                var startDate = new Date(data[gullID][i]);
+                var endDate = new Date(data[gullID][i + 1]);
+
+                while (startDate <= endDate) {
+                    if (!(stopoverDays.hasOwnProperty(startDate))) {
+                        stopoverDays[startDate] = 0;
+                    }
+                    stopoverDays[startDate]++;
+                    var newDate = startDate.setDate(startDate.getDate() + 1);
+                    startDate = new Date(newDate);
+                }
+
+                i += 2;
+            } while (i < length);
+        }
+    }
+    console.log(stopoverDays);
+    
+    // Compute the max count in the stop overs.
+    var maxValue = Number.MIN_VALUE;
+
+    for (value in Object.keys(stopoverDays)) {
+        if (value > maxValue) {
+            maxValue = value;
+        }
+    }
+    console.log(maxValue);
+
+    // Normalize the counts.
+    for (day in stopoverDays) {
+        stopoverDays[day] = Math.sqrt(stopoverDays[day] / maxValue);
+    }
+    console.log(stopoverDays);
+
+    // Visualize the results.
+    rect.filter(function(d) { console.log(new Date(d)); return new Date(d) in stopoverDays; })
+        .attr("fill", function(d) { return color(data[d]); })
+        .attr("data-title", function(d) { return "value : "+Math.round(data[d]*100)});   
+       $("rect").tooltip({container: 'body', html: true, placement:'top'}); 
+}
 // FIXME Change to read the stop overs.
-d3.csv("data.csv", function(error, csv) {
+/*d3.csv("data.csv", function(error, csv) {
 
   csv.forEach(function(d) {
     d.Comparison_Type = parseInt(d.Comparison_Type);
@@ -95,6 +157,7 @@ d3.csv("data.csv", function(error, csv) {
 	  .attr("data-title", function(d) { return "value : "+Math.round(data[d]*100)});   
 	$("rect").tooltip({container: 'body', html: true, placement:'top'}); 
 });
+*/
 
 function numberWithCommas(x) {
     x = x.toString();

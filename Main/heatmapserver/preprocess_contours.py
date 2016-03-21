@@ -191,7 +191,7 @@ def contourizeHeatmap(heatmap_info, fileout, contourlevel):
 	lon_bin_size = (max_lon - min_lon) / lon_bins
 	lat_bin_size = (max_lat - min_lat) / lat_bins
 
-	contours = find_contours(normalized_heatmap, contourlevel)
+	contours = find_contours(normalized_heatmap, contourlevel)#
 	del normalized_heatmap
 
 	# http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.find_contours
