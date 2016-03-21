@@ -22,7 +22,7 @@ var color = d3.scale.linear().range(["white", '#002b53'])
     .domain([0, 1])
     
 var svg = d3.select(".calendar-map").selectAll("svg")
-    .data(d3.range(2011, 2015))
+    .data(d3.range(2013, 2016))
   .enter().append("svg")
     .attr("width", '100%')
     .attr("data-height", '0.5678')
@@ -76,8 +76,46 @@ svg.selectAll(".month")
     .attr("id", function(d,i){ return month[i] })
     .attr("d", monthPath);
 
+// FIXME Dynamic loading instead of static.
+d3.json("data/eventsample.json", function(error, json) {
+    if (error)
+        return console.warn(error);
+
+    data = json;
+
+    // FIXME Dynamic passing of arguments to the calendar.
+    visualizeCalendar(data, ["L907322", "L907257"]);
+});
+
+function visualizeCalendar(data, gullIDs) {
+    // Compute the durations of the stops and the maximum duration.
+    stopDurations = {};
+    maxDuration = Number.MIN_VALUE;
+
+    var gullID;
+    for (gullID in gullIDs) {
+        if (gullID in data) {
+            var length = data.gullID.length;
+            var i = 0;
+            do {
+                var startTime = data.gullID[i];
+                var endTime = data.gullID[i + 1];
+                var duration = endTime - startTime;
+                if (!(gullID in stopDurations)) {
+                    stopDurations.gullID = [];
+                }
+                stopDurations.gullID.push(duration);
+                if (duration > maxDuration) {
+                    maxDuration = duration;
+                }
+                i += 2;
+            } while (i < length);
+        }
+    }
+    // TODO visualize the results.
+}
 // FIXME Change to read the stop overs.
-d3.csv("data.csv", function(error, csv) {
+/*d3.csv("data.csv", function(error, csv) {
 
   csv.forEach(function(d) {
     d.Comparison_Type = parseInt(d.Comparison_Type);
@@ -95,6 +133,7 @@ d3.csv("data.csv", function(error, csv) {
 	  .attr("data-title", function(d) { return "value : "+Math.round(data[d]*100)});   
 	$("rect").tooltip({container: 'body', html: true, placement:'top'}); 
 });
+*/
 
 function numberWithCommas(x) {
     x = x.toString();
