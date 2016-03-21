@@ -54,6 +54,7 @@ window.interface.expandControl = function(expandElement, collapseElement, expand
 {
 	var button = document.createElement('button');
 	button.innerHTML = expandCharacter;
+	button.title = 'Expand/collapse map'
 	var viewIsExpanded = false;
 
 	var collapseToggle = function ()
@@ -93,7 +94,7 @@ ol.inherits(window.interface.expandControl, ol.control.Control);
 
 window.interface.paneControl = function(paneElement, defaultHeight, expandCharacter, collapseCharacter)
 {
-	var button = $('<button>').text(expandCharacter),
+	var button = $('<button>').text(expandCharacter).attr('title', 'Show/hide info pane'),
 		paneIsExpanded = false;
 
 	button.on('click touchstart', function collapseToggle()

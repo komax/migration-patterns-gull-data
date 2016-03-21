@@ -23,6 +23,11 @@ var extractor = [
 		for (var id in gulls)
 		{
 			if (!gulls[id].journey) continue;
+			if (!gulls[id].trajectory)
+				gulls[id].trajectory = { legs: [] };
+			else if (!Array.isArray(gulls[id].trajectory.legs))
+				gulls[id].trajectory.legs = [gulls[id].trajectory.legs];
+
 			var key = 'journey_' + id.replace(' ', '_');
 			output.push({
 				filename:  key + '.geojsonp',
@@ -49,7 +54,21 @@ var extractor = [
 								//	.map(function (d) { return Math.max(d, 1); }),
 							},
 						};
-					}),
+					}).concat(gulls[id].trajectory.legs.map(function (trajectory)
+					{
+						var coords = trajectory.coords[0];
+						return {
+							type: 'Feature',
+							geometry: {
+								type: 'Point',
+								coordinates: [coords[1], coords[0]],
+							},
+							properties: {
+								type: 'stop',
+								date: trajectory.date[0],
+							},
+						};
+					})),
 					crs: { type: 'name', properties: { name: 'EPSG:4326' } },
 				},
 			});

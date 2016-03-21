@@ -27,7 +27,42 @@ var defaults = {
 			width: 3,
 		}),
 	}),
+	text: {
+		fill: new ol.style.Fill({
+			color: 'white',
+		}),
+		stroke: new ol.style.Stroke({
+			color: 'black',
+			width: 2,
+		}),
+	},
+	stop: new ol.style.Circle({
+		radius: 5,
+		fill: new ol.style.Fill({
+			color: [180, 220, 90, .8],
+		}),
+		stroke: new ol.style.Stroke({
+			color: 'white',
+		}),
+	}),
 };
+
+var dateStamp = d3.time.format('%b %d\n%Y'),
+	timeStamp = d3.time.format('%b %d %Y\n%-I:%M %p');
+
+function labelStyle(feature, resolution)
+{
+	var top = feature.get('features')[0],
+		stamp = resolution > 500 ? dateStamp : timeStamp;
+	return new ol.style.Style({
+		text: new ol.style.Text({
+			text: stamp(new Date(top.get('date'))),
+			fill: defaults.text.fill,
+			stroke: defaults.text.stroke,
+		}),
+		image: defaults.stop,
+	});
+}
 
 function JSONkey(id)
 {
@@ -41,14 +76,25 @@ function JSONfile(id)
 
 function Journey()
 {
-	this.source = new ol.source.Vector({});
-	this.layer = new ol.layer.Vector({
-		source: this.source,
+	this.source1 = new ol.source.Vector({});
+	this.layer1 = new ol.layer.Vector({
+		source: this.source1,
 		style: function (feature, resolution)
 		{
 			var type = feature.get('type');
 			return defaults[type];
 		},
+	});
+	this.source2 = new ol.source.Vector({});
+	this.layer2 = new ol.layer.Vector({
+		source: new ol.source.Cluster({
+			distance: 50,
+			source: this.source2,
+		}),
+		style: labelStyle,
+	});
+	this.layer = new ol.layer.Group({
+		layers: [this.layer1, this.layer2],
 	});
 }
 
@@ -66,15 +112,24 @@ Journey.prototype.load = function load(id)
 				features = geojson.readFeatures(data, {
 					featureProjection: 'EPSG:3857'
 				});
-			self.source.clear();
-			self.source.addFeatures(features);
+			self.source1.clear();
+			self.source2.clear();
+			self.source1.addFeatures(features.filter(function (feature)
+			{
+				return feature.get('type') != 'stop';
+			}));
+			self.source2.addFeatures(features.filter(function (feature)
+			{
+				return feature.get('type') == 'stop';
+			}));
 		},
 	});
 }
 
 Journey.prototype.clear = function clear()
 {
-	this.source.clear();
+	this.source1.clear();
+	this.source2.clear();
 }
 
 //------------------------------------------------------------------------------
