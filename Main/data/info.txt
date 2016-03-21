@@ -1,0 +1,7 @@
+Data was generated using the following command:
+
+gulljs convert lesser_black_gulls.txt organism.txt -o lesser_black_gulls.json
+gulljs process lesser_black_gulls.json gulldata.json --depth=100
+gulljs extract gulldata.json .
+
+After which `gulldata.json' and `lesser_black_gulls.json' can be deleted.

@@ -275,6 +275,16 @@ Range.prototype.toArray = function toArray()
 
 //------------------------------------------------------------------------------
 
+function unique(arr)
+{
+	var hash = {};
+	for (var i = arr.length - 1; i >= 0; --i)
+		hash[arr[i]] = true;
+	return Object.keys(hash);
+}
+
+//------------------------------------------------------------------------------
+
 module.exports.distance = distance;
 module.exports.timeofday = timeofday;
 module.exports.lengthofday = lengthofday;
@@ -286,5 +296,6 @@ module.exports.Forest = Forest;
 module.exports.fast_enclosing_circle = fast_enclosing_circle;
 module.exports.decimals = decimals;
 module.exports.Range = Range;
+module.exports.unique = unique;
 
 //------------------------------------------------------------------------------

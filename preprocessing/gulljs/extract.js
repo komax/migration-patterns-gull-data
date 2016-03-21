@@ -117,7 +117,8 @@ var extractor = [
 							},
 							properties: {
 								type: 'edge',
-								count: d.uv + d.vu,
+								count: d.uv.length + d.vu.length,
+								ids: utils.unique([].concat(d.uv).concat(d.vu)),
 							},
 						};
 					})),

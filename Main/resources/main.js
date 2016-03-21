@@ -8,32 +8,6 @@ var main = {};
 
 //------------------------------------------------------------------------------
 
-function Batch()
-{
-	this.list = [];
-}
-
-Batch.prototype.queue = function queue(func)
-{
-	this.list.push(func);
-	return this;
-}
-
-Batch.prototype.go = function go()
-{
-	var self = this;
-	function next()
-	{
-		var func = self.list.shift();
-		if (func)
-			return func(next);
-	}
-	next();
-	return this;
-}
-
-//------------------------------------------------------------------------------
-
 main.initialize = function initialize()
 {
 	main.organisms = {};
@@ -63,7 +37,7 @@ main.initialize = function initialize()
 				li = items.enter().append('li')
 					.text(function (d) { return d.name; })
 					.attr('class', function (d) { return d.sex; })
-					.on('click', function (d) { main.updateSelection([d.id]); })
+					.on('click', function (d) { main.selectGulls([d.id]); })
 			;
 			next();
 		})
@@ -79,7 +53,7 @@ main.initialize = function initialize()
 			;
 			Schematic.main.select.on('select', function (e)
 			{
-				main.updateSelection(getIds(e.target.getFeatures()));
+				main.selectNodes(e.target.getFeatures());
 			});
 			Schematic.main.load(slider.val());
 			next();
@@ -89,25 +63,47 @@ main.initialize = function initialize()
 }
 
 //------------------------------------------------------------------------------
+// Select schema nodes (takes map features)
+// Note: this function is used by map interactions;
+// this means that calling this function will not update the map itself.
 
-function getIds(features)
+main.selectNodes = function selectNodes(features)
 {
 	if (!Array.isArray(features))
 		features = features.getArray();
-	var ids = {};
-	features.forEach(function (d)
-	{
-		var events = d.get('events');
-		for (var id in events)
-			ids[id] = true;
-	});
-	return Object.keys(ids);
+	main.getNodeSelection = function () { return features.slice(0); }
+
+	var gulls = new Intersection()
+		.addAll(features.map(function (d)
+			{ return Object.keys(d.get('events')); }))
+		.toArray()
+	;
+	// Todo: enable this as soon as it exists
+	// updateCalendar(features, gulls); 
+	main.selectGulls(gulls);
 }
 
-//------------------------------------------------------------------------------
+main.getNodeSelection = function () { return []; }
 
-main.updateSelection = function updateSelection(selected)
+//------------------------------------------------------------------------------
+// Select gulls by id (takes an array of ids)
+
+main.selectGulls = function selectGulls(selected)
 {
+	main.getGullSelection = function () { return selected.slice(0); }
+	
+	var hash = {};
+	selected.forEach(function (d) { hash[d] = true; });
+	main.inGullSelection = function (arr)
+	{
+		for (var i = arr.length - 1; i >= 0; --i)
+			if (arr[i] in hash)
+				return true;
+		return false;
+	}
+
+	Schematic.main.refresh();
+
 	if (selected.length < 1) // all is deselected
 	{
 		$('#global-overview').show();
@@ -129,9 +125,77 @@ main.updateSelection = function updateSelection(selected)
 	}
 }
 
+main.getGullSelection = function () { return []; }
+main.inGullSelection = function () { return false; }
+
+main.intersectGullSelection = function intersectGullSelection(gulls)
+{
+	main.selectGulls(new Intersection()
+		.add(main.getGullSelection())
+		.add(gulls)
+		.toArray());
+}
+
+//------------------------------------------------------------------------------
+
+function Batch()
+{
+	this.list = [];
+}
+
+Batch.prototype.queue = function queue(func)
+{
+	this.list.push(func);
+	return this;
+}
+
+Batch.prototype.go = function go()
+{
+	var self = this;
+	function next()
+	{
+		var func = self.list.shift();
+		if (func)
+			return func(next);
+	}
+	next();
+	return this;
+}
+
+//------------------------------------------------------------------------------
+
+function Intersection()
+{
+	var elements = undefined;
+	function add(arr)
+	{
+		if (elements)
+			elements = elements.filter(function (x)
+				{ return arr.indexOf(x) >= 0; });
+		else
+			elements = arr.slice(0);
+		return this;
+	}
+	function addAll(arrs)
+	{
+		for (var i = arrs.length - 1; i >= 0; --i)
+			add(arrs[i]);
+		return this;
+	}
+	function toArray()
+	{
+		return (elements || []).slice(0);
+	}
+	this.add = add;
+	this.addAll = addAll;
+	this.toArray = toArray;
+}
+
 //------------------------------------------------------------------------------
 
 global.Main = main;
+global.Batch = Batch;
+global.Intersection = Intersection;
 
 })(window || this);
 

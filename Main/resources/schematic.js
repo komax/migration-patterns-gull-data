@@ -17,6 +17,7 @@ var defaults = {
 		new ol.style.Fill({ color: [45, 150, 150, .25] }),
 		new ol.style.Fill({ color: [45, 120, 180, .25] }),
 	],
+	edgecolor: function (a) { return [90, 45, 180, a]; },
 }, selected = {
 	smallstop: [
 		new ol.style.Fill({ color: [165, 75, 0, 1] }),
@@ -28,6 +29,7 @@ var defaults = {
 		new ol.style.Fill({ color: [210, 105, 105, .5] }),
 		new ol.style.Fill({ color: [210, 135, 75, .5] }),
 	],
+	edgecolor: function (a) { return [180, 45, 180, a]; },
 };
 
 function nodeStyle(mode)
@@ -57,11 +59,20 @@ function nodeStyle(mode)
 
 function edgeStyle(feature, resolution)
 {
-	var count = Math.min(feature.get('count'), 10)
+	var mode = Main.inGullSelection(feature.get('ids')) 
+		? selected : defaults,
+		count = Math.min(feature.get('count'), 10),
+		opacity = count / 10,
+		width = count / 1.5;
+	if (mode == selected)
+	{
+		opacity = Math.min(opacity + 0.1, 1);
+		width += 1;
+	}
 	return new ol.style.Style({
 		stroke: new ol.style.Stroke({
-			color: [90, 45, 180, count / 10],
-			width: count / 1.5,
+			color: mode.edgecolor(opacity),
+			width: width,
 		}),
 	});
 }
@@ -117,6 +128,11 @@ Schematic.prototype.load = function load(id)
 Schematic.prototype.clear = function clear()
 {
 	this.source.clear();
+}
+
+Schematic.prototype.refresh = function refresh()
+{
+	this.source.dispatchEvent('change'); 
 }
 
 //------------------------------------------------------------------------------

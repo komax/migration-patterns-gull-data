@@ -364,8 +364,9 @@ var postprocessor = [
 		{
 			this.u = utils.fast_enclosing_circle(left).center;
 			this.v = utils.fast_enclosing_circle(right).center;
-			this.uv = edges[0].length;
-			this.vu = edges[1].length;
+			function id (d) { return d.id; }
+			this.uv = utils.unique(edges[0].map(id));
+			this.vu = utils.unique(edges[1].map(id));
 		}
 
 		function countLeafs(node)
