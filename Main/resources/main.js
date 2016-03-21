@@ -75,7 +75,7 @@ main.initialize = function initialize()
 		.queue(function (next)
 		{
 			var slider = $('#sat-slider-right')
-				.val(100)
+				.val(0)
 				.on('change input', function ()
 				{
 					var opacity = slider.val() / 100.0;
@@ -96,6 +96,30 @@ main.initialize = function initialize()
 					Heatmap.main.setOpacity(opacity);
 				})
 			;
+			next();
+		})
+		.queue(function (next)
+		{
+			var checkbox = $('#placenames-left')
+				.val(false)
+				.on('change input', function ()
+				{
+					Maps.layers.topologyLeft.setVisible(this.checked);
+				})
+			;
+			Maps.layers.topologyLeft.setVisible(this.checked);
+			next();
+		})
+		.queue(function (next)
+		{
+			var checkbox = $('#placenames-right')
+				.val(false)
+				.on('change input', function ()
+				{
+					Maps.layers.topologyRight.setVisible(this.checked);
+				})
+			;
+			Maps.layers.topologyRight.setVisible(this.checked);
 			next();
 		})
 		.go()
