@@ -64,6 +64,7 @@ main.initialize = function initialize()
 				.on('change input', function ()
 				{
 					var opacity = slider.val() / 100.0;
+					Maps.layers.mapquestLeft.setVisible(opacity>0);
 					Maps.layers.mapquestLeft.setOpacity(opacity);
 				})
 				.val(0);
@@ -78,6 +79,7 @@ main.initialize = function initialize()
 				.on('change input', function ()
 				{
 					var opacity = slider.val() / 100.0;
+					Maps.layers.mapquestRight.setVisible(opacity>0);
 					Maps.layers.mapquestRight.setOpacity(opacity);
 				});
 

@@ -79,7 +79,14 @@ maps.right.getView().on('change:resolution', function()
 {
 	var zoomLevel = maps.right.getView().getZoom();
 	var usePositron = (zoomLevel >= 12);
-	layers.mapquest.setVisible(!usePositron);
+
+	var alreadyVisibleLeft = layers.mapquestLeft.getVisible();
+	var shouldShowLeft = alreadyVisibleLeft && !usePositron;
+	layers.mapquestLeft.setVisible(shouldShowLeft);
+
+	var alreadyVisibleRight = layers.mapquestRight.getVisible();
+	var shouldShowRight = alreadyVisibleRight && !usePositron;
+	layers.mapquestRight.setVisible(shouldShowRight);
 });
 
 //------------------------------------------------------------------------------
