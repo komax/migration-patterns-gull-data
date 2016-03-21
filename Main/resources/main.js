@@ -113,11 +113,15 @@ main.updateSelection = function updateSelection(selected)
 		$('#global-overview').show();
 		$('#selection-overview').hide();
 		Journey.main.clear();
+		Heatmap.main.clear(); // clearing the heatmap shows the default one
 	}
 	else
 	{
 		$('#global-overview').hide();
 		$('#selection-overview').show();
+
+		Heatmap.main.load(selected);
+
 		if (selected.length == 1)
 			Journey.main.load(selected[0]);
 		else

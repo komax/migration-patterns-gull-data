@@ -7,22 +7,6 @@
 var maps = {};
 
 //------------------------------------------------------------------------------
-// Heatmap layers
-colors = ['#ffffb2','#fecc5c','#fd8d3c','#f03b20','#bd0026'];
-var contourArray = [contours.contour1, contours.contour2, contours.contour3, contours.contour4, contours.contour5]
-var heatmapLayers = [];
-for (var i = 0; i < contourArray.length; i++)
-{
-	heatmapLayers.push(new ol.layer.Vector({
-		source: new ol.source.Vector({
-			features: (new ol.format.GeoJSON()).readFeatures(contourArray[i])}),
-			style: new ol.style.Style({
-				fill: new ol.style.Fill({ color: colors[i] }),
-			})
-		}));
-}
-
-//------------------------------------------------------------------------------
 
 var layers = maps.layers = {
 	mapquest: new ol.layer.Tile({
@@ -69,7 +53,7 @@ maps.left = new ol.Map({
 		]),
 	target: 'left-map',
 	layers: [ layers.positronLeft]
-		.concat(heatmapLayers)
+		.concat(Heatmap.main.layers)
 		.concat([Journey.main.layer]),
 	view: maps.view,
 });
