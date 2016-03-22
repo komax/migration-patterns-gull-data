@@ -8,10 +8,12 @@
 
 function Calendarmap(id, range /*[first year, last year]*/)
 {
+	var self = this;
+
 	this.id = id;
 	this.range = d3.range(range[0], range[1] + 1);
 
-	var width = 900,
+	var width = 700,
 		height = 105,
 		cellSize = 12; // cell size
 		week_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -30,9 +32,10 @@ function Calendarmap(id, range /*[first year, last year]*/)
 	var svg = this.svg = d3.select('#'+id).selectAll("svg")
 		.data(this.range)
 		.enter().append("svg")
-		.attr("width", '900')
+		.attr("width", width)
 		.attr("data-height", '0.5678')
-		.attr("viewBox",'0 0 900 105')
+		.attr("viewBox",'0 0 '+width+' '+height)
+		.attr("shape-rendering", "crispEdges")
 		.attr("class", "RdYlGn")
 		.append("g")
 		.attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
@@ -94,6 +97,12 @@ function Calendarmap(id, range /*[first year, last year]*/)
 			+ "H" + (w1 + 1) * cellSize + "V" + 0
 			+ "H" + (w0 + 1) * cellSize + "Z";
 	}
+
+	rect.on('click', function (d)
+	{
+		var gulls = self.stopoverGulls[d] || [];
+		Main.intersectGullSelection(gulls);
+	});
 }
 
 //------------------------------------------------------------------------------
@@ -103,18 +112,32 @@ Calendarmap.prototype.load = function load(stops, ids)
 	var data = {};
 	for (var i = stops.length - 1; i >= 0; --i)
 	{
-		var events = stops[i].get('events');
+		var events = stops[i].get('events') || {};
 		for (var id in events)
 		{
 			if (!(id in data))
 				data[id] = new Range();
-			for (var i = events[id].length - 2; i >= 0; i -= 2)
-				data[id].add(events[id][i], events[id][i + 1]);
+			for (var j = events[id].length - 2; j >= 0; j -= 2)
+				data[id].add(events[id][j], events[id][j + 1]);
 		}
 	}
 	for (var id in data)
 		data[id] = data[id].toArray();
 	visualizeCalendar.call(this, data, ids);
+}
+
+function formatNames(ids)
+{
+	var div = $('<div>');
+	for (var i = 0, l = ids.length; i < l; ++i)
+	{
+		div
+			.append(!(i % 6) ? ',<br>' : ', ')
+			.append($('<span>')
+				.text(Main.organisms[ids[i]].name)
+			);
+	}
+	return div;
 }
 
 function visualizeCalendar(data, gullIDs) {
@@ -135,7 +158,8 @@ function visualizeCalendar(data, gullIDs) {
 	}
 
 	// Compute the counts of stops for each day.
-	var stopoverDays = {};
+	var stopoverDays = this.stopoverDays = {},
+		stopoverGulls = this.stopoverGulls = {};
 	for (var j = 0, l = gullIDs.length; j < l; ++j) {
 		var gullID = gullIDs[j];
 		if (data.hasOwnProperty(gullID)) {
@@ -150,8 +174,10 @@ function visualizeCalendar(data, gullIDs) {
 					var formattedDate = dateToString(startDate);
 					if (!(stopoverDays.hasOwnProperty(formattedDate))) {
 						stopoverDays[formattedDate] = 0;
+						stopoverGulls[formattedDate] = {};
 					}
 					stopoverDays[formattedDate]++;
+					stopoverGulls[formattedDate][gullID] = true;
 					var newDate = startDate.setDate(startDate.getDate() + 1);
 					startDate = new Date(newDate);
 				}
@@ -160,6 +186,8 @@ function visualizeCalendar(data, gullIDs) {
 			} while (i < length);
 		}
 	}
+	for (var id in stopoverGulls)
+		stopoverGulls[id] = Object.keys(stopoverGulls[id]);
 	
 	// Compute the max count in the stop overs.
 	var maxValue = Number.MIN_VALUE;
@@ -178,12 +206,23 @@ function visualizeCalendar(data, gullIDs) {
 		.attr("fill", function(d) { return color((stopoverDays[d] / maxValue) || 0); })
 		.each(function(d)
 		{
+			var stops = Math.round(stopoverDays[d] || 0);
 			$(this).tooltipster('content',
-				"Stops: "+Math.round(stopoverDays[d] || 0));
+				formatNames(stopoverGulls[d] || [])
+					.prependText('' + stops + (stops == 1 ? ' stop' : ' stops' ))
+				);
 		});
 	
 
 	
+}
+
+//------------------------------------------------------------------------------
+
+$.fn.prependText = function (text)
+{
+	return this.each(function ()
+		{ $(this).prepend(document.createTextNode(text)); });
 }
 
 //------------------------------------------------------------------------------

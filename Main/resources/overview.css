@@ -19,6 +19,7 @@
 	height: 100%;
 	width: 100%;
 	overflow: auto;
+	list-style: disc inside;
 }
 .gull-list li {
 	display: inline;
@@ -34,4 +35,34 @@
 }
 .male {
 	color: #138B87;
+}
+#gulls {
+	display: inline-block;
+	float: right;
+	width: 40%;
+	z-index: 100;
+}
+#gulls .gull-list li {
+	width: 25%;
+}
+#gulls .gull-list li:hover {
+	text-decoration: line-through;
+}
+
+#calendar-map {
+	font: 10px sans-serif;
+	shape-rendering: crispEdges;
+	width: 55%;
+	z-index: 50;
+}
+.day {
+	stroke: #666;
+}
+.month {
+	fill: none;
+	stroke: #000;
+	stroke-width: 2px;
+}
+#calendar-map rect {
+	cursor: pointer;
 }

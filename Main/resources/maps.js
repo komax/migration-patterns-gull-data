@@ -56,7 +56,7 @@ maps.left = new ol.Map({
 	target: 'left-map',
 	layers: [ layers.positron, layers.mapquestLeft]
 		.concat(Heatmap.main.layers)
-		.concat([Journey.main.layer, layers.topologyLeft]),
+		.concat([layers.topologyLeft, Journey.main.layer]),
 	view: maps.view,
 });
 
@@ -69,7 +69,7 @@ maps.right = new ol.Map({
 			new window.interface.paneControl('#pane', '45%', '=', '_'),
 		]),
 	target: 'right-map',
-	layers: [ layers.positron, layers.mapquestRight, layers.schematic, layers.topologyRight ],
+	layers: [ layers.positron, layers.mapquestRight, layers.topologyRight, layers.schematic ],
 	view: maps.view,
 	interactions: ol.interaction.defaults()
 		.extend([ Schematic.main.select ]),

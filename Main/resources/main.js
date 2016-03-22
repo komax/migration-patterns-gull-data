@@ -147,8 +147,6 @@ main.selectNodes = function selectNodes(features)
 			{ return Object.keys(d.get('events')); }))
 		.toArray()
 	;
-	// Todo: enable this as soon as it exists
-	main.calendar.load(features, gulls); 
 	main.selectGulls(gulls);
 }
 
@@ -195,6 +193,25 @@ main.selectGulls = function selectGulls(selected)
 			Heatmap.main.load(selected);
 		}
 	}
+
+	var nodes = main.getNodeSelection();
+	if (!nodes.length)
+		nodes = Schematic.main.source.getFeatures()
+			.filter(function (d) { return d.get('type') == 'node'; });
+	main.calendar.load(nodes, selected);
+
+	var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
+	list.enter().append('li');
+	list
+		.text(function (d) { return main.organisms[d].name; })
+		.attr('class', function (d) { return main.organisms[d].sex; })
+		.on('click', function (d)
+		{
+			selected.splice(selected.indexOf(d), 1);
+			selectGulls(selected);
+		})
+	;
+	list.exit().remove();
 }
 
 main.getGullSelection = function () { return []; }
