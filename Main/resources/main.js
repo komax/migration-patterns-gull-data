@@ -89,7 +89,7 @@ main.initialize = function initialize()
 		.queue(function (next)
 		{
 			var slider = $('#heatmap-slider')
-				.val(80)
+				.val(100)
 				.on('change input', function ()
 				{
 					var opacity = slider.val() / 100.0;

@@ -127,18 +127,18 @@ ol.inherits(window.interface.paneControl, ol.control.Control);
 
 window.interface.settingsControl = function(controlElement)
 {
-	var button = $('<button>').text('*').attr('title', 'Show/hide map toolbar'),
-		toolbarShown = true;
+	var button = $('<button>').text('\u2699').attr('title', 'Show/hide map toolbar'),
+		toolbarShown = false;
 
 	button.on('click touchstart', function collapseToggle()
 	{
 		if (toolbarShown)
 		{
-			$(controlElement).hide();
+			$(controlElement).slideUp();
 		}
 		else
 		{
-			$(controlElement).show();
+			$(controlElement).slideDown();
 		}
 
 		toolbarShown = !toolbarShown;

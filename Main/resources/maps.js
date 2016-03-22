@@ -11,9 +11,11 @@ var maps = {};
 var layers = maps.layers = {
 	mapquestLeft: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'sat'}),
+		minResolution: 50,
 	}),
 	mapquestRight: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'sat'}),
+		minResolution: 50,
 	}),
 	topologyLeft: new ol.layer.Tile({
 		source: new ol.source.MapQuest({ layer: 'hyb'}),
@@ -52,9 +54,9 @@ maps.left = new ol.Map({
 			new window.interface.settingsControl('#left-toolbar', '#right-view','_|', '_|_'),
 		]),
 	target: 'left-map',
-	layers: [ layers.positron, layers.mapquestLeft, layers.topologyLeft]
+	layers: [ layers.positron, layers.mapquestLeft]
 		.concat(Heatmap.main.layers)
-		.concat([Journey.main.layer]),
+		.concat([Journey.main.layer, layers.topologyLeft]),
 	view: maps.view,
 });
 
@@ -67,26 +69,10 @@ maps.right = new ol.Map({
 			new window.interface.paneControl('#pane', '45%', '=', '_'),
 		]),
 	target: 'right-map',
-	layers: [ layers.positron, layers.mapquestRight, layers.topologyRight, layers.schematic ],
+	layers: [ layers.positron, layers.mapquestRight, layers.schematic, layers.topologyRight ],
 	view: maps.view,
 	interactions: ol.interaction.defaults()
 		.extend([ Schematic.main.select ]),
-});
-
-// Since mapquest doesn't show images at a zoom level higher than 11, we want
-// to switch to positron if zoomed in further. Hence we need a hook on the zoom event.
-maps.right.getView().on('change:resolution', function()
-{
-	var zoomLevel = maps.right.getView().getZoom();
-	var usePositron = (zoomLevel >= 12);
-
-	var alreadyVisibleLeft = layers.mapquestLeft.getVisible();
-	var shouldShowLeft = alreadyVisibleLeft && !usePositron;
-	layers.mapquestLeft.setVisible(shouldShowLeft);
-
-	var alreadyVisibleRight = layers.mapquestRight.getVisible();
-	var shouldShowRight = alreadyVisibleRight && !usePositron;
-	layers.mapquestRight.setVisible(shouldShowRight);
 });
 
 //------------------------------------------------------------------------------
