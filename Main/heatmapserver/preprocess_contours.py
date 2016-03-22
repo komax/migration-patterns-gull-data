@@ -236,6 +236,18 @@ def contourizeHeatmap(heatmap_info, fileout, contourlevel):
 
 
 def generate_contours_for_gulls(gulls):
+	gulls.sort()
+	identifier = ''.join(gulls)
+
+	jshash = 0
+	if (len(identifier) != 0): 
+		for i in range(len(identifier)):
+		        char = ord(identifier[i])
+		        jshash = ((jshash<<5)-jshash)+char;
+		        jshash = jshash& 0xFFFFFFFF
+
+	#print(jshash)
+
 	heatmap_info= generate_heatmap_for_gulls(gulls)
 	output = StringIO.StringIO()
 	output.write('{\n')
@@ -245,6 +257,10 @@ def generate_contours_for_gulls(gulls):
 		output.write(',\n')
 
 	output.write('}')
+
+	with open("%i.geojsonp"%(jshash), "w") as fh:
+		fh.write("jsonpContours(%s);"%(output.getvalue()))
+		
 	return output.getvalue()
 
 """

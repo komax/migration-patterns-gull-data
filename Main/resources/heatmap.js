@@ -19,7 +19,8 @@ var defaults = {
 			features = geojson.readFeatures(contours["contour"+level]);
 		return features;
 	},
-	heatmap_host : 'http://localhost:5000/'
+	heatmap_local : 'heatmapserver/',
+	heatmap_webserver: 'http://localhost:5000/'
 };
 
 function Heatmap()
@@ -38,37 +39,57 @@ function Heatmap()
 	
 }
 
-Heatmap.prototype.load = function load(ids)
+// from: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+String.prototype.hashCode = function(){
+	var hash = 0;
+	if (this.length == 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		char = this.charCodeAt(i);
+		hash = ((hash<<5)-hash)+char;
+		hash = hash & hash; 
+	}
+	return hash >>> 0; // we want unsigned.. couldn't get the python part to work otherwise..
+}
+
+Heatmap.prototype.loadHeatmapFrom = function(url, fallback)
 {
 	var self = this;
-	var restful_url = defaults.heatmap_host + ids.join('$');
-
 	$.ajax({
-		url: restful_url,
-		dataType: 'jsonp',
-		crossDomain: true,
-		jsonp: 'jsonpContours',
-		jsonpCallback: 'jsonpContours',
-		success: function (data)
-		{
-			var contourArray = [data.contour1, data.contour2, data.contour3, data.contour4, data.contour5]
+	url: url,
+	dataType: 'jsonp',
+	crossDomain: true,
+	jsonpCallback: 'jsonpContours',
+	success: function (data)
+	{
+		var contourArray = [data.contour1, data.contour2, data.contour3, data.contour4, data.contour5]
 
-			for (var i = 0; i < self.sources.length; i++)
-			{
-				var geojson = new ol.format.GeoJSON(),
-					features = geojson.readFeatures(contourArray[i])
-				self.sources[i].clear();
-				self.sources[i].addFeatures(features);
-			}
-
-			console.log("Succesfully loaded heatmap.")
-		},
-		error: function (xhr, status, error)
+		for (var i = 0; i < self.sources.length; i++)
 		{
+			var geojson = new ol.format.GeoJSON(),
+				features = geojson.readFeatures(contourArray[i])
+			self.sources[i].clear();
+			self.sources[i].addFeatures(features);
+		}
+
+		console.log("Succesfully loaded heatmap.")
+	},
+	error: function (xhr, status, error)
+	{
+		if(fallback)
+			self.loadHeatmapFrom(fallback)
+		else
 			console.log(error)
-			console.log("Could not retrieve heatmap.")
-		},
+		//console.log("Could not retrieve heatmap.")
+	},
 	});
+}
+
+Heatmap.prototype.load = function load(ids)
+{
+	var safe_ids = ids.slice(0);
+	var restful_url = defaults.heatmap_webserver + safe_ids.join('$');
+	var directory_url = defaults.heatmap_local + safe_ids.sort().join("").hashCode() + '.geojsonp';
+	this.loadHeatmapFrom(directory_url, restful_url);
 }
 
 Heatmap.prototype.setOpacity = function setOpacity(val)
