@@ -122,6 +122,11 @@ main.initialize = function initialize()
 			Maps.layers.topologyRight.setVisible(this.checked);
 			next();
 		})
+		.queue(function (next)
+		{
+			main.calendar = new Calendarmap('calendar-map', [2013, 2015]);
+			next();
+		})
 		.go()
 	;
 }
@@ -143,7 +148,7 @@ main.selectNodes = function selectNodes(features)
 		.toArray()
 	;
 	// Todo: enable this as soon as it exists
-	// updateCalendar(features, gulls); 
+	main.calendar.load(features, gulls); 
 	main.selectGulls(gulls);
 }
 
