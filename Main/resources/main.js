@@ -4,287 +4,291 @@
 
 (function (global) {
 
-var main = {};
+    var main = {};
 
 //------------------------------------------------------------------------------
 
-main.initialize = function initialize()
-{
-	main.organisms = {};
-	new Batch()
-		.queue(function (next)
-		{
-			$.ajax({
-				url: 'data/organisms.jsonp',
-				dataType: 'jsonp',
-				scriptCharset: 'utf-8',
-				crossDomain: true,
-				jsonpCallback: 'organisms',
-				success: function (data)
-				{
-					main.organisms = data;
-					for (var id in main.organisms)
-						main.organisms[id].id = id;
-					next();
-				},
-			});
-		})
-		.queue(function (next)
-		{
-			var ul = d3.select('#global-overview .gull-list'),
-				items = ul.selectAll('li')
-					.data(d3.values(main.organisms)),
-				li = items.enter().append('li')
-					.text(function (d) { return d.name; })
-					.attr('class', function (d) { return d.sex; })
-					.on('click', function (d) { main.selectGulls([d.id]); })
-			;
-			next();
-		})
-		.queue(function (next)
-		{
-			var slider = $('#schema-slider')
-				.attr('max', 99)
-				.val(78)
-				.on('change input', function ()
-				{
-					Schematic.main.load(slider.val());
-				})
-			;
-			Schematic.main.select.on('select', function (e)
-			{
-				main.selectNodes(e.target.getFeatures());
-			});
-			Schematic.main.load(slider.val());
-			next();
-		})
-		.queue(function (next)
-		{
-			var slider = $('#sat-slider-left')
-				.on('change input', function ()
-				{
-					var opacity = slider.val() / 100.0;
-					Maps.layers.mapquestLeft.setVisible(opacity>0);
-					Maps.layers.mapquestLeft.setOpacity(opacity);
-				})
-				.val(0);
+    main.initialize = function initialize() {
+        var self = this;
+        main.organisms = {};
+        new Batch()
+            .queue(function (next) {
+                $.ajax({
+                    url: 'data/organisms.jsonp',
+                    dataType: 'jsonp',
+                    scriptCharset: 'utf-8',
+                    crossDomain: true,
+                    jsonpCallback: 'organisms',
+                    success: function (data) {
+                        main.organisms = data;
+                        for (var id in main.organisms) {
+                            if (main.organisms.hasOwnProperty(id)) {
+                                main.organisms[id].id = id;
+                            }
+                        }
+                        next();
+                    }
+                });
+            })
+            .queue(function (next) {
+                var ul = d3.select('#global-overview .gull-list'),
+                    items = ul.selectAll('li')
+                        .data(d3.values(main.organisms)),
+                    li = items.enter().append('li')
+                        .text(function (d) {
+                            return d.name;
+                        })
+                        .attr('class', function (d) {
+                            return d.sex;
+                        })
+                        .on('click', function (d) {
+                            main.selectGulls([d.id]);
+                        })
+                    ;
+                next();
+            })
+            .queue(function (next) {
+                var slider = $('#schema-slider')
+                        .attr('max', 99)
+                        .val(78)
+                        .on('change input', function () {
+                            Schematic.main.load(slider.val());
+                        })
+                    ;
+                Schematic.main.select.on('select', function (e) {
+                    main.selectNodes(e.target.getFeatures());
+                });
+                Schematic.main.load(slider.val());
+                next();
+            })
+            .queue(function (next) {
+                var slider = $('#sat-slider-left')
+                    .on('change input', function () {
+                        var opacity = slider.val() / 100.0;
+                        Maps.layers.mapquestLeft.setVisible(opacity > 0);
+                        Maps.layers.mapquestLeft.setOpacity(opacity);
+                    })
+                    .val(0);
 
-			Maps.layers.mapquestLeft.setOpacity(slider.val());
-			next();
-		})
-		.queue(function (next)
-		{
-			var slider = $('#sat-slider-right')
-				.val(0)
-				.on('change input', function ()
-				{
-					var opacity = slider.val() / 100.0;
-					Maps.layers.mapquestRight.setVisible(opacity>0);
-					Maps.layers.mapquestRight.setOpacity(opacity);
-				});
+                Maps.layers.mapquestLeft.setOpacity(slider.val());
+                next();
+            })
+            .queue(function (next) {
+                var slider = $('#sat-slider-right')
+                    .val(0)
+                    .on('change input', function () {
+                        var opacity = slider.val() / 100.0;
+                        Maps.layers.mapquestRight.setVisible(opacity > 0);
+                        Maps.layers.mapquestRight.setOpacity(opacity);
+                    });
 
-			Maps.layers.mapquestRight.setOpacity(slider.val());
-			next();
-		})
-		.queue(function (next)
-		{
-			var slider = $('#heatmap-slider')
-				.val(100)
-				.on('change input', function ()
-				{
-					var opacity = slider.val() / 100.0;
-					Heatmap.main.setOpacity(opacity);
-				})
-			;
-			next();
-		})
-		.queue(function (next)
-		{
-			var checkbox = $('#placenames-left')
-				.val(false)
-				.on('change input', function ()
-				{
-					Maps.layers.topologyLeft.setVisible(this.checked);
-				})
-			;
-			Maps.layers.topologyLeft.setVisible(this.checked);
-			next();
-		})
-		.queue(function (next)
-		{
-			var checkbox = $('#placenames-right')
-				.val(false)
-				.on('change input', function ()
-				{
-					Maps.layers.topologyRight.setVisible(this.checked);
-				})
-			;
-			Maps.layers.topologyRight.setVisible(this.checked);
-			next();
-		})
-		.queue(function (next)
-		{
-			main.calendar = new Calendarmap('calendar-map', [2013, 2015]);
-			next();
-		})
-		.go()
-	;
-}
+                Maps.layers.mapquestRight.setOpacity(slider.val());
+                next();
+            })
+            .queue(function (next) {
+                var slider = $('#heatmap-slider')
+                        .val(100)
+                        .on('change input', function () {
+                            var opacity = slider.val() / 100.0;
+                            Heatmap.main.setOpacity(opacity);
+                        })
+                    ;
+                next();
+            })
+            .queue(function (next) {
+                var checkbox = $('#placenames-left')
+                        .val(false)
+                        .on('change input', function () {
+                            Maps.layers.topologyLeft.setVisible(self.checked);
+                        })
+                    ;
+                Maps.layers.topologyLeft.setVisible(self.checked);
+                next();
+            })
+            .queue(function (next) {
+                var checkbox = $('#placenames-right')
+                        .val(false)
+                        .on('change input', function () {
+                            Maps.layers.topologyRight.setVisible(self.checked);
+                        })
+                    ;
+                Maps.layers.topologyRight.setVisible(self.checked);
+                next();
+            })
+            .queue(function (next) {
+                main.calendar = new Calendarmap('calendar-map', [2013, 2015]);
+                next();
+            })
+            .go()
+        ;
+    };
 
 //------------------------------------------------------------------------------
 // Select schema nodes (takes map features)
 // Note: this function is used by map interactions;
 // this means that calling this function will not update the map itself.
 
-main.selectNodes = function selectNodes(features)
-{
-	if (!Array.isArray(features))
-		features = features.getArray();
-	main.getNodeSelection = function () { return features.slice(0); }
+    main.selectNodes = function selectNodes(features) {
+        if (!Array.isArray(features)) {
+            features = features.getArray();
+        }
+        main.getNodeSelection = function () {
+            return features.slice(0);
+        };
 
-	var gulls = new Intersection()
-		.addAll(features.map(function (d)
-			{ return Object.keys(d.get('events')); }))
-		.toArray()
-	;
-	main.selectGulls(gulls);
-}
+        var gulls = new Intersection()
+                .addAll(features.map(function (d) {
+                    return Object.keys(d.get('events'));
+                }))
+                .toArray()
+            ;
+        main.selectGulls(gulls);
+    };
 
-main.getNodeSelection = function () { return []; }
+    main.getNodeSelection = function () {
+        return [];
+    };
 
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
 
-main.selectGulls = function selectGulls(selected)
-{
-	main.getGullSelection = function () { return selected.slice(0); }
-	
-	var hash = {};
-	selected.forEach(function (d) { hash[d] = true; });
-	main.inGullSelection = function (arr)
-	{
-		for (var i = arr.length - 1; i >= 0; --i)
-			if (arr[i] in hash)
-				return true;
-		return false;
-	}
+    main.selectGulls = function selectGulls(selected) {
+        main.getGullSelection = function () {
+            return selected.slice(0);
+        };
 
-	Schematic.main.refresh();
+        var hash = {};
+        selected.forEach(function (d) {
+            hash[d] = true;
+        });
+        main.inGullSelection = function (arr) {
+            for (var i = arr.length - 1; i >= 0; --i)
+                if (arr[i] in hash)
+                    return true;
+            return false;
+        };
 
-	if (selected.length < 1) // all is deselected
-	{
-		$('#global-overview').show();
-		$('#selection-overview').hide();
-		Journey.main.clear();
-		Heatmap.main.clear(); // clearing the heatmap shows the default one
-	}
-	else
-	{
-		$('#global-overview').hide();
-		$('#selection-overview').show();
+        Schematic.main.refresh();
 
-		if (selected.length == 1){
-			Journey.main.load(selected[0]);
-			// Heatmap of a single gull is not very useful, since the trajectory is shown.
-			Heatmap.main.clear(); 
-		}
-		else {
-			Journey.main.clear();
-			Heatmap.main.load(selected);
-		}
-	}
+        if (selected.length < 1) {
+            // all is deselected
+            $('#global-overview').show();
+            $('#selection-overview').hide();
+            Journey.main.clear();
+            Heatmap.main.clear(); // clearing the heatmap shows the default one
+        } else {
+            $('#global-overview').hide();
+            $('#selection-overview').show();
 
-	var nodes = main.getNodeSelection();
-	if (!nodes.length)
-		nodes = Schematic.main.source.getFeatures()
-			.filter(function (d) { return d.get('type') == 'node'; });
-	main.calendar.load(nodes, selected);
+            if (selected.length == 1) {
+                Journey.main.load(selected[0]);
+                // Heatmap of a single gull is not very useful, since the trajectory is shown.
+                Heatmap.main.clear();
+            } else {
+                Journey.main.clear();
+                Heatmap.main.load(selected);
+            }
+        }
 
-	var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
-	list.enter().append('li');
-	list
-		.text(function (d) { return main.organisms[d].name; })
-		.attr('class', function (d) { return main.organisms[d].sex; })
-		.on('click', function (d)
-		{
-			selected.splice(selected.indexOf(d), 1);
-			selectGulls(selected);
-		})
-	;
-	list.exit().remove();
-}
+        var nodes = main.getNodeSelection();
+        if (!nodes.length)
+            nodes = Schematic.main.source.getFeatures()
+                .filter(function (d) {
+                    return d.get('type') == 'node';
+                });
+        main.calendar.load(nodes, selected);
 
-main.getGullSelection = function () { return []; }
-main.inGullSelection = function () { return false; }
+        var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
+        list.enter().append('li');
+        list
+            .text(function (d) {
+                return main.organisms[d].name;
+            })
+            .attr('class', function (d) {
+                return main.organisms[d].sex;
+            })
+            .on('click', function (d) {
+                selected.splice(selected.indexOf(d), 1);
+                selectGulls(selected);
+            });
+        list.exit().remove();
+    };
 
-main.intersectGullSelection = function intersectGullSelection(gulls)
-{
-	main.selectGulls(new Intersection()
-		.add(main.getGullSelection())
-		.add(gulls)
-		.toArray());
-}
+    main.getGullSelection = function () {
+        return [];
+    };
 
-//------------------------------------------------------------------------------
+    main.inGullSelection = function () {
+        return false;
+    };
 
-function Batch()
-{
-	this.list = [];
-}
-
-Batch.prototype.queue = function queue(func)
-{
-	this.list.push(func);
-	return this;
-}
-
-Batch.prototype.go = function go()
-{
-	var self = this;
-	function next()
-	{
-		var func = self.list.shift();
-		if (func)
-			return func(next);
-	}
-	next();
-	return this;
-}
+    main.intersectGullSelection = function intersectGullSelection(gulls) {
+        main.selectGulls(new Intersection()
+            .add(main.getGullSelection())
+            .add(gulls)
+            .toArray());
+    };
 
 //------------------------------------------------------------------------------
 
-function Intersection()
-{
-	var elements = undefined;
-	function add(arr)
-	{
-		if (elements)
-			elements = elements.filter(function (x)
-				{ return arr.indexOf(x) >= 0; });
-		else
-			elements = arr.slice(0);
-		return this;
-	}
-	function addAll(arrs)
-	{
-		for (var i = arrs.length - 1; i >= 0; --i)
-			add(arrs[i]);
-		return this;
-	}
-	function toArray()
-	{
-		return (elements || []).slice(0);
-	}
-	this.add = add;
-	this.addAll = addAll;
-	this.toArray = toArray;
-}
+    var Batch = function Batch() {
+        this.list = [];
+    };
+
+    Batch.prototype.queue = function queue(func) {
+        this.list.push(func);
+        return this;
+    };
+
+    Batch.prototype.go = function go() {
+        var self = this;
+
+        function next() {
+            var func = self.list.shift();
+            if (func) {
+                return func(next);
+            }
+        }
+
+        next();
+        return this;
+    };
 
 //------------------------------------------------------------------------------
 
-global.Main = main;
-global.Batch = Batch;
-global.Intersection = Intersection;
+    var Intersection = function Intersection() {
+        var elements = undefined;
+
+        var add = function add(arr) {
+            if (elements)
+                elements = elements.filter(function (x) {
+                    return arr.indexOf(x) >= 0;
+                });
+            else
+                elements = arr.slice(0);
+            return this;
+        };
+
+        var addAll = function addAll(arrs) {
+            for (var i = arrs.length - 1; i >= 0; --i)
+                add(arrs[i]);
+            return this;
+        };
+
+        var toArray = function toArray() {
+            return (elements || []).slice(0);
+        };
+
+        this.add = add;
+        this.addAll = addAll;
+        this.toArray = toArray;
+    };
+
+//------------------------------------------------------------------------------
+
+    global.Main = main;
+    global.Batch = Batch;
+    global.Intersection = Intersection;
 
 })(window || this);
 

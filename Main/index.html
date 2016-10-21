@@ -1,75 +1,75 @@
 <html>
 <head>
-	<title>Migration Patterns in Gull Data</title>
-	<meta charset="utf-8">
-	<!-- Libraries: -->
-	<script src="resources/ol.js"></script>
-	<link rel="stylesheet" href="resources/ol.css">
-	<script src="resources/d3.min.js" charset="utf-8"></script>
-	<script src="resources/jquery-2.2.1.min.js"></script>
-	<script src="resources/jquery-ui.min.js"></script>
-	<script src="resources/jquery.tooltipster.min.js"></script>
-	<link rel="stylesheet" href="resources/tooltipster.css" />
-	<!-- Data: -->
-	<script src="data/heatmap_contours.js"></script>
-	<!-- Components: -->
-	<script src="resources/main.js"></script>
-	<script src="resources/interface.js"></script>
-	<link rel="stylesheet" href="resources/interface.css">
-	<script src="resources/heatmap.js"></script>
-	<script src="resources/journey.js"></script>
-	<script src="resources/schematic.js"></script>
-	<script src="resources/maps.js"></script>
-	<link rel="stylesheet" href="resources/overview.css">
-	<script src="resources/calendarmap.js"></script>
+    <title>Migration Patterns in Gull Data</title>
+    <meta charset="utf-8">
+    <!-- Libraries: -->
+    <script src="resources/ol.js"></script>
+    <link rel="stylesheet" href="resources/ol.css">
+    <script src="resources/d3.min.js" charset="utf-8"></script>
+    <script src="resources/jquery-2.2.1.min.js"></script>
+    <script src="resources/jquery-ui.min.js"></script>
+    <script src="resources/jquery.tooltipster.min.js"></script>
+    <link rel="stylesheet" href="resources/tooltipster.css"/>
+    <!-- Data: -->
+    <script src="data/heatmap_contours.js"></script>
+    <!-- Components: -->
+    <script src="resources/main.js"></script>
+    <script src="resources/interface.js"></script>
+    <link rel="stylesheet" href="resources/interface.css">
+    <script src="resources/heatmap.js"></script>
+    <script src="resources/journey.js"></script>
+    <script src="resources/schematic.js"></script>
+    <script src="resources/maps.js"></script>
+    <link rel="stylesheet" href="resources/overview.css">
+    <script src="resources/calendarmap.js"></script>
 </head>
 <body>
-	<header>
-		<h1></h1>
-	</header>
-	<div id="content">
-		<div id="views">
-			<div id="left-view">
-				<div id="left-toolbar">
-					<label for="sat-slider-left">Satellite opacity:</label>
-					<input type="range" id="sat-slider-left" min="0", max="100">
-					<label for="heatmap-slider">Heatmap opacity:</label>
-					<input type="range" id="heatmap-slider" min="0", max="100">
-					<label for="placenames-left">Place names:</label>
-					<input id="placenames-left" type="checkbox">
-				</div>
-				<div id="left-map" class="map"></div>		
-			</div>
-			<div id="hdivider" class="ui-resizable-handle ui-resizable-e">&nbsp;</div>
-			<div id="right-view">
-				<div id="right-toolbar">
-					<label for="sat-slider-left">Satellite opacity:</label>
-					<input type="range" id="sat-slider-right" min="0", max="100">
-					<label for="placenames-right">Place names:</label>
-					<input id="placenames-right" type="checkbox">
-				</div>
-				<div id="right-map" class="map"></div>
-			</div>
-		</div>
-		<div id="vdivider" class="ui-resizable-handle ui-resizable-n">&nbsp;</div>
-		<div id="pane">
-			<div id="global-overview">	
-				<div id="schema-settings">
-					<label for="schema-slider">Abstraction level:</label>
-					<input type="range" id="schema-slider" min="0">
-				</div>	
-				<h3>Gulls:</h3>
-				<ul class="gull-list"></ul>
-			</div>
-			<div id="selection-overview">
-				<div id="gulls">
-					<ul class="gull-list"></ul>
-				</div>
-				<div id="calendar-map"></div>
-			</div>
-		</div>
-	</div>
-	<footer>
+<header>
+    <h1></h1>
+</header>
+<div id="content">
+    <div id="views">
+        <div id="left-view">
+            <div id="left-toolbar">
+                <label for="sat-slider-left">Satellite opacity:</label>
+                <input type="range" id="sat-slider-left" min="0" , max="100">
+                <label for="heatmap-slider">Heatmap opacity:</label>
+                <input type="range" id="heatmap-slider" min="0" , max="100">
+                <label for="placenames-left">Place names:</label>
+                <input id="placenames-left" type="checkbox">
+            </div>
+            <div id="left-map" class="map"></div>
+        </div>
+        <div id="hdivider" class="ui-resizable-handle ui-resizable-e">&nbsp;</div>
+        <div id="right-view">
+            <div id="right-toolbar">
+                <label for="sat-slider-left">Satellite opacity:</label>
+                <input type="range" id="sat-slider-right" min="0" , max="100">
+                <label for="placenames-right">Place names:</label>
+                <input id="placenames-right" type="checkbox">
+            </div>
+            <div id="right-map" class="map"></div>
+        </div>
+    </div>
+    <div id="vdivider" class="ui-resizable-handle ui-resizable-n">&nbsp;</div>
+    <div id="pane">
+        <div id="global-overview">
+            <div id="schema-settings">
+                <label for="schema-slider">Abstraction level:</label>
+                <input type="range" id="schema-slider" min="0">
+            </div>
+            <h3>Gulls:</h3>
+            <ul class="gull-list"></ul>
+        </div>
+        <div id="selection-overview">
+            <div id="gulls">
+                <ul class="gull-list"></ul>
+            </div>
+            <div id="calendar-map"></div>
+        </div>
+    </div>
+</div>
+<footer>
 		<span>
 			<a data-code="grli:dtbumlj@pna@s@:.one:u:.nuei" href="#">Pieter Gijsbers</a>,
 			<a data-code="frli:dtmu:lffna@s@:.one:u:.nuei" href="#">Ferry Timmers</a>,
@@ -78,7 +78,9 @@
 			<a data-code="isml@euiwsw.oa@ogrobnt@:owgl" href="#">Michel A. Westenberg</a>,
 			March 2016.
 		</span>
-	</footer>
-	<script>$(function() { Main.initialize(); })</script>
+</footer>
+<script>$(function () {
+    Main.initialize();
+})</script>
 </body>
 </html>
