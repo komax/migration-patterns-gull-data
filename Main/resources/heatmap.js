@@ -10,7 +10,7 @@
         colors: ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026'],
         style: function (color) {
             return new ol.style.Style({
-                fill: new ol.style.Fill({color: color}),
+                fill: new ol.style.Fill({color: color})
             })
         },
         features: function (level) {
