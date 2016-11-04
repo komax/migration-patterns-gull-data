@@ -9,3 +9,7 @@
 
 # Ignore idea files
 .idea/
+
+# Ignore generated js files
+Main/resources/*.js
+Main/resources/*.js.map
