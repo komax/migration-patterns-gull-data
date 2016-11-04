@@ -3,7 +3,7 @@
 // Definitions by: Patrick Magee <https://github.com/pjmagee/>, Dmitry Pesterev <https://github.com/VorobeY1326/>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
-/// <reference path="../jquery/jquery.d.ts" />
+/// <reference path="./jquery.d.ts" />
 
 interface JQueryTooltipsterOptions {
     /**
