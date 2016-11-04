@@ -1,2 +1,8 @@
+# Ignore python compiled files
+*.py[cod]
+
+# Ignore pickle files
+*.pkl
+
 # Ignore idea files
 .idea/
