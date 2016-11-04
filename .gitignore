@@ -4,5 +4,8 @@
 # Ignore pickle files
 *.pkl
 
+# Ignore geo json files
+*.geojsonp
+
 # Ignore idea files
 .idea/
