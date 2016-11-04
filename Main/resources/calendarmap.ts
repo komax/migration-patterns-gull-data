@@ -1,6 +1,6 @@
-/// <reference path="d3.d.ts" />
-/// <reference path="jquery.d.ts" />
-/// <reference path="jquery.tooltipster.d.ts" />
+/// <reference path="../libraries/definitions/d3.d.ts" />
+/// <reference path="../libraries/definitions/jquery.d.ts" />
+/// <reference path="../libraries/definitions/jquery.tooltipster.d.ts" />
 /**
  * Calendar heatmap for stop frequency
  */
