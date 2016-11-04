@@ -1,3 +1,6 @@
+/// <reference path="../libraries/definitions/openlayers.d.ts" />
+/// <reference path="../libraries/definitions/d3.d.ts" />
+/// <reference path="../libraries/definitions/jquery.d.ts" />
 /**
  * A map layer that shows the complete journey of a gull segmented on day/night
  */
@@ -124,13 +127,13 @@ Journey.prototype.load = function load(id)
 			}));
 		},
 	});
-}
+};
 
 Journey.prototype.clear = function clear()
 {
 	this.source1.clear();
 	this.source2.clear();
-}
+};
 
 //------------------------------------------------------------------------------
 

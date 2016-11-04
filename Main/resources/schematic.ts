@@ -1,3 +1,5 @@
+/// <reference path="../libraries/definitions/openlayers.d.ts" />
+/// <reference path="../libraries/definitions/jquery.d.ts" />
 /**
  * A schematic map layer that shows migration
  */
