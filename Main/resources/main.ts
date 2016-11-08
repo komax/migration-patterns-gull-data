@@ -13,11 +13,11 @@ interface Organism {
 
     let main: any = {};
 
-    let Schematic = (<any>global).Schematic;
-    let Maps = (<any>global).Maps;
-    let Heatmap = (<any>global).Heatmap;
-    let Calendarmap = (<any>global).Calendarmap;
-    let Journey = (<any>global).Journey;
+    // let Schematic = (<any>global).Schematic;
+    // let Maps = (<any>global).Maps;
+    // let Heatmap = (<any>global).Heatmap;
+    // let Calendarmap = (<any>global).Calendarmap;
+    // let Journey = (<any>global).Journey;
 
 //------------------------------------------------------------------------------
 
