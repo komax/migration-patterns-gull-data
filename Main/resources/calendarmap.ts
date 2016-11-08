@@ -69,10 +69,10 @@
             .attr("width", cellSize)
             .attr("height", cellSize)
             .attr("x", function (d) {
-                return week(d) * cellSize;
+                return (<any>week(d)) * cellSize;
             })
             .attr("y", function (d) {
-                return day(d) * cellSize;
+                return (<any>day(d)) * cellSize;
             })
             .attr("fill", '#fff')
             .datum(format);
@@ -121,7 +121,7 @@
 
         rect.on('click', function (d) {
             var gulls = self.stopoverGulls[d] || [];
-            Main.intersectGullSelection(gulls);
+            (<any>global).Main.intersectGullSelection(gulls);
         });
     }
 
@@ -141,7 +141,7 @@
         for (var id in data)
             data[id] = data[id].toArray();
         visualizeCalendar.call(this, data, ids);
-    }
+    };
 
     function formatNames(ids) {
         var div = $('<div>');
@@ -149,7 +149,7 @@
             div
                 .append(!(i % 6) ? ',<br>' : ', ')
                 .append($('<span>')
-                    .text(Main.organisms[ids[i]].name)
+                    .text((<any>global).Main.organisms[ids[i]].name)
                 );
         }
         return div;
@@ -288,7 +288,7 @@
 
 //------------------------------------------------------------------------------
 
-    global.Calendarmap = Calendarmap;
+    (<any>global).Calendarmap = Calendarmap;
 
 })(window || this);
 
