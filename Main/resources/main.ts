@@ -4,9 +4,20 @@
  * Global functionality used by the application
  */
 
+interface Organism {
+    name: string;
+    sex: string;
+}
+
 (function (global) {
 
-    var main = {};
+    let main: any = {};
+
+    let Schematic = (<any>global).Schematic;
+    let Maps = (<any>global).Maps;
+    let Heatmap = (<any>global).Heatmap;
+    let Calendarmap = (<any>global).Calendarmap;
+    let Journey = (<any>global).Journey;
 
 //------------------------------------------------------------------------------
 
@@ -37,13 +48,13 @@
                     items = ul.selectAll('li')
                         .data(d3.values(main.organisms)),
                     li = items.enter().append('li')
-                        .text(function (d) {
+                        .text(function (d: Organism) {
                             return d.name;
                         })
-                        .attr('class', function (d) {
+                        .attr('class', function (d: Organism) {
                             return d.sex;
                         })
-                        .on('click', function (d) {
+                        .on('click', function (d: any) {
                             main.selectGulls([d.id]);
                         })
                     ;
@@ -262,12 +273,13 @@
         var elements = undefined;
 
         var add = function add(arr) {
-            if (elements)
+            if (elements) {
                 elements = elements.filter(function (x) {
                     return arr.indexOf(x) >= 0;
                 });
-            else
+            } else {
                 elements = arr.slice(0);
+            }
             return this;
         };
 
@@ -288,9 +300,9 @@
 
 //------------------------------------------------------------------------------
 
-    global.Main = main;
-    global.Batch = Batch;
-    global.Intersection = Intersection;
+    (<any>global).Main = main;
+    (<any>global).Batch = Batch;
+    (<any>global).Intersection = Intersection;
 
 })(window || this);
 
