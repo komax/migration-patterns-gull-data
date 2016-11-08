@@ -4,6 +4,10 @@
  * A map layer that shows the complete journey of a gull segmented on day/night
  */
 
+interface String {
+    hashCode: () => number;
+}
+
 (function (global) {
 
 //------------------------------------------------------------------------------
@@ -17,7 +21,7 @@
         },
         features: function (level) {
             let geojson = new ol.format.GeoJSON();
-            return geojson.readFeatures(global.contours["contour" + level]);
+            return geojson.readFeatures((<any>global).contours["contour" + level]);
         },
         heatmap_local: 'heatmapserver/',
         heatmap_webserver: 'http://localhost:5000/'
@@ -103,8 +107,8 @@
 
 //------------------------------------------------------------------------------
 
-    global.Heatmap = Heatmap;
-    global.Heatmap.main = new Heatmap();
+    (<any>global).Heatmap = Heatmap;
+    (<any>global).Heatmap.main = new Heatmap();
 
 })(window || this);
 
