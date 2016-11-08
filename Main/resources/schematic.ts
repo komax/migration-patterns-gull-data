@@ -61,7 +61,7 @@
     }
 
     function edgeStyle(feature, resolution) {
-        var mode = Main.inGullSelection(feature.get('ids'))
+        var mode = (<any>global).Main.inGullSelection(feature.get('ids'))
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
             opacity = count / 10,
@@ -136,8 +136,8 @@
 
 //------------------------------------------------------------------------------
 
-    global.Schematic = Schematic;
-    global.Schematic.main = new Schematic();
+    (<any>global).Schematic = Schematic;
+    (<any>global).Schematic.main = new Schematic();
 
 })(window || this);
 
