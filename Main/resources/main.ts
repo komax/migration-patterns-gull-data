@@ -170,7 +170,7 @@ namespace  MigrationVisualization {
         selected.forEach(function (d) {
             hash[d] = true;
         });
-        main.inGullSelection = function (arr) {
+        inGullSelection = function (arr) {
             for (var i = arr.length - 1; i >= 0; --i)
                 if (arr[i] in hash)
                     return true;
@@ -227,7 +227,7 @@ namespace  MigrationVisualization {
         return [];
     };
 
-    main.inGullSelection = function () {
+    export let inGullSelection: (arr: Array) => boolean = function () {
         return false;
     };
 
