@@ -1,0 +1,17 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "ES5",
+        "outFile": "./Main/resources/build.js",
+        "strictNullChecks": true,
+        "sourceMap": true
+    },
+    "files": [
+        "./Main/resources/calendarmap.ts",
+        "./Main/resources/heatmap.ts",
+        "./Main/resources/journey.ts",
+        "./Main/resources/main.ts",
+        "./Main/resources/maps.ts",
+        "./Main/resources/schematic.ts"
+    ]
+}
