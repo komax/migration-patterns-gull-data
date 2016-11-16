@@ -1,5 +1,7 @@
 /// <reference path="../libraries/definitions/openlayers.d.ts" />
 /// <reference path="../libraries/definitions/jquery.d.ts" />
+"use strict";
+var heatmap_1 = require("./heatmap");
 /**
  * Map setup and configuration
  */
@@ -10,17 +12,17 @@
         var layers = maps.layers = {
             mapquestLeft: new ol.layer.Tile({
                 source: new ol.source.MapQuest({ layer: 'sat' }),
-                minResolution: 50
+                minResolution: 50,
             }),
             mapquestRight: new ol.layer.Tile({
                 source: new ol.source.MapQuest({ layer: 'sat' }),
-                minResolution: 50
+                minResolution: 50,
             }),
             topologyLeft: new ol.layer.Tile({
-                source: new ol.source.MapQuest({ layer: 'hyb' })
+                source: new ol.source.MapQuest({ layer: 'hyb' }),
             }),
             topologyRight: new ol.layer.Tile({
-                source: new ol.source.MapQuest({ layer: 'hyb' })
+                source: new ol.source.MapQuest({ layer: 'hyb' }),
             }),
             positron: new ol.layer.Tile({
                 source: new ol.source.XYZ({
@@ -36,11 +38,11 @@
                 })
             }),
             journey: Journey.main.layer,
-            schematic: Schematic.main.layer
+            schematic: Schematic.main.layer,
         };
         maps.view = new ol.View({
             center: ol.proj.fromLonLat([-0.234747, 38.0422329]),
-            zoom: 4.25
+            zoom: 4.25,
         });
         // For heatmap
         maps.left = new ol.Map({
@@ -52,9 +54,9 @@
             ]),
             target: 'left-map',
             layers: [layers.positron, layers.mapquestLeft]
-                .concat(global.heatmap.layers)
+                .concat(heatmap_1.heatmap.layers)
                 .concat([layers.topologyLeft, Journey.main.layer]),
-            view: maps.view
+            view: maps.view,
         });
         // For migration map
         maps.right = new ol.Map({
@@ -69,7 +71,7 @@
             layers: [layers.positron, layers.mapquestRight, layers.topologyRight, layers.schematic],
             view: maps.view,
             interactions: ol.interaction.defaults()
-                .extend([Schematic.main.select])
+                .extend([Schematic.main.select]),
         });
         //------------------------------------------------------------------------------
         maps.resize = function resize() {
