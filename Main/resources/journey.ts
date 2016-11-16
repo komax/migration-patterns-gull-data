@@ -9,7 +9,7 @@ namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
-    var defaults = {
+    let defaults = {
         day: new ol.style.Style({
             stroke: new ol.style.Stroke({
                 //color: [220, 20, 60, .8],
@@ -50,11 +50,11 @@ namespace MigrationVisualization {
         }),
     };
 
-    var dateStamp = d3.time.format('%b %d\n%Y'),
+    let dateStamp = d3.time.format('%b %d\n%Y'),
         timeStamp = d3.time.format('%b %d %Y\n%-I:%M %p');
 
     function labelStyle(feature, resolution) {
-        var top = feature.get('features')[0],
+        let top = feature.get('features')[0],
             stamp = resolution > 500 ? dateStamp : timeStamp;
         return new ol.style.Style({
             text: new ol.style.Text({
@@ -74,61 +74,63 @@ namespace MigrationVisualization {
         return 'data/' + JSONkey(id) + '.geojsonp';
     }
 
-    function Journey() {
-        this.source1 = new ol.source.Vector({});
-        this.layer1 = new ol.layer.Vector({
-            source: this.source1,
-            style: function (feature, resolution) {
-                var type = feature.get('type');
-                return defaults[type];
-            },
-        });
-        this.source2 = new ol.source.Vector({});
-        this.layer2 = new ol.layer.Vector({
-            source: new ol.source.Cluster({
-                distance: 50,
-                source: this.source2,
-            }),
-            style: labelStyle,
-        });
-        this.layer = new ol.layer.Group({
-            layers: [this.layer1, this.layer2],
-        });
+    export class Journey {
+        private source1: ol.source.Vector;
+        private layer1: ol.layer.Vector;
+        private source2: ol.source.Vector;
+        private layer2: ol.layer.Vector;
+        private layer: ol.layer.Group;
+
+        constructor() {
+            this.source1 = new ol.source.Vector({});
+            this.layer1 = new ol.layer.Vector({
+                source: this.source1,
+                style: function (feature, resolution) {
+                    let type = feature.get('type');
+                    return defaults[type];
+                },
+            });
+            this.source2 = new ol.source.Vector({});
+            this.layer2 = new ol.layer.Vector({
+                source: new ol.source.Cluster({
+                    distance: 50,
+                    source: this.source2,
+                }),
+                style: labelStyle,
+            });
+            this.layer = new ol.layer.Group({
+                layers: [this.layer1, this.layer2],
+            });
+        }
+
+        load(id) {
+            $.ajax({
+                url: JSONfile(id),
+                dataType: 'jsonp',
+                crossDomain: true,
+                jsonpCallback: JSONkey(id),
+                success: function (data) {
+                    var geojson = new ol.format.GeoJSON(),
+                        features = geojson.readFeatures(data, {
+                            featureProjection: 'EPSG:3857'
+                        });
+                    this.source1.clear();
+                    this.source2.clear();
+                    this.source1.addFeatures(features.filter(function (feature) {
+                        return feature.get('type') != 'stop';
+                    }));
+                    this.source2.addFeatures(features.filter(function (feature) {
+                        return feature.get('type') == 'stop';
+                    }));
+                },
+            });
+        }
+
+        clear() {
+            this.source1.clear();
+            this.source2.clear();
+        }
     }
-
-    Journey.prototype.load = function load(id) {
-        var self = this;
-        $.ajax({
-            url: JSONfile(id),
-            dataType: 'jsonp',
-            crossDomain: true,
-            jsonpCallback: JSONkey(id),
-            success: function (data) {
-                var geojson = new ol.format.GeoJSON(),
-                    features = geojson.readFeatures(data, {
-                        featureProjection: 'EPSG:3857'
-                    });
-                self.source1.clear();
-                self.source2.clear();
-                self.source1.addFeatures(features.filter(function (feature) {
-                    return feature.get('type') != 'stop';
-                }));
-                self.source2.addFeatures(features.filter(function (feature) {
-                    return feature.get('type') == 'stop';
-                }));
-            },
-        });
-    };
-
-    Journey.prototype.clear = function clear() {
-        this.source1.clear();
-        this.source2.clear();
-    };
-
-//------------------------------------------------------------------------------
-
-    (<any>global).Journey = Journey;
-    (<any>global).Journey.main = new Journey();
 
 }
 
