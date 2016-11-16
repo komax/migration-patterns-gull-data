@@ -13,15 +13,10 @@
     <!-- Data: -->
     <script src="data/heatmap_contours.js"></script>
     <!-- Components: -->
-    <script src="resources/main.js"></script>
+    <script src="resources/build.js"></script>
     <script src="resources/interface.js"></script>
     <link rel="stylesheet" href="resources/interface.css">
-    <script src="resources/heatmap.js"></script>
-    <script src="resources/journey.js"></script>
-    <script src="resources/schematic.js"></script>
-    <script src="resources/maps.js"></script>
     <link rel="stylesheet" href="resources/overview.css">
-    <script src="resources/calendarmap.js"></script>
 </head>
 <body>
 <header>
@@ -80,7 +75,9 @@
 		</span>
 </footer>
 <script>$(function () {
-    Main.initialize();
+    console.log(typeof window.MigrationVisualization.initialize );
+    console.log(window);
+    window.MigrationVisualization.initialize();
 })</script>
 </body>
 </html>
