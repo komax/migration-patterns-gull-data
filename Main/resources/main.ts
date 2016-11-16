@@ -15,12 +15,6 @@ namespace  MigrationVisualization {
     let main: any = {};
     console.log("Running main file!");
 
-    // let Schematic = (<any>global).Schematic;
-    // let Maps = (<any>global).Maps;
-    // let Heatmap = (<any>global).Heatmap;
-    // let Calendarmap = (<any>global).Calendarmap;
-    // let Journey = (<any>global).Journey;
-
 //------------------------------------------------------------------------------
 
     export function initialize() {
@@ -301,10 +295,6 @@ namespace  MigrationVisualization {
     };
 
 //------------------------------------------------------------------------------
-
-    (<any>global).Main = main;
-    (<any>global).Batch = Batch;
-    (<any>global).Intersection = Intersection;
 
 }
 
