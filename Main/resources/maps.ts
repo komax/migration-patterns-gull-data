@@ -1,6 +1,7 @@
 /// <reference path="../libraries/definitions/openlayers.d.ts" />
 /// <reference path="../libraries/definitions/jquery.d.ts" />
 
+import {heatmap} from "./heatmap";
 /**
  * Map setup and configuration
  */
@@ -8,11 +9,11 @@
 (function (global) {
     $(function () {
 
-        var maps = {};
+        let maps: any = {};
 
 //------------------------------------------------------------------------------
 
-        var layers = maps.layers = {
+        let layers = maps.layers = {
             mapquestLeft: new ol.layer.Tile({
                 source: new ol.source.MapQuest({layer: 'sat'}),
                 minResolution: 50,
@@ -60,7 +61,7 @@
                 ]),
             target: 'left-map',
             layers: [layers.positron, layers.mapquestLeft]
-                .concat(global.heatmap.layers)
+                .concat(heatmap.layers)
                 .concat([layers.topologyLeft, Journey.main.layer]),
             view: maps.view,
         });
@@ -86,7 +87,7 @@
         maps.resize = function resize() {
             maps.left.updateSize();
             maps.right.updateSize();
-        }
+        };
 
 //------------------------------------------------------------------------------
 

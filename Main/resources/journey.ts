@@ -5,7 +5,7 @@
  * A map layer that shows the complete journey of a gull segmented on day/night
  */
 
-(function (global) {
+namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
@@ -130,6 +130,6 @@
     (<any>global).Journey = Journey;
     (<any>global).Journey.main = new Journey();
 
-})(window || this);
+}
 
 //------------------------------------------------------------------------------

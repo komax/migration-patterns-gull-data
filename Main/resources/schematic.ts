@@ -4,7 +4,7 @@
  * A schematic map layer that shows migration
  */
 
-(function (global) {
+namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
@@ -139,6 +139,6 @@
     (<any>global).Schematic = Schematic;
     (<any>global).Schematic.main = new Schematic();
 
-})(window || this);
+}
 
 //------------------------------------------------------------------------------

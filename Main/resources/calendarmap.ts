@@ -5,11 +5,9 @@
  * Calendar heatmap for stop frequency
  */
 
-(function (global) {
+namespace MigrationVisualization {
 
-//------------------------------------------------------------------------------
-
-    class CalendarMap {
+    export class CalendarMap {
         private id: number;
         private range: Array<number>;
         private color;
@@ -295,10 +293,4 @@
             return arr;
         }
     }
-//------------------------------------------------------------------------------
-
-    (<any>global).Calendarmap = Calendarmap;
-
-})(window || this);
-
-//------------------------------------------------------------------------------
+}
