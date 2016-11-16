@@ -3,15 +3,17 @@
 /**
  * Global functionality used by the application
  */
+namespace  MigrationVisualization {
+    interface Organism {
+        name: string;
+        sex: string;
+    }
 
-interface Organism {
-    name: string;
-    sex: string;
-}
+    console.log("Start main file!");
 
-(function (global) {
 
     let main: any = {};
+    console.log("Running main file!");
 
     // let Schematic = (<any>global).Schematic;
     // let Maps = (<any>global).Maps;
@@ -21,7 +23,7 @@ interface Organism {
 
 //------------------------------------------------------------------------------
 
-    main.initialize = function initialize() {
+    export function initialize() {
         var self = this;
         main.organisms = {};
         new Batch()
@@ -103,7 +105,7 @@ interface Organism {
                         .val(100)
                         .on('change input', function () {
                             var opacity = slider.val() / 100.0;
-                            Heatmap.main.setOpacity(opacity);
+                            heatmap.setOpacity(opacity);
                         })
                     ;
                 next();
@@ -188,7 +190,7 @@ interface Organism {
             $('#global-overview').show();
             $('#selection-overview').hide();
             Journey.main.clear();
-            Heatmap.main.clear(); // clearing the heatmap shows the default one
+            heatmap.clear(); // clearing the heatmap shows the default one
         } else {
             $('#global-overview').hide();
             $('#selection-overview').show();
@@ -196,10 +198,10 @@ interface Organism {
             if (selected.length == 1) {
                 Journey.main.load(selected[0]);
                 // Heatmap of a single gull is not very useful, since the trajectory is shown.
-                Heatmap.main.clear();
+                heatmap.clear();
             } else {
                 Journey.main.clear();
-                Heatmap.main.load(selected);
+                heatmap.load(selected);
             }
         }
 
@@ -304,6 +306,6 @@ interface Organism {
     (<any>global).Batch = Batch;
     (<any>global).Intersection = Intersection;
 
-})(window || this);
+}
 
 //------------------------------------------------------------------------------
