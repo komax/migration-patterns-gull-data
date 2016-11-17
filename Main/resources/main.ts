@@ -178,7 +178,7 @@ namespace  MigrationVisualization {
                 // all is deselected
                 $('#global-overview').show();
                 $('#selection-overview').hide();
-                Journey.main.clear();
+                journey.clear();
                 heatmap.clear(); // clearing the heatmap shows the default one
             } else {
                 $('#global-overview').hide();

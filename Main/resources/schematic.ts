@@ -7,6 +7,8 @@
 namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
+    import ReadOptions = olx.format.ReadOptions;
+    import StrokeOptions = olx.style.StrokeOptions;
     var defaults = {
         smallstop: [
             new ol.style.Fill({color: [90, 180, 255, 1]}),
@@ -32,8 +34,8 @@ namespace MigrationVisualization {
             new ol.style.Fill({color: [210, 105, 105, .5]}),
             new ol.style.Fill({color: [210, 135, 75, .5]})
         ],
-        edgecolor: function (a) {
-            return [180, 45, 180, a];
+        edgecolor: (a: number) => {
+            return [180, 45, 180, a] as ol.Color;
         }
     };
 
@@ -73,7 +75,7 @@ namespace MigrationVisualization {
 
         return new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: mode.edgecolor(opacity),
+                color: <ol.Color>mode.edgecolor(opacity),
                 width: width
             })
         });
@@ -112,19 +114,18 @@ namespace MigrationVisualization {
             });
         }
 
-        load = (id) => {
+        load(id) {
             $.ajax({
                 url: jsonFile(id),
                 dataType: 'jsonp',
                 crossDomain: true,
                 jsonpCallback: 'schemetic_' + id,
                 success: (data) => {
-                    var geojson = new ol.format.GeoJSON(),
+                    let geojson = new ol.format.GeoJSON(),
                         features = geojson.readFeatures(data, {
+                            dataProjection: 'EPSG:3857',
                             featureProjection: 'EPSG:3857'
-                        });
-                    console.log(this);
-                    console.log(this.source);
+                        } as ReadOptions);
                     this.source.clear();
                     this.source.addFeatures(features);
                 }
