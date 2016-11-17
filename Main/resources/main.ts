@@ -11,6 +11,8 @@ namespace  MigrationVisualization {
 
 //------------------------------------------------------------------------------
     export namespace Main {
+        import Feature = ol.Feature;
+
         export let organisms: any = {};
         let calendar: CalendarMap;
 
@@ -148,9 +150,7 @@ namespace  MigrationVisualization {
             selectGulls(gulls);
         };
 
-        let getNodeSelection = function () {
-            return [];
-        };
+        let getNodeSelection: Function;
 
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
@@ -193,12 +193,14 @@ namespace  MigrationVisualization {
                 }
             }
 
-            var nodes = getNodeSelection();
-            if (!nodes.length)
-                nodes = schematic.source.getFeatures()
+            let nodes = getNodeSelection();
+            if (!nodes.length) {
+                let features: Feature[] = schematic.source.getFeatures();
+                nodes = features
                     .filter(function (d) {
                         return d.get('type') == 'node';
                     });
+            }
             calendar.load(nodes, selected);
 
             var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
