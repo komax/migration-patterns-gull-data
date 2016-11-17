@@ -260,39 +260,35 @@ namespace  MigrationVisualization {
         }
     }
 
-//------------------------------------------------------------------------------
+    class Intersection {
+        private elements;
 
-    var Intersection = function Intersection() {
-        var elements = undefined;
+        constructor() {
+            this.elements = undefined;
+        }
 
-        var add = function add(arr) {
-            if (elements) {
-                elements = elements.filter(function (x) {
+        add(arr) {
+            if (this.elements) {
+                this.elements = this.elements.filter((x) => {
                     return arr.indexOf(x) >= 0;
                 });
             } else {
-                elements = arr.slice(0);
+                this.elements = arr.slice(0);
             }
             return this;
-        };
+        }
 
-        var addAll = function addAll(arrs) {
-            for (var i = arrs.length - 1; i >= 0; --i)
-                add(arrs[i]);
+        addAll(arrs) {
+            for (let i = arrs.length - 1; i >= 0; --i) {
+                this.add(arrs[i]);
+            }
             return this;
-        };
+        }
 
-        var toArray = function toArray() {
-            return (elements || []).slice(0);
-        };
-
-        this.add = add;
-        this.addAll = addAll;
-        this.toArray = toArray;
-    };
-
-//------------------------------------------------------------------------------
+        toArray() {
+            return (this.elements || []).slice(0);
+        }
+    }
 
 }
 
-//------------------------------------------------------------------------------
