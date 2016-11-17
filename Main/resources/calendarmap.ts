@@ -8,13 +8,13 @@
 namespace MigrationVisualization {
 
     export class CalendarMap {
-        private id: number;
+        private id: string;
         private range: Array<number>;
         private color;
         private svg;
         private rect;
 
-        constructor(id: number, range: Array<number>) {
+        constructor(id: string, range: Array<number>) {
             this.id = id;
             this.range = d3.range(range[0], range[1] + 1);
 

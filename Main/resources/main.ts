@@ -11,7 +11,7 @@ namespace  MigrationVisualization {
 
 //------------------------------------------------------------------------------
     export namespace Main {
-        let organisms: any = {};
+        export let organisms: any = {};
         let calendar: CalendarMap;
 
         export function initialize() {
@@ -226,7 +226,7 @@ namespace  MigrationVisualization {
             return false;
         };
 
-        let intersectGullSelection = function intersectGullSelection(gulls) {
+        export let intersectGullSelection = function intersectGullSelection(gulls) {
             selectGulls(new Intersection()
                 .add(getGullSelection())
                 .add(gulls)

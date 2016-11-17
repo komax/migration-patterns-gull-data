@@ -4,6 +4,8 @@
  * A map layer that shows the complete journey of a gull segmented on day/night
  */
 
+declare let contours: any;
+
 namespace MigrationVisualization {
 
     console.log("Running heatmap file!");
@@ -47,7 +49,7 @@ namespace MigrationVisualization {
                 dataType: 'jsonp',
                 crossDomain: true,
                 jsonpCallback: 'jsonpContours',
-                success: function (data) {
+                success: (data) => {
                     let contourArray = [data.contour1, data.contour2, data.contour3, data.contour4, data.contour5];
 
                     for (let i = 0; i < this.sources.length; i++) {
@@ -59,7 +61,7 @@ namespace MigrationVisualization {
 
                     console.log("Succesfully loaded heatmap.")
                 },
-                error: function (xhr, status, error) {
+                error: (xhr, status, error) => {
                     if (fallback) {
                         this.loadHeatmapFrom(fallback);
                     } else {

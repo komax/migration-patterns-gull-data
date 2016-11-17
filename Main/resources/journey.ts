@@ -9,6 +9,7 @@ namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
+    import ReadOptions = olx.format.ReadOptions;
     let defaults = {
         day: new ol.style.Style({
             stroke: new ol.style.Stroke({
@@ -109,11 +110,12 @@ namespace MigrationVisualization {
                 dataType: 'jsonp',
                 crossDomain: true,
                 jsonpCallback: JSONkey(id),
-                success: function (data) {
+                success: (data) => {
                     var geojson = new ol.format.GeoJSON(),
                         features = geojson.readFeatures(data, {
+                            dataProjection: 'EPSG:3857',
                             featureProjection: 'EPSG:3857'
-                        });
+                        } as ReadOptions);
                     this.source1.clear();
                     this.source2.clear();
                     this.source1.addFeatures(features.filter(function (feature) {
@@ -124,7 +126,7 @@ namespace MigrationVisualization {
                     }));
                 },
             });
-        }
+        };
 
         clear() {
             this.source1.clear();

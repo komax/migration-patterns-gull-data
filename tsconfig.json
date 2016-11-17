@@ -1,7 +1,7 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "target": "ES3",
+  //      "target": "ES3",
         "outFile": "./Main/resources/build.js",
         "strictNullChecks": true,
         "sourceMap": true
@@ -11,7 +11,7 @@
         "./Main/resources/schematic.ts",
         "./Main/resources/heatmap.ts",
         "./Main/resources/journey.ts",
-        "./Main/resources/main.ts",
-        "./Main/resources/maps.ts"
+        "./Main/resources/maps.ts",
+        "./Main/resources/main.ts"
     ]
 }
