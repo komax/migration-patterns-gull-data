@@ -102,7 +102,7 @@ namespace  MigrationVisualization {
                 })
                 .queue(function (next) {
                     var checkbox = $('#placenames-left')
-                            .val(false)
+                            .val(0)
                             .on('change input', function () {
                                 maps.layers.topologyLeft.setVisible(self.checked);
                             })
@@ -112,7 +112,7 @@ namespace  MigrationVisualization {
                 })
                 .queue(function (next) {
                     var checkbox = $('#placenames-right')
-                            .val(false)
+                            .val(0)
                             .on('change input', function () {
                                 maps.layers.topologyRight.setVisible(self.checked);
                             })
@@ -205,10 +205,10 @@ namespace  MigrationVisualization {
             var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
             list.enter().append('li');
             list
-                .text(function (d) {
+                .text(function (d: string) {
                     return organisms[d].name;
                 })
-                .attr('class', function (d) {
+                .attr('class', function (d: string) {
                     return organisms[d].sex;
                 })
                 .on('click', function (d) {
@@ -222,7 +222,7 @@ namespace  MigrationVisualization {
             return [];
         };
 
-        export let inGullSelection: (arr: Array) => boolean = function () {
+        export let inGullSelection: (arr: Array<any>) => boolean = function () {
             return false;
         };
 
