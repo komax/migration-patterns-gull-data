@@ -113,7 +113,6 @@ namespace MigrationVisualization {
                 success: (data) => {
                     var geojson = new ol.format.GeoJSON(),
                         features = geojson.readFeatures(data, {
-                            dataProjection: 'EPSG:3857',
                             featureProjection: 'EPSG:3857'
                         } as ReadOptions);
                     this.source1.clear();
