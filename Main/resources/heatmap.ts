@@ -8,8 +8,6 @@ declare let contours: any;
 
 namespace MigrationVisualization {
 
-    console.log("Running heatmap file!");
-
     let defaults = {
         colors: ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026'],
         style: function (color) {

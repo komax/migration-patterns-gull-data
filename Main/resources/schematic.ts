@@ -20,8 +20,8 @@ namespace MigrationVisualization {
             new ol.style.Fill({color: [45, 150, 150, .25]}),
             new ol.style.Fill({color: [45, 120, 180, .25]})
         ],
-        edgecolor: function (a) {
-            return [90, 45, 180, a];
+        edgecolor: function (a: number): ol.Color {
+            return [90, 45, 180, a] as ol.Color;
         }
     }, selected = {
         smallstop: [
@@ -130,7 +130,7 @@ namespace MigrationVisualization {
                     this.source.addFeatures(features);
                 }
             });
-        };
+        }
 
         clear() {
             this.source.clear();
