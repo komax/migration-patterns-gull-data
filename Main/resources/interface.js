@@ -49,7 +49,7 @@ $('a[data-code]').on('mouseover', function ()
 
 //------------------------------------------------------------------------------
 
-window.interface = {}
+window.interface = {};
 window.interface.expandControl = function(expandElement, collapseElement, expandCharacter, collapseCharacter)
 {
 	var button = document.createElement('button');
@@ -74,7 +74,7 @@ window.interface.expandControl = function(expandElement, collapseElement, expand
 
 		viewIsExpanded = !viewIsExpanded;
 		Maps.resize();
-	}
+	};
 
 	button.addEventListener('click', collapseToggle, false);
 	button.addEventListener('touchstart', collapseToggle, false);
@@ -150,7 +150,7 @@ window.interface.settingsControl = function(controlElement)
 			.attr('class', 'expand-settings ol-unselectable ol-control')
 			.append(button)[0],
 	});
-}
+};
 
 ol.inherits(window.interface.settingsControl, ol.control.Control);
 
