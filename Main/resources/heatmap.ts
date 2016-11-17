@@ -72,8 +72,8 @@ namespace MigrationVisualization {
 
         load(ids) {
             let safe_ids = ids.slice(0);
-            let restful_url = defaults.heatmap_webserver + safe_ids.join('$');
-            let directory_url = defaults.heatmap_local + hashCode(safe_ids.sort().join("")) + '.geojsonp';
+            let restful_url: string = defaults.heatmap_webserver + safe_ids.join('$');
+            let directory_url: string = defaults.heatmap_local + hashCode(safe_ids.sort().join("")) + '.geojsonp';
             this.loadHeatmapFrom(directory_url, restful_url);
         }
 
@@ -94,7 +94,7 @@ namespace MigrationVisualization {
 // from: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
     function hashCode(strInput: string): number {
         let hash = 0;
-        if (this.length === 0) {
+        if (strInput.length === 0) {
             return hash;
         }
         for (let i = 0; i < strInput.length; i++) {
