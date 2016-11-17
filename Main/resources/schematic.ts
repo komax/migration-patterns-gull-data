@@ -86,9 +86,9 @@ namespace MigrationVisualization {
     }
 
     export class Schematic {
-        private source: ol.source.Vector;
+        readonly source: ol.source.Vector;
         private layer: ol.layer.Vector;
-        private select: ol.interaction.Select;
+        readonly select: ol.interaction.Select;
 
         constructor() {
             this.source = new ol.source.Vector({});

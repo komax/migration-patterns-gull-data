@@ -13,6 +13,7 @@ namespace  MigrationVisualization {
     export namespace Main {
         let organisms: any = {};
         let calendar: CalendarMap;
+        let schematic: Schematic = new Schematic();
 
         export function initialize() {
             var self = this;
@@ -57,13 +58,13 @@ namespace  MigrationVisualization {
                             .attr('max', 99)
                             .val(78)
                             .on('change input', function () {
-                                Schematic.main.load(slider.val());
+                                schematic.load(slider.val());
                             })
                         ;
-                    Schematic.main.select.on('select', function (e) {
+                    schematic.select.on('select', function (e) {
                         selectNodes(e.target.getFeatures());
                     });
-                    Schematic.main.load(slider.val());
+                    schematic.load(slider.val());
                     next();
                 })
                 .queue(function (next) {
@@ -172,7 +173,7 @@ namespace  MigrationVisualization {
                 return false;
             };
 
-            Schematic.main.refresh();
+            schematic.refresh();
 
             if (selected.length < 1) {
                 // all is deselected
@@ -196,7 +197,7 @@ namespace  MigrationVisualization {
 
             var nodes = getNodeSelection();
             if (!nodes.length)
-                nodes = Schematic.main.source.getFeatures()
+                nodes = schematic.source.getFeatures()
                     .filter(function (d) {
                         return d.get('type') == 'node';
                     });
