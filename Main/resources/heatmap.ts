@@ -25,7 +25,7 @@ namespace MigrationVisualization {
 
     export class Heatmap {
         private sources: Array<ol.source.Vector>;
-        private layers: Array<ol.layer.Vector>;
+        readonly layers: Array<ol.layer.Vector>;
 
         constructor() {
             this.sources = [];

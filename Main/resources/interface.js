@@ -15,13 +15,13 @@ $('#pane').resizable({
 	{
 		if ($(this).height() <= 32)
 			$(this).height(0);
-		Maps.resize();
+		MigrationVisualization.maps.resize();
 	},
 });
 $('#left-view').resizable({
 	axis: 'x',
 	handles: { e: $('#hdivider') },
-	resize: function () { Maps.resize() },
+	resize: function () { MigrationVisualization.maps.resize() },
 });
 
 //------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ window.interface.expandControl = function(expandElement, collapseElement, expand
 		}
 
 		viewIsExpanded = !viewIsExpanded;
-		Maps.resize();
+		MigrationVisualization.maps.resize();
 	};
 
 	button.addEventListener('click', collapseToggle, false);
@@ -111,7 +111,7 @@ window.interface.paneControl = function(paneElement, defaultHeight, expandCharac
 		}
 
 		paneIsExpanded = !paneIsExpanded;
-		Maps.resize();
+		MigrationVisualization.maps.resize();
 	});
 
 	ol.control.Control.call(this, {
@@ -142,7 +142,7 @@ window.interface.settingsControl = function(controlElement)
 		}
 
 		toolbarShown = !toolbarShown;
-		Maps.resize();
+		MigrationVisualization.maps.resize();
 	});
 
 	ol.control.Control.call(this, {

@@ -1,15 +1,14 @@
 /// <reference path="../libraries/definitions/openlayers.d.ts" />
 /// <reference path="../libraries/definitions/jquery.d.ts" />
 
-import {heatmap} from "./heatmap";
 /**
  * Map setup and configuration
  */
 
-(function (global) {
+namespace MigrationVisualization {
+    export const maps: any = {};
     $(function () {
 
-        let maps: any = {};
 
 //------------------------------------------------------------------------------
 
@@ -42,8 +41,8 @@ import {heatmap} from "./heatmap";
                     //params: { LAYERS: 'nasa:bluemarble', VERSION: '1.1.1' }
                 })
             }),
-            journey: Journey.main.layer,
-            schematic: Schematic.main.layer,
+            journey: journey.layer,
+            schematic: schematic.layer,
         };
 
         maps.view = new ol.View({
@@ -62,7 +61,7 @@ import {heatmap} from "./heatmap";
             target: 'left-map',
             layers: [layers.positron, layers.mapquestLeft]
                 .concat(heatmap.layers)
-                .concat([layers.topologyLeft, Journey.main.layer]),
+                .concat([layers.topologyLeft, journey.layer]),
             view: maps.view,
         });
 
@@ -79,7 +78,7 @@ import {heatmap} from "./heatmap";
             layers: [layers.positron, layers.mapquestRight, layers.topologyRight, layers.schematic],
             view: maps.view,
             interactions: ol.interaction.defaults()
-                .extend([Schematic.main.select]),
+                .extend([schematic.select]),
         });
 
 //------------------------------------------------------------------------------
@@ -91,9 +90,8 @@ import {heatmap} from "./heatmap";
 
 //------------------------------------------------------------------------------
 
-        global.Maps = maps;
 
     });
-})(window || this);
+}
 
 //------------------------------------------------------------------------------

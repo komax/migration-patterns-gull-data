@@ -85,7 +85,7 @@ namespace MigrationVisualization {
 
     export class Schematic {
         readonly source: ol.source.Vector;
-        private layer: ol.layer.Vector;
+        readonly layer: ol.layer.Vector;
         readonly select: ol.interaction.Select;
 
         constructor() {
@@ -112,22 +112,24 @@ namespace MigrationVisualization {
             });
         }
 
-        load(id) {
+        load = (id) => {
             $.ajax({
                 url: jsonFile(id),
                 dataType: 'jsonp',
                 crossDomain: true,
                 jsonpCallback: 'schemetic_' + id,
-                success: function (data) {
+                success: (data) => {
                     var geojson = new ol.format.GeoJSON(),
                         features = geojson.readFeatures(data, {
                             featureProjection: 'EPSG:3857'
                         });
+                    console.log(this);
+                    console.log(this.source);
                     this.source.clear();
                     this.source.addFeatures(features);
                 }
             });
-        }
+        };
 
         clear() {
             this.source.clear();
@@ -138,6 +140,7 @@ namespace MigrationVisualization {
         }
     }
 
+    export const schematic: Schematic = new Schematic();
 }
 
 //------------------------------------------------------------------------------

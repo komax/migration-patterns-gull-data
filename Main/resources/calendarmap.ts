@@ -124,7 +124,7 @@ namespace MigrationVisualization {
 
             rect.on('click', function (d) {
                 let gulls = this.stopoverGulls[d] || [];
-                (<any>global).Main.intersectGullSelection(gulls);
+                Main.intersectGullSelection(gulls);
             });
         }
 
@@ -153,7 +153,7 @@ namespace MigrationVisualization {
             div
                 .append(!(i % 6) ? ',<br>' : ', ')
                 .append($('<span>')
-                    .text((<any>global).Main.organisms[ids[i]].name)
+                    .text(Main.organisms[ids[i]].name)
                 );
         }
         return div;

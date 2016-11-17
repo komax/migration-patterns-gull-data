@@ -79,7 +79,7 @@ namespace MigrationVisualization {
         private layer1: ol.layer.Vector;
         private source2: ol.source.Vector;
         private layer2: ol.layer.Vector;
-        private layer: ol.layer.Group;
+        readonly layer: ol.layer.Group;
 
         constructor() {
             this.source1 = new ol.source.Vector({});
@@ -131,6 +131,8 @@ namespace MigrationVisualization {
             this.source2.clear();
         }
     }
+
+    export const journey = new Journey();
 
 }
 

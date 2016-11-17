@@ -13,7 +13,6 @@ namespace  MigrationVisualization {
     export namespace Main {
         let organisms: any = {};
         let calendar: CalendarMap;
-        let schematic: Schematic = new Schematic();
 
         export function initialize() {
             var self = this;
@@ -71,12 +70,12 @@ namespace  MigrationVisualization {
                     var slider = $('#sat-slider-left')
                         .on('change input', function () {
                             var opacity = slider.val() / 100.0;
-                            Maps.layers.mapquestLeft.setVisible(opacity > 0);
-                            Maps.layers.mapquestLeft.setOpacity(opacity);
+                            maps.layers.mapquestLeft.setVisible(opacity > 0);
+                            maps.layers.mapquestLeft.setOpacity(opacity);
                         })
                         .val(0);
 
-                    Maps.layers.mapquestLeft.setOpacity(slider.val());
+                    maps.layers.mapquestLeft.setOpacity(slider.val());
                     next();
                 })
                 .queue(function (next) {
@@ -84,11 +83,11 @@ namespace  MigrationVisualization {
                         .val(0)
                         .on('change input', function () {
                             var opacity = slider.val() / 100.0;
-                            Maps.layers.mapquestRight.setVisible(opacity > 0);
-                            Maps.layers.mapquestRight.setOpacity(opacity);
+                            maps.layers.mapquestRight.setVisible(opacity > 0);
+                            maps.layers.mapquestRight.setOpacity(opacity);
                         });
 
-                    Maps.layers.mapquestRight.setOpacity(slider.val());
+                    maps.layers.mapquestRight.setOpacity(slider.val());
                     next();
                 })
                 .queue(function (next) {
@@ -105,20 +104,20 @@ namespace  MigrationVisualization {
                     var checkbox = $('#placenames-left')
                             .val(false)
                             .on('change input', function () {
-                                Maps.layers.topologyLeft.setVisible(self.checked);
+                                maps.layers.topologyLeft.setVisible(self.checked);
                             })
                         ;
-                    Maps.layers.topologyLeft.setVisible(self.checked);
+                    maps.layers.topologyLeft.setVisible(self.checked);
                     next();
                 })
                 .queue(function (next) {
                     var checkbox = $('#placenames-right')
                             .val(false)
                             .on('change input', function () {
-                                Maps.layers.topologyRight.setVisible(self.checked);
+                                maps.layers.topologyRight.setVisible(self.checked);
                             })
                         ;
-                    Maps.layers.topologyRight.setVisible(self.checked);
+                    maps.layers.topologyRight.setVisible(self.checked);
                     next();
                 })
                 .queue(function (next) {
@@ -186,11 +185,11 @@ namespace  MigrationVisualization {
                 $('#selection-overview').show();
 
                 if (selected.length == 1) {
-                    Journey.main.load(selected[0]);
+                    journey.load(selected[0]);
                     // Heatmap of a single gull is not very useful, since the trajectory is shown.
                     heatmap.clear();
                 } else {
-                    Journey.main.clear();
+                    journey.clear();
                     heatmap.load(selected);
                 }
             }
