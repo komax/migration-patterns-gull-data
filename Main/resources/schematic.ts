@@ -7,8 +7,6 @@
 namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
-
-    import inGullSelection = MigrationVisualization.Main.inGullSelection;
     var defaults = {
         smallstop: [
             new ol.style.Fill({color: [90, 180, 255, 1]}),
@@ -62,7 +60,7 @@ namespace MigrationVisualization {
     }
 
     function edgeStyle(feature, resolution) {
-        var mode = inGullSelection(feature.get('ids'))
+        var mode = Main.inGullSelection(feature.get('ids'))
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
             opacity = count / 10,
