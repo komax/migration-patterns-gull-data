@@ -11961,7 +11961,7 @@ declare module olx {
          *     rightHanded: (boolean|undefined)}}
          */
         interface ReadOptions {
-            dataProjection: ol.ProjectionLike;
+            dataProjection?: ol.ProjectionLike;
             featureProjection: ol.ProjectionLike;
         }
 
