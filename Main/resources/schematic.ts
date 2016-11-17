@@ -8,6 +8,7 @@ namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
+    import inGullSelection = MigrationVisualization.Main.inGullSelection;
     var defaults = {
         smallstop: [
             new ol.style.Fill({color: [90, 180, 255, 1]}),
@@ -84,60 +85,60 @@ namespace MigrationVisualization {
         return 'data/schematic_' + depth + '.geojsonp';
     }
 
-    function Schematic() {
-        this.source = new ol.source.Vector({});
-        this.layer = new ol.layer.Vector({
-            source: this.source,
-            style: function (feature, resolution) {
-                var type = feature.get('type');
-                if (type == 'node') {
-                    return nodeStyle(defaults)(feature, resolution);
-                } else if (type == 'edge') {
-                    return edgeStyle(feature, resolution);
+    export class Schematic {
+        private source: ol.source.Vector;
+        private layer: ol.layer.Vector;
+        private select: ol.interaction.Select;
+
+        constructor() {
+            this.source = new ol.source.Vector({});
+            this.layer = new ol.layer.Vector({
+                source: this.source,
+                style: function (feature, resolution) {
+                    var type = feature.get('type');
+                    if (type == 'node') {
+                        return nodeStyle(defaults)(feature, resolution);
+                    } else if (type == 'edge') {
+                        return edgeStyle(feature, resolution);
+                    }
                 }
-            }
-        });
-        this.select = new ol.interaction.Select({
-            layers: [this.layer],
-            filter: function (d) {
-                return d.get('type') == 'node';
-            },
-            style: nodeStyle(selected),
-            condition: ol.events.condition.click,
-            toggleCondition: ol.events.condition.platformModifierKeyOnly
-        });
+            });
+            this.select = new ol.interaction.Select({
+                layers: [this.layer],
+                filter: function (d) {
+                    return d.get('type') == 'node';
+                },
+                style: nodeStyle(selected),
+                condition: ol.events.condition.click,
+                toggleCondition: ol.events.condition.platformModifierKeyOnly
+            });
+        }
+
+        load(id) {
+            $.ajax({
+                url: jsonFile(id),
+                dataType: 'jsonp',
+                crossDomain: true,
+                jsonpCallback: 'schemetic_' + id,
+                success: function (data) {
+                    var geojson = new ol.format.GeoJSON(),
+                        features = geojson.readFeatures(data, {
+                            featureProjection: 'EPSG:3857'
+                        });
+                    this.source.clear();
+                    this.source.addFeatures(features);
+                }
+            });
+        }
+
+        clear() {
+            this.source.clear();
+        }
+
+        refresh() {
+            this.source.dispatchEvent('change');
+        }
     }
-
-    Schematic.prototype.load = function load(id) {
-        var self = this;
-        $.ajax({
-            url: jsonFile(id),
-            dataType: 'jsonp',
-            crossDomain: true,
-            jsonpCallback: 'schemetic_' + id,
-            success: function (data) {
-                var geojson = new ol.format.GeoJSON(),
-                    features = geojson.readFeatures(data, {
-                        featureProjection: 'EPSG:3857'
-                    });
-                self.source.clear();
-                self.source.addFeatures(features);
-            }
-        });
-    };
-
-    Schematic.prototype.clear = function clear() {
-        this.source.clear();
-    };
-
-    Schematic.prototype.refresh = function refresh() {
-        this.source.dispatchEvent('change');
-    };
-
-//------------------------------------------------------------------------------
-
-    (<any>global).Schematic = Schematic;
-    (<any>global).Schematic.main = new Schematic();
 
 }
 
