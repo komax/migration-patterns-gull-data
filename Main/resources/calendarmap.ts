@@ -13,6 +13,7 @@ namespace MigrationVisualization {
         private color;
         private svg;
         private rect;
+        private stopoverGulls;
 
         constructor(id: string, range: Array<number>) {
             this.id = id;
@@ -48,7 +49,7 @@ namespace MigrationVisualization {
             svg.append("text")
                 .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
                 .style("text-anchor", "middle")
-                .text(function (d) {
+                .text((d) => {
                     return d;
                 });
 
@@ -57,13 +58,13 @@ namespace MigrationVisualization {
                     .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
                     .style("text-anchor", "end")
                     .attr("dy", "-.25em")
-                    .text(function (d) {
+                    .text((d) => {
                         return week_days[i];
                     });
             }
 
             let rect = this.rect = svg.selectAll(".day")
-                .data(function (d) {
+                .data((d) => {
                     return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
                 })
                 .enter()
@@ -71,10 +72,10 @@ namespace MigrationVisualization {
                 .attr("class", "day")
                 .attr("width", cellSize)
                 .attr("height", cellSize)
-                .attr("x", function (d) {
+                .attr("x", (d) => {
                     return (<any>week(d)) * cellSize;
                 })
-                .attr("y", function (d) {
+                .attr("y", (d) => {
                     return (<any>day(d)) * cellSize;
                 })
                 .attr("fill", '#fff')
@@ -84,7 +85,7 @@ namespace MigrationVisualization {
                 .data(month)
                 .enter().append("g")
                 .attr("class", "legend")
-                .attr("transform", function (d, i) {
+                .attr("transform", (d, i) => {
                     return "translate(" + (((i + 1) * 50) + 8) + ",0)";
                 });
 
@@ -122,7 +123,7 @@ namespace MigrationVisualization {
                     + "H" + (w0 + 1) * cellSize + "Z";
             }
 
-            rect.on('click', function (d) {
+            rect.on('click', (d) => {
                 let gulls = this.stopoverGulls[d] || [];
                 Main.intersectGullSelection(gulls);
             });
