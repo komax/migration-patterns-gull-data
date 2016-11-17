@@ -15,18 +15,17 @@ namespace  MigrationVisualization {
         let calendar: CalendarMap;
 
         export function initialize() {
-            var self = this;
             new Batch()
-                .queue(function (next) {
+                .queue((next) => {
                     $.ajax({
                         url: 'data/organisms.jsonp',
                         dataType: 'jsonp',
                         scriptCharset: 'utf-8',
                         crossDomain: true,
                         jsonpCallback: 'organisms',
-                        success: function (data) {
+                        success: (data) => {
                             organisms = data;
-                            for (var id in organisms) {
+                            for (let id in organisms) {
                                 if (organisms.hasOwnProperty(id)) {
                                     organisms[id].id = id;
                                 }
@@ -35,41 +34,41 @@ namespace  MigrationVisualization {
                         }
                     });
                 })
-                .queue(function (next) {
-                    var ul = d3.select('#global-overview .gull-list'),
+                .queue((next) => {
+                    let ul = d3.select('#global-overview .gull-list'),
                         items = ul.selectAll('li')
                             .data(d3.values(organisms)),
                         li = items.enter().append('li')
-                            .text(function (d: Organism) {
+                            .text((d: Organism) => {
                                 return d.name;
                             })
-                            .attr('class', function (d: Organism) {
+                            .attr('class', (d: Organism) => {
                                 return d.sex;
                             })
-                            .on('click', function (d: any) {
+                            .on('click', (d: any) => {
                                 selectGulls([d.id]);
                             })
                         ;
                     next();
                 })
-                .queue(function (next) {
-                    var slider = $('#schema-slider')
+                .queue((next) => {
+                    let slider = $('#schema-slider')
                             .attr('max', 99)
                             .val(78)
-                            .on('change input', function () {
+                            .on('change input', () => {
                                 schematic.load(slider.val());
                             })
                         ;
-                    schematic.select.on('select', function (e) {
+                    schematic.select.on('select', (e) => {
                         selectNodes(e.target.getFeatures());
                     });
                     schematic.load(slider.val());
                     next();
                 })
-                .queue(function (next) {
-                    var slider = $('#sat-slider-left')
-                        .on('change input', function () {
-                            var opacity = slider.val() / 100.0;
+                .queue((next) => {
+                    let slider = $('#sat-slider-left')
+                        .on('change input', () => {
+                            let opacity = slider.val() / 100.0;
                             maps.layers.mapquestLeft.setVisible(opacity > 0);
                             maps.layers.mapquestLeft.setOpacity(opacity);
                         })
@@ -78,11 +77,11 @@ namespace  MigrationVisualization {
                     maps.layers.mapquestLeft.setOpacity(slider.val());
                     next();
                 })
-                .queue(function (next) {
-                    var slider = $('#sat-slider-right')
+                .queue((next) => {
+                    let slider = $('#sat-slider-right')
                         .val(0)
-                        .on('change input', function () {
-                            var opacity = slider.val() / 100.0;
+                        .on('change input', () => {
+                            let opacity = slider.val() / 100.0;
                             maps.layers.mapquestRight.setVisible(opacity > 0);
                             maps.layers.mapquestRight.setOpacity(opacity);
                         });
@@ -90,37 +89,37 @@ namespace  MigrationVisualization {
                     maps.layers.mapquestRight.setOpacity(slider.val());
                     next();
                 })
-                .queue(function (next) {
-                    var slider = $('#heatmap-slider')
+                .queue((next) => {
+                    let slider = $('#heatmap-slider')
                             .val(100)
-                            .on('change input', function () {
-                                var opacity = slider.val() / 100.0;
+                            .on('change input', () => {
+                                let opacity = slider.val() / 100.0;
                                 heatmap.setOpacity(opacity);
                             })
                         ;
                     next();
                 })
-                .queue(function (next) {
-                    var checkbox = $('#placenames-left')
+                .queue((next) => {
+                    let checkbox = $('#placenames-left')
                             .val(0)
-                            .on('change input', function () {
-                                maps.layers.topologyLeft.setVisible(self.checked);
+                            .on('change input', () => {
+                                maps.layers.topologyLeft.setVisible(this.checked);
                             })
                         ;
-                    maps.layers.topologyLeft.setVisible(self.checked);
+                    maps.layers.topologyLeft.setVisible(this.checked);
                     next();
                 })
-                .queue(function (next) {
-                    var checkbox = $('#placenames-right')
+                .queue((next) => {
+                    let checkbox = $('#placenames-right')
                             .val(0)
-                            .on('change input', function () {
-                                maps.layers.topologyRight.setVisible(self.checked);
+                            .on('change input', () => {
+                                maps.layers.topologyRight.setVisible(this.checked);
                             })
                         ;
-                    maps.layers.topologyRight.setVisible(self.checked);
+                    maps.layers.topologyRight.setVisible(this.checked);
                     next();
                 })
-                .queue(function (next) {
+                .queue((next) => {
                     calendar = new CalendarMap('calendar-map', [2013, 2015]);
                     next();
                 })
@@ -141,8 +140,8 @@ namespace  MigrationVisualization {
                 return features.slice(0);
             };
 
-            var gulls = new Intersection()
-                    .addAll(features.map(function (d) {
+            let gulls = new Intersection()
+                    .addAll(features.map((d) => {
                         return Object.keys(d.get('events'));
                     }))
                     .toArray();
@@ -236,28 +235,30 @@ namespace  MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
-    var Batch = function Batch() {
-        this.list = [];
-    };
+    class Batch {
+        private list: Array<Function>;
 
-    Batch.prototype.queue = function queue(func) {
-        this.list.push(func);
-        return this;
-    };
-
-    Batch.prototype.go = function go() {
-        var self = this;
-
-        function next() {
-            var func = self.list.shift();
-            if (func) {
-                return func(next);
-            }
+        constructor() {
+            this.list = [];
         }
 
-        next();
-        return this;
-    };
+        queue(func) {
+            this.list.push(func);
+            return this;
+        }
+
+        go() {
+            let next = () => {
+                let func = this.list.shift();
+                if (func) {
+                    return func(next);
+                }
+            };
+
+            next();
+            return this;
+        }
+    }
 
 //------------------------------------------------------------------------------
 
