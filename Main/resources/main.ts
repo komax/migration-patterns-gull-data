@@ -147,6 +147,7 @@ namespace  MigrationVisualization {
                         return Object.keys(d.get('events'));
                     }))
                     .toArray();
+            console.log(gulls);
             selectGulls(gulls);
         };
 
@@ -155,8 +156,9 @@ namespace  MigrationVisualization {
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
 
-        let selectGulls = function selectGulls(selected) {
-            getGullSelection = function () {
+        let selectGulls = function selectGulls(selected: string[]) {
+            console.log(selected);
+            getGullSelection = function (): string[] {
                 return selected.slice(0);
             };
 
@@ -196,8 +198,7 @@ namespace  MigrationVisualization {
             let nodes = getNodeSelection();
             if (!nodes.length) {
                 let features: Feature[] = schematic.source.getFeatures();
-                nodes = features
-                    .filter(function (d) {
+                nodes = features.filter(function (d) {
                         return d.get('type') == 'node';
                     });
             }
@@ -219,7 +220,7 @@ namespace  MigrationVisualization {
             list.exit().remove();
         };
 
-        let getGullSelection = function () {
+        let getGullSelection: () => string[] = function () {
             return [];
         };
 
