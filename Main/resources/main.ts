@@ -162,12 +162,12 @@ namespace  MigrationVisualization {
                 return selected.slice(0);
             };
 
-            var hash = {};
+            let hash = {};
             selected.forEach(function (d) {
                 hash[d] = true;
             });
             inGullSelection = function (arr) {
-                for (var i = arr.length - 1; i >= 0; --i)
+                for (let i = arr.length - 1; i >= 0; --i)
                     if (arr[i] in hash)
                         return true;
                 return false;
@@ -204,7 +204,7 @@ namespace  MigrationVisualization {
             }
             calendar.load(nodes, selected);
 
-            var list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
+            let list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
             list.enter().append('li');
             list
                 .text(function (d: string) {
@@ -270,7 +270,7 @@ namespace  MigrationVisualization {
             this.elements = undefined;
         }
 
-        add(arr) {
+        add(arr: string[]): Intersection {
             if (this.elements) {
                 this.elements = this.elements.filter((x) => {
                     return arr.indexOf(x) >= 0;
@@ -281,14 +281,14 @@ namespace  MigrationVisualization {
             return this;
         }
 
-        addAll(arrs) {
+        addAll(arrs: Array<Array<string>>): Intersection {
             for (let i = arrs.length - 1; i >= 0; --i) {
                 this.add(arrs[i]);
             }
             return this;
         }
 
-        toArray() {
+        toArray(): string[] {
             return (this.elements || []).slice(0);
         }
     }
