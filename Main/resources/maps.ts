@@ -5,6 +5,10 @@
  * Map setup and configuration
  */
 
+interface Window {
+    "interface";
+}
+
 namespace MigrationVisualization {
     export const maps: any = {};
     $(function () {

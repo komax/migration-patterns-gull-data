@@ -10,6 +10,7 @@ namespace MigrationVisualization {
 //------------------------------------------------------------------------------
 
     import ReadOptions = olx.format.ReadOptions;
+    import Feature = ol.Feature;
     let defaults = {
         day: new ol.style.Style({
             stroke: new ol.style.Stroke({
@@ -111,16 +112,16 @@ namespace MigrationVisualization {
                 crossDomain: true,
                 jsonpCallback: JSONkey(id),
                 success: (data) => {
-                    var geojson = new ol.format.GeoJSON(),
-                        features = geojson.readFeatures(data, {
+                    let geojson = new ol.format.GeoJSON(),
+                        features: Feature[] = geojson.readFeatures(data, {
                             featureProjection: 'EPSG:3857'
                         } as ReadOptions);
                     this.source1.clear();
                     this.source2.clear();
-                    this.source1.addFeatures(features.filter(function (feature) {
+                    this.source1.addFeatures(features.filter(function (feature: Feature) {
                         return feature.get('type') != 'stop';
                     }));
-                    this.source2.addFeatures(features.filter(function (feature) {
+                    this.source2.addFeatures(features.filter(function (feature: Feature) {
                         return feature.get('type') == 'stop';
                     }));
                 },
