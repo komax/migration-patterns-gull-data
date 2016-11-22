@@ -13,17 +13,18 @@
             axis: 'y',
             handles: {n: $('#vdivider')},
             resize: function () {
-                if ($(this).height() <= 32)
+                if ($(this).height() <= 32) {
                     $(this).height(0);
+                }
                 MigrationVisualization.maps.resize();
-            },
+            }
         });
         $('#left-view').resizable({
             axis: 'x',
             handles: {e: $('#hdivider')},
             resize: function () {
                 MigrationVisualization.maps.resize()
-            },
+            }
         });
 
 //------------------------------------------------------------------------------
@@ -53,7 +54,7 @@
         window.interface.expandControl = function (expandElement, collapseElement, expandCharacter, collapseCharacter) {
             var button = document.createElement('button');
             button.innerHTML = expandCharacter;
-            button.title = 'Expand/collapse map'
+            button.title = 'Expand/collapse map';
             var viewIsExpanded = false;
 
             var collapseToggle = function () {
@@ -111,9 +112,9 @@
             ol.control.Control.call(this, {
                 element: $('<div>')
                     .attr('class', 'expand-pane ol-unselectable ol-control')
-                    .append(button)[0],
+                    .append(button)[0]
             });
-        }
+        };
 
         ol.inherits(window.interface.paneControl, ol.control.Control);
 
@@ -138,7 +139,7 @@
             ol.control.Control.call(this, {
                 element: $('<div>')
                     .attr('class', 'expand-settings ol-unselectable ol-control')
-                    .append(button)[0],
+                    .append(button)[0]
             });
         };
 
