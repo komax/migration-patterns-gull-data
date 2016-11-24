@@ -149,10 +149,13 @@ namespace  MigrationVisualization {
                 }
             };
 
+            // Gull ids per stop as an Array.
+            let stops: Array<Array<string>> = features.map((d: Feature) => {
+                return Object.keys(d.get('events'));
+            });
+            console.log(stops);
             let gulls = new Intersection()
-                    .addAll(features.map((d: Feature) => {
-                        return Object.keys(d.get('events'));
-                    }))
+                    .addAll(stops)
                     .toArray();
             console.log(gulls);
             selectGulls(gulls);

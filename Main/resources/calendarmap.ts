@@ -1,6 +1,7 @@
 /// <reference path="../libraries/definitions/d3.d.ts" />
 /// <reference path="../libraries/definitions/jquery.d.ts" />
 /// <reference path="../libraries/definitions/jquery.tooltipster.d.ts" />
+/// <reference path="../libraries/definitions/geojson.d.ts" />
 /**
  * Calendar heatmap for stop frequency
  */
@@ -130,6 +131,8 @@ namespace MigrationVisualization {
         }
 
         load = (stops, ids) => {
+            console.log(stops);
+            console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 let events = stops[i].get('events') || {};
@@ -140,8 +143,10 @@ namespace MigrationVisualization {
                         data[id].add(events[id][j], events[id][j + 1]);
                 }
             }
-            for (let id in data)
+            for (let id in data) {
                 data[id] = data[id].toArray();
+            }
+            console.log(data);
             visualizeCalendar.call(this, data, ids);
         }
     }
@@ -206,8 +211,9 @@ namespace MigrationVisualization {
                 } while (i < length);
             }
         }
-        for (let id in stopoverGulls)
+        for (let id in stopoverGulls) {
             stopoverGulls[id] = Object.keys(stopoverGulls[id]);
+        }
 
         // Compute the max count in the stop overs.
         let maxValue = Number.MIN_VALUE;
@@ -265,7 +271,9 @@ namespace MigrationVisualization {
 
         merge(fudge) {
             fudge = fudge || 0;
-            if (this.list.length < 2) return this;
+            if (this.list.length < 2) {
+                return this;
+            }
             this.list.sort(function (a, b) {
                 return a[0] - b[0];
             });
@@ -274,10 +282,11 @@ namespace MigrationVisualization {
                 head = undefined;
             while (this.list.length > 0) {
                 head = this.list.pop();
-                if (range[0] > head[1] + 1 + fudge)
+                if (range[0] > head[1] + 1 + fudge) {
                     list.unshift(range);
-                else if (range[1] > head[1])
+                } else if (range[1] > head[1]) {
                     head[1] = range[1];
+                }
                 range = head;
             }
             list.unshift(range);
