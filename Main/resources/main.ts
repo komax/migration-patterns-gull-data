@@ -12,6 +12,7 @@ namespace  MigrationVisualization {
 //------------------------------------------------------------------------------
     export namespace Main {
         import Feature = ol.Feature;
+        import Collection = ol.Collection;
 
         export let organisms: any = {};
         let calendar: CalendarMap;
@@ -62,6 +63,7 @@ namespace  MigrationVisualization {
                             })
                         ;
                     schematic.select.on('select', (e) => {
+                        console.log(e.target.getFeatures().length);
                         selectNodes(e.target.getFeatures());
                     });
                     schematic.load(slider.val());
@@ -134,16 +136,21 @@ namespace  MigrationVisualization {
 // Note: this function is used by map interactions;
 // this means that calling this function will not update the map itself.
 
-        let selectNodes = function selectNodes(features) {
+        let selectNodes: (features: ol.Collection<ol.Feature> | Array<Feature>) => void = function selectNodes(features) {
+            console.log(features);
             if (!Array.isArray(features)) {
                 features = features.getArray();
             }
             getNodeSelection = function () {
-                return features.slice(0);
+                if (!Array.isArray(features)) {
+                    return features.getArray().slice(0);
+                } else {
+                    return features.slice(0);
+                }
             };
 
             let gulls = new Intersection()
-                    .addAll(features.map((d) => {
+                    .addAll(features.map((d: Feature) => {
                         return Object.keys(d.get('events'));
                     }))
                     .toArray();
@@ -156,7 +163,7 @@ namespace  MigrationVisualization {
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
 
-        let selectGulls = function selectGulls(selected: string[]) {
+        let selectGulls: (selected: string[]) => void = function selectGulls(selected: string[]) {
             console.log(selected);
             getGullSelection = function (): string[] {
                 return selected.slice(0);
