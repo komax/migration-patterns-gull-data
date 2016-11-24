@@ -9,7 +9,7 @@ namespace MigrationVisualization {
 //------------------------------------------------------------------------------
     import ReadOptions = olx.format.ReadOptions;
     import StrokeOptions = olx.style.StrokeOptions;
-    var defaults = {
+    let defaults = {
         smallstop: [
             new ol.style.Fill({color: [90, 180, 255, 1]}),
             new ol.style.Stroke({color: [255, 255, 255, .5]})
@@ -41,7 +41,7 @@ namespace MigrationVisualization {
 
     function nodeStyle(mode) {
         return function (feature, resolution) {
-            var radii = feature.get('radii').split(',').map(Number);
+            let radii = feature.get('radii').split(',').map(Number);
             if (radii.length < 4)
                 return new ol.style.Style({
                     image: new ol.style.Circle({
@@ -62,7 +62,7 @@ namespace MigrationVisualization {
     }
 
     function edgeStyle(feature, resolution) {
-        var mode = Main.inGullSelection(feature.get('ids'))
+        let mode = Main.inGullSelection(feature.get('ids'))
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
             opacity = count / 10,
@@ -112,6 +112,7 @@ namespace MigrationVisualization {
                 condition: ol.events.condition.click,
                 toggleCondition: ol.events.condition.platformModifierKeyOnly
             });
+
         }
 
         load(id) {
@@ -122,7 +123,7 @@ namespace MigrationVisualization {
                 jsonpCallback: 'schemetic_' + id,
                 success: (data) => {
                     let geojson = new ol.format.GeoJSON(),
-                        features = geojson.readFeatures(data, {
+                        features: ol.Feature[] = geojson.readFeatures(data, {
                             featureProjection: 'EPSG:3857'
                         } as ReadOptions);
                     this.source.clear();
