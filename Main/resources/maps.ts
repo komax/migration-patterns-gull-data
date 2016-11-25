@@ -18,18 +18,24 @@ namespace MigrationVisualization {
 
         let layers = maps.layers = {
             mapquestLeft: new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'sat'}),
-                minResolution: 50,
+                // Use DigitalGlobe Maps API: Recent Imagery with Streets
+                source: new ol.source.XYZ({
+                    url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0mpda/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpcGg5dHkzYTAxM290bG1kemJraHU5bmoifQ.CHhq1DFgZPSQQC-DYWpzaQ', // You will need to replace the 'access_token' and 'Map ID' values with your own. http://developer.digitalglobe.com/docs/maps-api
+                }),
+               // minResolution: 50,
             }),
             mapquestRight: new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'sat'}),
-                minResolution: 50,
+                // Use DigitalGlobe Maps API: Recent Imagery with Streets
+                source: new ol.source.XYZ({
+                    url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0mpda/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpcGg5dHkzYTAxM290bG1kemJraHU5bmoifQ.CHhq1DFgZPSQQC-DYWpzaQ', // You will need to replace the 'access_token' and 'Map ID' values with your own. http://developer.digitalglobe.com/docs/maps-api
+                }),
+                //minResolution: 50,
             }),
             topologyLeft: new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'hyb'}),
+                source: new ol.source.CartoDB({} as any),
             }),
             topologyRight: new ol.layer.Tile({
-                source: new ol.source.MapQuest({layer: 'hyb'}),
+                source: new ol.source.CartoDB({} as any),
             }),
             positron: new ol.layer.Tile({
                 source: new ol.source.XYZ({
