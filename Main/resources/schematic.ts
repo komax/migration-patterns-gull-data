@@ -81,7 +81,7 @@ namespace MigrationVisualization {
         });
     }
 
-    function jsonFile(depth) {
+    function jsonFile(depth): string {
         return 'data/schematic_' + depth + '.geojsonp';
     }
 

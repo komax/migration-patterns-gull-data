@@ -17,7 +17,8 @@ namespace MigrationVisualization {
         },
         features: function (level) {
             let geojson = new ol.format.GeoJSON();
-            return geojson.readFeatures(contours["contour" + level]);
+            let contours_zoom_level = contours["contour" + level];
+            return geojson.readFeatures(contours_zoom_level);
         },
         heatmap_local: 'heatmapserver/',
         heatmap_webserver: 'http://localhost:5000/'
