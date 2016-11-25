@@ -151,6 +151,8 @@ namespace  MigrationVisualization {
 
             // Gull ids per stop as an Array.
             let stops: Array<Array<string>> = features.map((d: Feature) => {
+                console.log(d.get('type'));
+                console.log(d.get('events'));
                 return Object.keys(d.get('events'));
             });
             console.log(stops);
