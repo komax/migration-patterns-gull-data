@@ -40,17 +40,17 @@ namespace MigrationVisualization {
             positron: new ol.layer.Tile({
                 source: new ol.source.XYZ({
                     url: 'http://{a-c}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
-                    format: new ol.format.KML()
+                    //format: new ol.format.KML()
                 })
             }),
-            natural: new ol.layer.Tile({
-                title: 'Global Imagery',
-                source: new ol.source.TileWMS({
-                    url: 'http://demo.opengeo.org/geoserver/wms',
-                    params: {LAYERS: 'ne:NE1_HR_LC_SR_W_DR', VERSION: '1.1.1'}
-                    //params: { LAYERS: 'nasa:bluemarble', VERSION: '1.1.1' }
-                })
-            }),
+            // natural: new ol.layer.Tile({
+            //     //title: 'Global Imagery',
+            //     source: new ol.source.TileWMS({
+            //         url: 'http://demo.opengeo.org/geoserver/wms',
+            //         params: {LAYERS: 'ne:NE1_HR_LC_SR_W_DR', VERSION: '1.1.1'}
+            //         //params: { LAYERS: 'nasa:bluemarble', VERSION: '1.1.1' }
+            //     })
+            // }),
             journey: journey.layer,
             schematic: schematic.layer,
         };
