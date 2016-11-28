@@ -155,7 +155,7 @@ def WriteOrderingToFile(ordering, polygons, fh, min_lon, min_lat, lon_bin_size, 
 		if(pairing == []): continue	
 
 		fh.write('\t\t{\n')
-		fh.write('\t\t\t\'type\': \'feature\',\n')
+		fh.write('\t\t\t\'type\': \'Feature\',\n')
 		fh.write('\t\t\t\'geometry\': {\n')
 		fh.write('\t\t\t\t\'type\': \'Polygon\',\n')
 		fh.write('\t\t\t\t\'coordinates\': [\n')
