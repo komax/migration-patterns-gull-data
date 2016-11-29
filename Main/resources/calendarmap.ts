@@ -129,17 +129,21 @@ namespace MigrationVisualization {
             });
         }
 
-        load = (stops, ids) => {
+        load(stops: ol.Feature[], ids: string[]) {
+            console.log("CalendarMap.load");
             console.log(stops);
             console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 let events = stops[i].get('events') || {};
+                console.log(events);
                 for (let id in events) {
-                    if (!(id in data))
+                    if (!(id in data)) {
                         data[id] = new Range();
-                    for (let j = events[id].length - 2; j >= 0; j -= 2)
+                    }
+                    for (let j = events[id].length - 2; j >= 0; j -= 2) {
                         data[id].add(events[id][j], events[id][j + 1]);
+                    }
                 }
             }
             for (let id in data) {

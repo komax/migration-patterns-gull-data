@@ -137,6 +137,7 @@ namespace  MigrationVisualization {
 // this means that calling this function will not update the map itself.
 
         let selectNodes: (features: ol.Collection<ol.Feature> | Array<Feature>) => void = function selectNodes(features) {
+            console.log("Within selectNodes");
             console.log(features);
             if (!Array.isArray(features)) {
                 features = features.getArray();
@@ -151,6 +152,9 @@ namespace  MigrationVisualization {
 
             // Gull ids per stop as an Array.
             let stops: Array<Array<string>> = features.map((d: Feature) => {
+
+                console.log(d);
+                console.log(d.get('radii'));
                 console.log(d.get('type'));
                 console.log(d.get('events'));
                 return Object.keys(d.get('events'));
