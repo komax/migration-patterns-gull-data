@@ -61,12 +61,12 @@ namespace MigrationVisualization {
                     console.log("Succesfully loaded heatmap.");
                 },
                 error: (xhr, status, error) => {
-                    console.log("Could not retrieve heatmap.");
                     if (fallback) {
-                        this.loadHeatmapFrom(url, fallback);
+                        this.loadHeatmapFrom(fallback);
                     } else {
                         console.log(error);
                     }
+                    console.log("Could not retrieve heatmap.");
 
                 }
             });

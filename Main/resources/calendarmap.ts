@@ -276,32 +276,34 @@ namespace MigrationVisualization {
             fudge = fudge || 0;
             if (this.list.length < 2) {
                 return this;
-            }
-            this.list.sort(function (a, b) {
-                return a[0] - b[0];
-            });
-            let list = [],
-                range = this.list.pop(),
-                head = undefined;
-            while (this.list.length > 0) {
-                head = this.list.pop();
-                if (range[0] > head[1] + 1 + fudge) {
-                    list.unshift(range);
-                } else if (range[1] > head[1]) {
-                    head[1] = range[1];
+            } else {
+                this.list.sort(function (a, b) {
+                    return a[0] - b[0];
+                });
+                let list = [],
+                    range = this.list.pop(),
+                    head = this.list.pop();
+                while (this.list.length > 0) {
+                    if (range[0] > head[1] + 1 + fudge) {
+                        list.unshift(range);
+                    } else if (range[1] > head[1]) {
+                        head[1] = range[1];
+                    }
+                    range = head;
+                    head = this.list.pop();
                 }
-                range = head;
+                list.unshift(range);
+                this.list = list;
+                return this;
             }
-            list.unshift(range);
-            this.list = list;
-            return this;
         }
 
         toArray() {
             let arr = [];
             for (let i = 0, l = this.list.length; i < l; ++i) {
-                arr.push(this.list[i][0]);
-                arr.push(this.list[i][1]);
+                let [left, right] = this.list[i];
+                arr.push(left);
+                arr.push(right);
             }
             return arr;
         }
