@@ -10,6 +10,7 @@ interface Window {
 }
 
 namespace MigrationVisualization {
+    import Layer = ol.layer.Layer;
     export const maps: any = {};
     $(function () {
 
@@ -69,9 +70,9 @@ namespace MigrationVisualization {
                     new ol.control.ScaleLine(),
                 ]),
             target: 'left-map',
-            layers: [layers.positron, layers.mapquestLeft]
-                .concat(heatmap.layers)
-                .concat([layers.topologyLeft, journey.layer]),
+            layers: <Layer[]>[layers.positron, layers.mapquestLeft]
+                .concat(heatmap.layers as any)
+                .concat([layers.topologyLeft, journey.layer] as any),
             view: maps.view,
         });
 
