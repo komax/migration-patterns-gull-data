@@ -62,9 +62,11 @@ namespace  MigrationVisualization {
                                 schematic.load(slider.val());
                             })
                         ;
-                    schematic.select.on('select', (e) => {
-                        console.log(e.target.getFeatures().length);
-                        selectNodes(e.target.getFeatures());
+                    schematic.select.on('select', (e: ol.interaction.SelectEvent) => {
+                        console.log("Select Event");
+                        console.log(e.target);
+                        let select: ol.interaction.Select = e.target as ol.interaction.Select;
+                        selectNodes(select.getFeatures());
                     });
                     schematic.load(slider.val());
                     next();
@@ -153,7 +155,7 @@ namespace  MigrationVisualization {
             // Gull ids per stop as an Array.
             let stops: Array<Array<string>> = features.map((d: Feature) => {
 
-                console.log(d);
+                console.log(d.getKeys());
                 console.log(d.get('radii'));
                 console.log(d.get('type'));
                 console.log(d.get('events'));
