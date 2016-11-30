@@ -95,7 +95,7 @@ namespace MigrationVisualization {
             this.layer = new ol.layer.Vector({
                 source: this.source,
                 style: function (feature, resolution) {
-                    var type = feature.get('type');
+                    let type = feature.get('type');
                     if (type == 'node') {
                         return nodeStyle(defaults)(feature, resolution);
                     } else if (type == 'edge') {

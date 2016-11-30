@@ -63,8 +63,16 @@ namespace  MigrationVisualization {
                             })
                         ;
                     schematic.select.on('select', (e: ol.interaction.SelectEvent) => {
-                        console.log("Select Event");
+                        console.log("Select Event: target");
                         console.log(e.target);
+                        console.log("Selected");
+                        for (let selected of e.selected) {
+                            console.log(selected);
+                        }
+                        console.log("Deselected");
+                        for (let deselected of e.deselected) {
+                            console.log(deselected);
+                        }
                         let select: ol.interaction.Select = e.target as ol.interaction.Select;
                         selectNodes(select.getFeatures());
                     });
@@ -169,7 +177,7 @@ namespace  MigrationVisualization {
             selectGulls(gulls);
         };
 
-        let getNodeSelection: Function;
+        let getNodeSelection: () => Feature[];
 
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
@@ -213,7 +221,7 @@ namespace  MigrationVisualization {
                 }
             }
 
-            let nodes = getNodeSelection();
+            let nodes: Feature[] = getNodeSelection();
             if (!nodes.length) {
                 let features: Feature[] = schematic.source.getFeatures();
                 nodes = features.filter(function (d) {
