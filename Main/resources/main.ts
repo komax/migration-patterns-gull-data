@@ -7,6 +7,7 @@ namespace  MigrationVisualization {
     interface Organism {
         name: string;
         sex: string;
+        id: string;
     }
 
 //------------------------------------------------------------------------------
@@ -48,8 +49,12 @@ namespace  MigrationVisualization {
                             .attr('class', (d: Organism) => {
                                 return d.sex;
                             })
-                            .on('click', (d: any) => {
+                            .on('click', (d: Organism) => {
                                 selectGulls([d.id]);
+                            })
+                            .on('mouseover', (d: Organism) => {
+                                journey.load(d.id);
+                                heatmap.clear();
                             })
                         ;
                     next();
@@ -320,4 +325,3 @@ namespace  MigrationVisualization {
     }
 
 }
-
