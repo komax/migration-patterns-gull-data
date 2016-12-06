@@ -250,7 +250,7 @@ namespace  MigrationVisualization {
             return [];
         };
 
-        export let inGullSelection: (arr: Array<any>) => boolean = function () {
+        export let inGullSelection: (arr: Array<string>) => boolean = function () {
             return false;
         };
 

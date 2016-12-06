@@ -40,7 +40,7 @@ namespace MigrationVisualization {
     };
 
     function nodeStyle(mode) {
-        return function (feature, resolution) {
+        return function (feature: ol.Feature | ol.render.Feature, resolution: number) {
             let radii = feature.get('radii').split(',').map(Number);
             if (radii.length < 4)
                 return new ol.style.Style({
@@ -61,7 +61,7 @@ namespace MigrationVisualization {
         };
     }
 
-    function edgeStyle(feature, resolution) {
+    function edgeStyle(feature: ol.Feature | ol.render.Feature, resolution: number) {
         let mode = Main.inGullSelection(feature.get('ids'))
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
