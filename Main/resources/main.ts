@@ -39,9 +39,22 @@ namespace  MigrationVisualization {
                     });
                 })
                 .queue((next) => {
+                    let organisms_array = d3.values(organisms);
+                    // Sort the organisms based on their name.
+                    organisms_array.sort(
+                        (o1: Organism, o2: Organism) => {
+                            if (o1.name < o2.name) {
+                                return -1;
+                            } else if (o1.name > o2.name) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    );
                     let ul = d3.select('#global-overview .gull-list'),
                         items = ul.selectAll('li')
-                            .data(d3.values(organisms)),
+                            .data(organisms_array),
                         li = items.enter().append('li')
                             .text((d: Organism) => {
                                 return d.name;
