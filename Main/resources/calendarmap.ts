@@ -9,6 +9,11 @@
      prependText(text: String): JQuery;
  }
 
+
+ interface Stopovers {
+     [id: string]: Array<number>;
+ }
+
 namespace MigrationVisualization {
 
     export class CalendarMap {
@@ -139,14 +144,16 @@ namespace MigrationVisualization {
             // console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
-                let events = stops[i].get('events') || {};
-                // console.log(events);
+                let events: Stopovers = stops[i].get('events') || {};
+                console.log("Events");
+                console.log(events);
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();
                     }
                     for (let j = events[id].length - 2; j >= 0; j -= 2) {
-                        data[id].add(events[id][j], events[id][j + 1]);
+                        let [start, end] = [events[id][j], events[id][j+1]];
+                        data[id].add(start, end);
                     }
                 }
             }
@@ -198,8 +205,8 @@ namespace MigrationVisualization {
                 let length = data[gullID].length;
                 let i = 0;
                 do {
-                    let startDate = new Date(data[gullID][i]);
-                    let endDate = new Date(data[gullID][i + 1]);
+                    let startDate: Date = new Date(data[gullID][i]);
+                    let endDate: Date = new Date(data[gullID][i + 1]);
 
                     while (startDate <= endDate) {
                         // Consider only yearmonthdays and not times anymore.
@@ -263,47 +270,47 @@ namespace MigrationVisualization {
 //------------------------------------------------------------------------------
 
     class Range {
-        private list;
+        private list: Array<Array<number>>;
 
         constructor() {
             this.list = [];
         }
 
-        add(left, right) {
+        add(left: number, right: number) {
             if (left > right)
                 throw new Error('Range.add failed: ' + left + ' > ' + right);
             this.list.push([left, right]);
             return this;
         };
 
-        merge(fudge) {
-            fudge = fudge || 0;
-            if (this.list.length < 2) {
-                return this;
-            } else {
-                this.list.sort(function (a, b) {
-                    return a[0] - b[0];
-                });
-                let list = [],
-                    range = this.list.pop(),
-                    head = this.list.pop();
-                while (this.list.length > 0) {
-                    if (range[0] > head[1] + 1 + fudge) {
-                        list.unshift(range);
-                    } else if (range[1] > head[1]) {
-                        head[1] = range[1];
-                    }
-                    range = head;
-                    head = this.list.pop();
-                }
-                list.unshift(range);
-                this.list = list;
-                return this;
-            }
-        }
+        // merge(fudge) {
+        //     fudge = fudge || 0;
+        //     if (this.list.length < 2) {
+        //         return this;
+        //     } else {
+        //         this.list.sort(function (a, b) {
+        //             return a[0] - b[0];
+        //         });
+        //         let list = [],
+        //             range = this.list.pop(),
+        //             head = this.list.pop();
+        //         while (this.list.length > 0) {
+        //             if (range[0] > head[1] + 1 + fudge) {
+        //                 list.unshift(range);
+        //             } else if (range[1] > head[1]) {
+        //                 head[1] = range[1];
+        //             }
+        //             range = head;
+        //             head = this.list.pop();
+        //         }
+        //         list.unshift(range);
+        //         this.list = list;
+        //         return this;
+        //     }
+        // }
 
         toArray() {
-            let arr = [];
+            let arr: number[] = [];
             for (let i = 0, l = this.list.length; i < l; ++i) {
                 let [left, right] = this.list[i];
                 arr.push(left);
