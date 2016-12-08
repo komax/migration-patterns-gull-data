@@ -56,20 +56,18 @@ namespace  MigrationVisualization {
                         items = ul.selectAll('li')
                             .data(organisms_array),
                         li = items.enter().append('li')
-                            .text((d: Organism) => {
-                                return d.name;
+                            .text((organism: Organism) => {
+                                return organism.name;
                             })
-                            .attr('class', (d: Organism) => {
-                                return d.sex;
+                            .attr('class', (organism: Organism) => {
+                                return organism.sex;
                             })
-                            .on('click', (d: Organism) => {
-                                selectGulls([d.id]);
+                            .on('click', (organsim: Organism) => {
+                                selectGulls([organsim.id]);
                             })
-                            .on('mouseover', (d: Organism) => {
-                                journey.load(d.id);
-                                heatmap.clear();
-                            })
-                        ;
+                            .on('mouseover', (organism: Organism) => {
+                                journey.load(organism.id);
+                            });
                     next();
                 })
                 .queue((next) => {
@@ -182,9 +180,9 @@ namespace  MigrationVisualization {
             let stops: Array<Array<string>> = features.map((d: Feature) => {
 
                 console.log(d.getKeys());
-                console.log(d.get('radii'));
-                console.log(d.get('type'));
-                console.log(d.get('events'));
+                // console.log(d.get('radii'));
+                // console.log(d.get('type'));
+                // console.log(d.get('events'));
                 return Object.keys(d.get('events'));
             });
             console.log(stops);
@@ -195,7 +193,9 @@ namespace  MigrationVisualization {
             selectGulls(gulls);
         };
 
-        let getNodeSelection: () => Feature[];
+        let getNodeSelection: () => Feature[] = () => {
+            return [];
+        };
 
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
