@@ -145,8 +145,6 @@ namespace MigrationVisualization {
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 let events: Stopovers = stops[i].get('events') || {};
-                console.log("Events");
-                console.log(events);
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();
