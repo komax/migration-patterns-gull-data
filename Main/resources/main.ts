@@ -180,7 +180,6 @@ namespace  MigrationVisualization {
             let stops: Array<Array<string>> = features.map((d: Feature) => {
 
                 console.log(d.getKeys());
-                // console.log(d.get('radii'));
                 // console.log(d.get('type'));
                 // console.log(d.get('events'));
                 return Object.keys(d.get('events'));

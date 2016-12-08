@@ -15,13 +15,13 @@ namespace MigrationVisualization {
             new ol.style.Stroke({color: [255, 255, 255, .5]})
         ],
         nodecolors: [
-            new ol.style.Fill({color: [45, 210, 80, .25]}),
-            new ol.style.Fill({color: [45, 180, 120, .25]}),
-            new ol.style.Fill({color: [45, 150, 150, .25]}),
-            new ol.style.Fill({color: [45, 120, 180, .25]})
+            new ol.style.Fill({color: [239, 243, 255, .25]}),
+            new ol.style.Fill({color: [189, 215, 231, .25]}),
+            new ol.style.Fill({color: [107,174,214, .25]}),
+            new ol.style.Fill({color: [33,113,181, .25]})
         ],
         edgecolor: function (a: number): ol.Color {
-            return [90, 45, 180, a] as ol.Color;
+            return [150, 150, 150, a] as ol.Color;
         }
     }, selected = {
         smallstop: [
