@@ -130,13 +130,13 @@ namespace MigrationVisualization {
         }
 
         load(stops: ol.Feature[], ids: string[]) {
-            console.log("CalendarMap.load");
-            console.log(stops);
-            console.log(ids);
+            // console.log("CalendarMap.load");
+            // console.log(stops);
+            // console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 let events = stops[i].get('events') || {};
-                console.log(events);
+                // console.log(events);
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();
@@ -149,7 +149,7 @@ namespace MigrationVisualization {
             for (let id in data) {
                 data[id] = data[id].toArray();
             }
-            console.log(data);
+            // console.log(data);
             visualizeCalendar.call(this, data, ids);
         }
     }
