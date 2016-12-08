@@ -109,6 +109,7 @@ namespace MigrationVisualization {
             $.ajax({
                 url: JSONfile(id),
                 dataType: 'jsonp',
+                cache: false,
                 crossDomain: true,
                 jsonpCallback: JSONkey(id),
                 success: (data) => {
