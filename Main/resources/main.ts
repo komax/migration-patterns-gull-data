@@ -190,6 +190,18 @@ namespace  MigrationVisualization {
                     .addAll(stops)
                     .toArray();
             console.log(gulls);
+            gulls.sort(
+                (id1: string, id2: string) => {
+                    let o1 = organisms[id1];
+                    let o2 = organisms[id2];
+                    if (o1.name < o2.name) {
+                        return -1;
+                    } else if (o1.name > o2.name) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
             selectGulls(gulls);
         };
 
