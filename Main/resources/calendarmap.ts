@@ -5,6 +5,10 @@
  * Calendar heatmap for stop frequency
  */
 
+ interface JQuery {
+     prependText(text: String): JQuery;
+ }
+
 namespace MigrationVisualization {
 
     export class CalendarMap {
@@ -156,7 +160,7 @@ namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
-    function formatNames(ids) {
+    function formatNames(ids): JQuery {
         let div = $('<div>');
         for (let i = 0, l = ids.length; i < l; ++i) {
             div
@@ -239,10 +243,10 @@ namespace MigrationVisualization {
             })
             .each(function (d) {
                 let stops = Math.round(stopoverDays[d] || 0);
-                $(this).tooltipster('content',
-                    formatNames(stopoverGulls[d] || [])
-                        .prependText('' + stops + (stops == 1 ? ' stop' : ' stops' ))
-                );
+                let content: string = formatNames(stopoverGulls[d] || [])
+                        .prependText('' + stops + (stops == 1 ? ' stop' : ' stops'))
+                        .html();
+                $(this).tooltipster('content', content);
             });
 
 
@@ -250,7 +254,7 @@ namespace MigrationVisualization {
 
 //------------------------------------------------------------------------------
 
-    $.fn.prependText = function (text) {
+    $.fn.prependText = function (text: string): JQuery {
         return this.each(function () {
             $(this).prepend(document.createTextNode(text));
         });

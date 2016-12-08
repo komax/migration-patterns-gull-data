@@ -42,7 +42,7 @@ namespace MigrationVisualization {
             }
         };
 
-        loadHeatmapFrom(url, fallback) {
+        loadHeatmapFrom(url: string, fallback: string) {
             $.ajax({
                 url: url,
                 dataType: 'jsonp',
@@ -62,7 +62,7 @@ namespace MigrationVisualization {
                 },
                 error: (xhr, status, error) => {
                     if (fallback) {
-                        this.loadHeatmapFrom(fallback);
+                        this.loadHeatmapFrom(fallback, fallback);
                     } else {
                         console.log(error);
                     }
