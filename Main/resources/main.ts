@@ -189,6 +189,7 @@ namespace  MigrationVisualization {
                     .addAll(stops)
                     .toArray();
             console.log(gulls);
+            // Sort the ids based on their alphabetical order.
             gulls.sort(
                 (id1: string, id2: string) => {
                     let o1 = organisms[id1];
