@@ -68,11 +68,11 @@ namespace MigrationVisualization {
         });
     }
 
-    function JSONkey(id) {
+    function JSONkey(id): string {
         return 'journey_' + id.replace(' ', '_');
     }
 
-    function JSONfile(id) {
+    function JSONfile(id): string {
         return 'data/' + JSONkey(id) + '.geojsonp';
     }
 
