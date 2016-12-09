@@ -18,6 +18,32 @@ namespace  MigrationVisualization {
         export let organisms: any = {};
         let calendar: CalendarMap;
 
+        /**
+         * Maintaining the selection and deselection of nodes within the schematic map.
+         */
+        class StopoverSequence {
+            readonly nodes: ol.Feature[];
+
+            constructor() {
+                this.nodes = [];
+            }
+
+            update(selectEvent: ol.interaction.SelectEvent): void {
+                // FIXME Implement the selection.
+            }
+
+            idsPerStopover(): Array<Array<string>> {
+                // TODO Implement this method.
+                return [];
+            }
+
+            selectDuration(startDate: Date, endDate: Date): void {
+                // TODO Implement this method.
+            }
+
+            // TODO Add more features.
+        }
+
         export function initialize() {
             new Batch()
                 .queue((next) => {
@@ -175,6 +201,8 @@ namespace  MigrationVisualization {
                     return features.slice(0);
                 }
             };
+            console.log("getNodeSelection");
+            console.log(getNodeSelection());
 
             // Gull ids per stop as an Array.
             let stops: Array<Array<string>> = features.map((d: Feature) => {
