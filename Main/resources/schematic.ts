@@ -64,7 +64,8 @@ namespace MigrationVisualization {
     }
 
     function edgeStyle(feature: ol.Feature | ol.render.Feature, resolution: number) {
-        let mode = Main.inGullSelection(feature.get('ids'))
+        let gullIds = feature.get('ids');
+        let mode = Main.inGullSelection(gullIds)
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
             opacity = count / 10,
