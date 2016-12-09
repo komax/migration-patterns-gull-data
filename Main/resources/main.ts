@@ -4,6 +4,9 @@
  * Global functionality used by the application
  */
 namespace  MigrationVisualization {
+    import Feature = ol.Feature;
+    import Collection = ol.Collection;
+
     interface Organism {
         name: string;
         sex: string;
@@ -12,29 +15,66 @@ namespace  MigrationVisualization {
 
 //------------------------------------------------------------------------------
     export namespace Main {
-        import Feature = ol.Feature;
-        import Collection = ol.Collection;
-
         export let organisms: any = {};
         let calendar: CalendarMap;
-
         /**
          * Maintaining the selection and deselection of nodes within the schematic map.
          */
         class StopoverSequence {
-            readonly nodes: ol.Feature[];
+            private nodes: ol.Feature[];
+            private sortBy: (id1: string, id2: string) => number;
 
             constructor() {
                 this.nodes = [];
+                this.sortBy = (id1: string, id2: string) => {
+                    let o1 = organisms[id1];
+                    let o2 = organisms[id2];
+                    if (o1.name < o2.name) {
+                        return -1;
+                    } else if (o1.name > o2.name) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }};
             }
 
             update(selectEvent: ol.interaction.SelectEvent): void {
-                // FIXME Implement the selection.
+                // Add the new selected ones to the selection.
+                this.nodes = this.nodes.concat(selectEvent.selected);
+                // Remove the deselected ones.
+                let deselected = selectEvent.deselected;
+                this.nodes = this.nodes.filter((elem) => {
+                    // Keep only the ones that are still selected (not deselected).
+                    return deselected.indexOf(elem) === -1;
+                });
             }
 
             idsPerStopover(): Array<Array<string>> {
-                // TODO Implement this method.
-                return [];
+                // Gull ids per stop as an Array.
+                return this.nodes.map((d: Feature) => {
+                    console.log(d.getKeys());
+                    // console.log(d.get('type'));
+                    // console.log(d.get('events'));
+                    return Object.keys(d.get('events'));
+                });
+            }
+
+            idsAllStops(): Array<string> {
+                // Flatten array of the ids.
+                const ids = [].concat.apply([], this.idsPerStopover());
+                // Sort them alphabetically.
+                ids.sort(this.sortBy);
+                return ids;
+            }
+
+            intersection(): Array<string> {
+                // Compute first the intersection for all ids per stopover.
+                const intersect = new Intersection();
+                intersect.addAll(this.idsPerStopover());
+                const ids = intersect.toArray();
+                // Sort them alphabetically.
+                ids.sort(this.sortBy);
+                return ids;
             }
 
             selectDuration(startDate: Date, endDate: Date): void {
@@ -43,6 +83,7 @@ namespace  MigrationVisualization {
 
             // TODO Add more features.
         }
+        const stopOverSeq: StopoverSequence = new StopoverSequence();
 
         export function initialize() {
             new Batch()
@@ -104,19 +145,20 @@ namespace  MigrationVisualization {
                                 schematic.load(slider.val());
                             })
                         ;
-                    schematic.select.on('select', (e: ol.interaction.SelectEvent) => {
+                    schematic.select.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         console.log("Select Event: target");
-                        console.log(e.target);
+                        console.log(selectEvent.target);
                         console.log("Selected");
-                        for (let selected of e.selected) {
+                        for (let selected of selectEvent.selected) {
                             console.log(selected);
                         }
                         console.log("Deselected");
-                        for (let deselected of e.deselected) {
+                        for (let deselected of selectEvent.deselected) {
                             console.log(deselected);
                         }
-                        let select: ol.interaction.Select = e.target as ol.interaction.Select;
-                        selectNodes(select.getFeatures());
+                        let select: ol.interaction.Select = selectEvent.target as ol.interaction.Select;
+                        stopOverSeq.update(selectEvent);
+                        selectGulls(stopOverSeq.intersection());
                     });
                     schematic.load(slider.val());
                     next();
@@ -188,50 +230,50 @@ namespace  MigrationVisualization {
 // Note: this function is used by map interactions;
 // this means that calling this function will not update the map itself.
 
-        let selectNodes: (features: ol.Collection<ol.Feature> | Array<Feature>) => void = function selectNodes(features) {
-            console.log("Within selectNodes");
-            console.log(features);
-            if (!Array.isArray(features)) {
-                features = features.getArray();
-            }
-            getNodeSelection = function () {
-                if (!Array.isArray(features)) {
-                    return features.getArray().slice(0);
-                } else {
-                    return features.slice(0);
-                }
-            };
-            console.log("getNodeSelection");
-            console.log(getNodeSelection());
-
-            // Gull ids per stop as an Array.
-            let stops: Array<Array<string>> = features.map((d: Feature) => {
-
-                console.log(d.getKeys());
-                // console.log(d.get('type'));
-                // console.log(d.get('events'));
-                return Object.keys(d.get('events'));
-            });
-            console.log(stops);
-            let gulls = new Intersection()
-                    .addAll(stops)
-                    .toArray();
-            console.log(gulls);
-            // Sort the ids based on their alphabetical order.
-            gulls.sort(
-                (id1: string, id2: string) => {
-                    let o1 = organisms[id1];
-                    let o2 = organisms[id2];
-                    if (o1.name < o2.name) {
-                        return -1;
-                    } else if (o1.name > o2.name) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-            selectGulls(gulls);
-        };
+        // let selectNodes: (features: ol.Collection<ol.Feature> | Array<Feature>) => void = function selectNodes(features) {
+        //     console.log("Within selectNodes");
+        //     console.log(features);
+        //     if (!Array.isArray(features)) {
+        //         features = features.getArray();
+        //     }
+        //     getNodeSelection = function () {
+        //         if (!Array.isArray(features)) {
+        //             return features.getArray().slice(0);
+        //         } else {
+        //             return features.slice(0);
+        //         }
+        //     };
+        //     console.log("getNodeSelection");
+        //     console.log(getNodeSelection());
+        //
+        //     // Gull ids per stop as an Array.
+        //     let stops: Array<Array<string>> = features.map((d: Feature) => {
+        //
+        //         console.log(d.getKeys());
+        //         // console.log(d.get('type'));
+        //         // console.log(d.get('events'));
+        //         return Object.keys(d.get('events'));
+        //     });
+        //     console.log(stops);
+        //     // let gulls = new Intersection()
+        //     //         .addAll(stops)
+        //     //         .toArray();
+        //     // console.log(gulls);
+        //     // Sort the ids based on their alphabetical order.
+        //     // gulls.sort(
+        //     //     (id1: string, id2: string) => {
+        //     //         let o1 = organisms[id1];
+        //     //         let o2 = organisms[id2];
+        //     //         if (o1.name < o2.name) {
+        //     //             return -1;
+        //     //         } else if (o1.name > o2.name) {
+        //     //             return 1;
+        //     //         } else {
+        //     //             return 0;
+        //     //         }
+        //     //     });
+        //     selectGulls(gulls);
+        // };
 
         let getNodeSelection: () => Feature[] = () => {
             return [];
@@ -312,10 +354,12 @@ namespace  MigrationVisualization {
             return false;
         };
 
-        export let intersectGullSelection = function intersectGullSelection(gulls) {
+        export let intersectGullSelection = function intersectGullSelection(gullIds: string[]) {
+            console.log("Within intersectGullSelection");
+            console.log(gullIds);
             selectGulls(new Intersection()
                 .add(getGullSelection())
-                .add(gulls)
+                .add(gullIds)
                 .toArray());
         };
     }
@@ -376,5 +420,7 @@ namespace  MigrationVisualization {
             return (this.elements || []).slice(0);
         }
     }
+
+
 
 }
