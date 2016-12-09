@@ -146,17 +146,6 @@ namespace  MigrationVisualization {
                             })
                         ;
                     schematic.select.on('select', (selectEvent: ol.interaction.SelectEvent) => {
-                        console.log("Select Event: target");
-                        console.log(selectEvent.target);
-                        console.log("Selected");
-                        for (let selected of selectEvent.selected) {
-                            console.log(selected);
-                        }
-                        console.log("Deselected");
-                        for (let deselected of selectEvent.deselected) {
-                            console.log(deselected);
-                        }
-                        let select: ol.interaction.Select = selectEvent.target as ol.interaction.Select;
                         stopOverSeq.update(selectEvent);
                         selectGulls(stopOverSeq.intersection());
                     });
@@ -224,56 +213,6 @@ namespace  MigrationVisualization {
                 .go()
             ;
         }
-
-//------------------------------------------------------------------------------
-// Select schema nodes (takes map features)
-// Note: this function is used by map interactions;
-// this means that calling this function will not update the map itself.
-
-        // let selectNodes: (features: ol.Collection<ol.Feature> | Array<Feature>) => void = function selectNodes(features) {
-        //     console.log("Within selectNodes");
-        //     console.log(features);
-        //     if (!Array.isArray(features)) {
-        //         features = features.getArray();
-        //     }
-        //     getNodeSelection = function () {
-        //         if (!Array.isArray(features)) {
-        //             return features.getArray().slice(0);
-        //         } else {
-        //             return features.slice(0);
-        //         }
-        //     };
-        //     console.log("getNodeSelection");
-        //     console.log(getNodeSelection());
-        //
-        //     // Gull ids per stop as an Array.
-        //     let stops: Array<Array<string>> = features.map((d: Feature) => {
-        //
-        //         console.log(d.getKeys());
-        //         // console.log(d.get('type'));
-        //         // console.log(d.get('events'));
-        //         return Object.keys(d.get('events'));
-        //     });
-        //     console.log(stops);
-        //     // let gulls = new Intersection()
-        //     //         .addAll(stops)
-        //     //         .toArray();
-        //     // console.log(gulls);
-        //     // Sort the ids based on their alphabetical order.
-        //     // gulls.sort(
-        //     //     (id1: string, id2: string) => {
-        //     //         let o1 = organisms[id1];
-        //     //         let o2 = organisms[id2];
-        //     //         if (o1.name < o2.name) {
-        //     //             return -1;
-        //     //         } else if (o1.name > o2.name) {
-        //     //             return 1;
-        //     //         } else {
-        //     //             return 0;
-        //     //         }
-        //     //     });
-        //     selectGulls(gulls);
-        // };
 
         let getNodeSelection: () => Feature[] = () => {
             return [];
