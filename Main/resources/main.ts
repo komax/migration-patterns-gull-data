@@ -294,8 +294,6 @@ namespace  MigrationVisualization {
         };
 
         export let intersectGullSelection = function intersectGullSelection(gullIds: string[]) {
-            console.log("Within intersectGullSelection");
-            console.log(gullIds);
             selectGulls(new Intersection()
                 .add(getGullSelection())
                 .add(gullIds)
