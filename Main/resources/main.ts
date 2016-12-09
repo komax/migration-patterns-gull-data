@@ -52,7 +52,7 @@ namespace  MigrationVisualization {
             idsPerStopover(): Array<Array<string>> {
                 // Gull ids per stop as an Array.
                 return this.nodes.map((d: Feature) => {
-                    console.log(d.getKeys());
+                    // console.log(d.getKeys());
                     // console.log(d.get('type'));
                     // console.log(d.get('events'));
                     return Object.keys(d.get('events'));
