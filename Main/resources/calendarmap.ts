@@ -119,7 +119,7 @@ namespace MigrationVisualization {
                 })
                 .attr("d", monthPath);
 
-            $('#' + this.id + ' rect').tooltipster();
+            $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
 
             function monthPath(t0) {
                 let t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
