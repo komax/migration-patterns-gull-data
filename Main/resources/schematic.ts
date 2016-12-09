@@ -14,14 +14,16 @@ namespace MigrationVisualization {
             new ol.style.Fill({color: [90, 180, 255, 1]}),
             new ol.style.Stroke({color: [255, 255, 255, .5]})
         ],
+        // Blue color scheme scheme (single hue from color brewer).
         nodecolors: [
-            new ol.style.Fill({color: [239, 243, 255, .25]}),
-            new ol.style.Fill({color: [189, 215, 231, .25]}),
-            new ol.style.Fill({color: [107,174,214, .25]}),
-            new ol.style.Fill({color: [33,113,181, .25]})
+            new ol.style.Fill({color: [158, 202, 225, .25]}),
+            new ol.style.Fill({color: [107, 174, 214, .25]}),
+            new ol.style.Fill({color: [49, 130, 189, .25]}),
+            new ol.style.Fill({color: [8, 81, 156, .25]})
         ],
+        // Grey for the edges.
         edgecolor: function (a: number): ol.Color {
-            return [150, 150, 150, a] as ol.Color;
+            return [140, 140, 140, a] as ol.Color;
         }
     }, selected = {
         smallstop: [
