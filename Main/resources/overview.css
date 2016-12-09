@@ -29,6 +29,7 @@
 }
 .gull-list li:hover {
 	text-decoration: underline;
+	font-weight: bold;
 }
 .female {
 	color: #d73027;
@@ -47,6 +48,7 @@
 }
 #gulls .gull-list li:hover {
 	text-decoration: line-through;
+	font-weight: normal;
 }
 
 #calendar-map {
