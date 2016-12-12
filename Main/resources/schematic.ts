@@ -92,6 +92,7 @@ namespace MigrationVisualization {
         readonly source: ol.source.Vector;
         readonly layer: ol.layer.Vector;
         readonly stopoverSelect: ol.interaction.Select;
+        readonly statisticsSelect: ol.interaction.Select;
 
         constructor() {
             this.source = new ol.source.Vector({});
@@ -115,7 +116,14 @@ namespace MigrationVisualization {
                 condition: ol.events.condition.click,
                 toggleCondition: ol.events.condition.platformModifierKeyOnly
             });
-
+            this.statisticsSelect = new ol.interaction.Select({
+                layers: [this.layer],
+                filter: (f) => {
+                    return f.get('type') === 'node';
+                },
+                style: nodeStyle(defaults),
+                condition: ol.events.condition.pointerMove
+            });
         }
 
         load(id) {

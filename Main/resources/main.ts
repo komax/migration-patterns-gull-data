@@ -85,6 +85,16 @@ namespace  MigrationVisualization {
         }
         const stopOverSeq: StopoverSequence = new StopoverSequence();
 
+        /**
+         * Visualize some statistics as tooltip on each stopover.
+         * @param selectEvent Current selection event from openlayers.
+         */
+        const visualizeToolTipStatistics = (selectEvent: ol.interaction.SelectEvent) => {
+            if (selectEvent.selected.length === 1) {
+                console.log(selectEvent.selected);
+            }
+        };
+
         export function initialize() {
             new Batch()
                 .queue((next) => {
@@ -145,9 +155,12 @@ namespace  MigrationVisualization {
                                 schematic.load(slider.val());
                             })
                         ;
-                    schematic.stopoverSelect.on('stopoverSelect', (selectEvent: ol.interaction.SelectEvent) => {
+                    schematic.stopoverSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         stopOverSeq.update(selectEvent);
                         selectGulls(stopOverSeq.intersection());
+                    });
+                    schematic.statisticsSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
+                        visualizeToolTipStatistics(selectEvent);
                     });
                     schematic.load(slider.val());
                     next();
