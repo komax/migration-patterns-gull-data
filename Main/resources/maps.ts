@@ -89,7 +89,7 @@ namespace MigrationVisualization {
             layers: [layers.positron, layers.satelliteRight, layers.topologyRight, layers.schematic],
             view: maps.view,
             interactions: ol.interaction.defaults()
-                .extend([schematic.select]),
+                .extend([schematic.stopoverSelect]),
         });
 
 //------------------------------------------------------------------------------

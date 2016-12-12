@@ -145,7 +145,7 @@ namespace  MigrationVisualization {
                                 schematic.load(slider.val());
                             })
                         ;
-                    schematic.select.on('select', (selectEvent: ol.interaction.SelectEvent) => {
+                    schematic.stopoverSelect.on('stopoverSelect', (selectEvent: ol.interaction.SelectEvent) => {
                         stopOverSeq.update(selectEvent);
                         selectGulls(stopOverSeq.intersection());
                     });

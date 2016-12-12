@@ -91,7 +91,7 @@ namespace MigrationVisualization {
     export class Schematic {
         readonly source: ol.source.Vector;
         readonly layer: ol.layer.Vector;
-        readonly select: ol.interaction.Select;
+        readonly stopoverSelect: ol.interaction.Select;
 
         constructor() {
             this.source = new ol.source.Vector({});
@@ -106,7 +106,7 @@ namespace MigrationVisualization {
                     }
                 }
             });
-            this.select = new ol.interaction.Select({
+            this.stopoverSelect = new ol.interaction.Select({
                 layers: [this.layer],
                 filter: function (d) {
                     return d.get('type') == 'node';
