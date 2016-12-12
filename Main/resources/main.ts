@@ -156,12 +156,12 @@ namespace  MigrationVisualization {
                     let slider = $('#sat-slider-left')
                         .on('change input', () => {
                             let opacity = slider.val() / 100.0;
-                            maps.layers.mapquestLeft.setVisible(opacity > 0);
-                            maps.layers.mapquestLeft.setOpacity(opacity);
+                            maps.layers.satelliteLeft.setVisible(opacity > 0);
+                            maps.layers.satelliteLeft.setOpacity(opacity);
                         })
                         .val(0);
 
-                    maps.layers.mapquestLeft.setOpacity(slider.val());
+                    maps.layers.satelliteLeft.setOpacity(slider.val());
                     next();
                 })
                 .queue((next) => {
@@ -169,11 +169,11 @@ namespace  MigrationVisualization {
                         .val(0)
                         .on('change input', () => {
                             let opacity = slider.val() / 100.0;
-                            maps.layers.mapquestRight.setVisible(opacity > 0);
-                            maps.layers.mapquestRight.setOpacity(opacity);
+                            maps.layers.satelliteRight.setVisible(opacity > 0);
+                            maps.layers.satelliteRight.setOpacity(opacity);
                         });
 
-                    maps.layers.mapquestRight.setOpacity(slider.val());
+                    maps.layers.satelliteRight.setOpacity(slider.val());
                     next();
                 })
                 .queue((next) => {

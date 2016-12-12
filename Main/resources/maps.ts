@@ -18,14 +18,14 @@ namespace MigrationVisualization {
 //------------------------------------------------------------------------------
 
         let layers = maps.layers = {
-            mapquestLeft: new ol.layer.Tile({
+            satelliteLeft: new ol.layer.Tile({
                 // Use DigitalGlobe Maps API: Recent Imagery with Streets
                 source: new ol.source.XYZ({
                     url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0mpda/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpcGg5dHkzYTAxM290bG1kemJraHU5bmoifQ.CHhq1DFgZPSQQC-DYWpzaQ', // You will need to replace the 'access_token' and 'Map ID' values with your own. http://developer.digitalglobe.com/docs/maps-api
                 }),
                // minResolution: 50,
             }),
-            mapquestRight: new ol.layer.Tile({
+            satelliteRight: new ol.layer.Tile({
                 // Use DigitalGlobe Maps API: Recent Imagery with Streets
                 source: new ol.source.XYZ({
                     url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0mpda/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpcGg5dHkzYTAxM290bG1kemJraHU5bmoifQ.CHhq1DFgZPSQQC-DYWpzaQ', // You will need to replace the 'access_token' and 'Map ID' values with your own. http://developer.digitalglobe.com/docs/maps-api
@@ -70,7 +70,7 @@ namespace MigrationVisualization {
                     new ol.control.ScaleLine(),
                 ]),
             target: 'left-map',
-            layers: <Layer[]>[layers.positron, layers.mapquestLeft]
+            layers: <Layer[]>[layers.positron, layers.satelliteLeft]
                 .concat(heatmap.layers as any)
                 .concat([layers.topologyLeft, journey.layer] as any),
             view: maps.view,
@@ -86,7 +86,7 @@ namespace MigrationVisualization {
                     new ol.control.ScaleLine(),
                 ]),
             target: 'right-map',
-            layers: [layers.positron, layers.mapquestRight, layers.topologyRight, layers.schematic],
+            layers: [layers.positron, layers.satelliteRight, layers.topologyRight, layers.schematic],
             view: maps.view,
             interactions: ol.interaction.defaults()
                 .extend([schematic.select]),
