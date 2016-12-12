@@ -168,8 +168,9 @@ namespace  MigrationVisualization {
         const visualizeToolTipStatistics = (selectEvent: ol.interaction.SelectEvent) => {
             if (selectEvent.selected.length === 1) {
                 let stat = new StopoverStatistics(selectEvent);
-                console.log(stat.femaleOrganisms());
-                console.log(stat.maleOrganisms());
+                let statistics =
+                    `Females:${stat.femaleOrganisms().length} Males:${stat.maleOrganisms().length}`;
+                console.log(statistics);
                 console.log(stat.numberOfOrganisms());
                 console.log(StopoverStatistics.totalNumberOfOrganisms());
                 let feature: ol.Feature = selectEvent.selected[0];
