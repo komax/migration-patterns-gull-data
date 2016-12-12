@@ -287,23 +287,23 @@ namespace  MigrationVisualization {
                     next();
                 })
                 .queue((next) => {
-                    let checkbox = $('#placenames-left')
-                            .val(0)
-                            .on('change input', () => {
-                                maps.layers.topologyLeft.setVisible(this.checked);
-                            })
-                        ;
-                    maps.layers.topologyLeft.setVisible(this.checked);
+                    // let checkbox = $('#placenames-left')
+                    //         .val(0)
+                    //         .on('change input', () => {
+                    //             maps.layers.topologyLeft.setVisible(this.checked);
+                    //         })
+                    //     ;
+                    // maps.layers.topologyLeft.setVisible(this.checked);
                     next();
                 })
                 .queue((next) => {
-                    let checkbox = $('#placenames-right')
-                            .val(0)
-                            .on('change input', () => {
-                                maps.layers.topologyRight.setVisible(this.checked);
-                            })
-                        ;
-                    maps.layers.topologyRight.setVisible(this.checked);
+                    // let checkbox = $('#placenames-right')
+                    //         .val(0)
+                    //         .on('change input', () => {
+                    //             maps.layers.topologyRight.setVisible(this.checked);
+                    //         })
+                    //     ;
+                    // maps.layers.topologyRight.setVisible(this.checked);
                     next();
                 })
                 .queue((next) => {
