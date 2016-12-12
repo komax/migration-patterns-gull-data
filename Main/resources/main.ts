@@ -179,6 +179,15 @@ namespace  MigrationVisualization {
                 let extent = geometry.getExtent();
                 let center = ol.extent.getCenter(extent);
                 console.log("The center is "+ center);
+
+                let svg = d3.select('#stopover-statistics').selectAll("svg")
+                    .attr("width", 200)
+                    .attr("height", 200);
+                svg.append("rect")
+                    .attr("x", 10)
+                    .attr("y", 10)
+                    .attr("width", 50)
+                .attr("height", 100);
             }
         };
 
