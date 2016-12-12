@@ -172,6 +172,12 @@ namespace  MigrationVisualization {
                 console.log(stat.maleOrganisms());
                 console.log(stat.numberOfOrganisms());
                 console.log(StopoverStatistics.totalNumberOfOrganisms());
+                let feature: ol.Feature = selectEvent.selected[0];
+                let geometry = feature.getGeometry();
+                console.log(geometry);
+                let extent = geometry.getExtent();
+                let center = ol.extent.getCenter(extent);
+                console.log("The center is "+ center);
             }
         };
 
