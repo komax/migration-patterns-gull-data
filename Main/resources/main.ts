@@ -85,13 +85,93 @@ namespace  MigrationVisualization {
         }
         const stopOverSeq: StopoverSequence = new StopoverSequence();
 
+
+        /**
+         * Enum to group and select genders.
+         */
+        enum Gender {
+            Male,
+            Female,
+            All
+        }
+
+        /**
+         * Compute statistics for the tooltip at a specific stopover.
+         */
+        class StopoverStatistics {
+            private stopoverFeature: ol.Feature;
+
+            constructor(selectEvent: ol.interaction.SelectEvent) {
+                if (selectEvent.selected.length !== 1) {
+                    throw new Error('Computing statistics only on one stopover');
+                }
+
+                this.stopoverFeature = selectEvent.selected[0];
+
+            }
+
+            private filterOrganismPerGender(ids, gender: Gender): string[] {
+                switch (gender) {
+                    case Gender.All:
+                        return ids;
+                    case Gender.Female:
+                        return ids.filter((id) => {
+                            return organisms[id].sex === 'female';
+                        });
+                    case Gender.Male:
+                        return ids.filter((id) => {
+                            return organisms[id].sex === 'male';
+                        });
+                }
+            }
+
+            static totalNumberOfOrganisms(): number {
+                let ids = Object.keys(organisms);
+                return ids.length;
+            }
+
+            numberOfOrganisms(): number {
+                let events = this.stopoverFeature.get('events');
+                if (events === undefined || events === null) {
+                    return 0;
+                } else {
+                    const ids: string[] = Object.keys(events);
+                    return ids.length;
+                }
+            }
+
+            femaleOrganisms(): string[] {
+                let events = this.stopoverFeature.get('events');
+                if (events === undefined || events === null) {
+                    return [];
+                } else {
+                    const ids: string[] = Object.keys(events);
+                    return this.filterOrganismPerGender(ids, Gender.Female);
+                }
+            }
+
+            maleOrganisms(): string[] {
+                let events = this.stopoverFeature.get('events');
+                if (events === undefined || events === null) {
+                    return [];
+                } else {
+                    const ids: string[] = Object.keys(events);
+                    return this.filterOrganismPerGender(ids, Gender.Male);
+                }
+            }
+        }
+
         /**
          * Visualize some statistics as tooltip on each stopover.
          * @param selectEvent Current selection event from openlayers.
          */
         const visualizeToolTipStatistics = (selectEvent: ol.interaction.SelectEvent) => {
             if (selectEvent.selected.length === 1) {
-                console.log(selectEvent.selected);
+                let stat = new StopoverStatistics(selectEvent);
+                console.log(stat.femaleOrganisms());
+                console.log(stat.maleOrganisms());
+                console.log(stat.numberOfOrganisms());
+                console.log(StopoverStatistics.totalNumberOfOrganisms());
             }
         };
 
