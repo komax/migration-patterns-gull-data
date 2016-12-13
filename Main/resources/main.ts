@@ -180,14 +180,11 @@ namespace  MigrationVisualization {
                 let center = ol.extent.getCenter(extent);
                 console.log("The center is "+ center);
 
-                let svg = d3.select('#stopover-statistics').selectAll("svg")
-                    .attr("width", 200)
-                    .attr("height", 200);
-                svg.append("rect")
-                    .attr("x", 10)
-                    .attr("y", 10)
-                    .attr("width", 50)
-                .attr("height", 100);
+                schematic.stopoverStatisticsPopover.setPosition(center);
+                $('#stopover-statistics').tooltipster('content', `<span>${statistics}</span>`);
+                $('#stopover-statistics').tooltipster('show');
+            } else {
+                $('#stopover-statistics').tooltipster('hide');
             }
         };
 

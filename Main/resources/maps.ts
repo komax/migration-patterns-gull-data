@@ -90,6 +90,7 @@ namespace MigrationVisualization {
             view: maps.view,
             interactions: ol.interaction.defaults()
                 .extend([schematic.stopoverSelect, schematic.statisticsSelect]),
+            overlays: [schematic.stopoverStatisticsPopover]
         });
 
 //------------------------------------------------------------------------------

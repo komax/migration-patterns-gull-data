@@ -93,6 +93,7 @@ namespace MigrationVisualization {
         readonly layer: ol.layer.Vector;
         readonly stopoverSelect: ol.interaction.Select;
         readonly statisticsSelect: ol.interaction.Select;
+        readonly stopoverStatisticsPopover: ol.Overlay;
 
         constructor() {
             this.source = new ol.source.Vector({});
@@ -107,6 +108,7 @@ namespace MigrationVisualization {
                     }
                 }
             });
+
             this.stopoverSelect = new ol.interaction.Select({
                 layers: [this.layer],
                 filter: function (d) {
@@ -123,6 +125,20 @@ namespace MigrationVisualization {
                 },
                 style: nodeStyle(defaults),
                 condition: ol.events.condition.pointerMove
+            });
+
+
+            this.stopoverStatisticsPopover = new ol.Overlay({
+            });
+
+            $(document).ready(() => {
+                $('#stopover-statistics').tooltipster({contentAsHTML: true});
+
+                let popUpElem: Element | null = document.getElementById('stopover-statistics');
+                if (popUpElem === null) {
+                    throw new Error("Cannot find elemement stopover-statistics in the html doc");
+                }
+                this.stopoverStatisticsPopover.setElement(popUpElem);
             });
         }
 
