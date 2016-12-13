@@ -166,7 +166,7 @@ namespace  MigrationVisualization {
                 let numberMales = this.maleOrganisms().length;
                 let numberFemales = this.femaleOrganisms().length;
                 let organismsAtStopover = numberFemales + numberMales;
-                let organsimsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
+                let organismsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
                 let total = StopoverStatistics.totalNumberOfOrganisms();
 
                 // Create a temporary svg element on the tooltip.
@@ -179,7 +179,7 @@ namespace  MigrationVisualization {
                     .attr("x", 0)
                     .attr("y", 35)
                     .attr("font-family", "Verdana")
-                    .attr("font-size", 15);
+                    .attr("font-size", 30);
 
                 // Generate the html code for the tooltip.
                 let svgString: string = $(`${tooltipID}`).html();
