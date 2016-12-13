@@ -161,16 +161,32 @@ namespace  MigrationVisualization {
                 }
             }
 
-            renderSVGTooltip(): string {
-                let statistics =
-                    `Females:${this.femaleOrganisms().length} Males:${this.maleOrganisms().length}`;
-                return `<svg xmlns="http://www.w3.org/2000/svg"
-     width="500" height="40" viewBox="0 0 500 40">
+            renderSVGTooltip(tooltipID: string): string {
+                // Obtain the statistical values.
+                let numberMales = this.maleOrganisms().length;
+                let numberFemales = this.femaleOrganisms().length;
+                let organismsAtStopover = numberFemales + numberMales;
+                let organsimsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
+                let total = StopoverStatistics.totalNumberOfOrganisms();
 
-  <text x="0" y="35" font-family="Verdana" font-size="35">
-    ${statistics}
-  </text>
-</svg>`;
+                // Create a temporary svg element on the tooltip.
+                let svg = d3.select(tooltipID).append("svg")
+                      .attr("width", 500)
+                      .attr("height", 40);
+                // Show the statistical information.
+                svg.append("text")
+                    .text(`Females:${this.femaleOrganisms().length} Males:${this.maleOrganisms().length}`)
+                    .attr("x", 0)
+                    .attr("y", 35)
+                    .attr("font-family", "Verdana")
+                    .attr("font-size", 15);
+
+                // Generate the html code for the tooltip.
+                let svgString: string = $(`${tooltipID}`).html();
+
+                // Remove the temporary svg element.
+                d3.select(`${tooltipID} svg`).remove();
+                return svgString;
             }
         }
 
@@ -192,7 +208,7 @@ namespace  MigrationVisualization {
 
                 // Update the content of the tooltip and show it.
                 let statPopup = $('#stopover-statistics');
-                statPopup.tooltipster('content', stat.renderSVGTooltip());
+                statPopup.tooltipster('content', stat.renderSVGTooltip('#stopover-statistics'));
                 statPopup.tooltipster('show');
             } else {
                 // Hide it if we deselected a node.
