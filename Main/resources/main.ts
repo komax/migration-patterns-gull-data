@@ -169,10 +169,18 @@ namespace  MigrationVisualization {
                 let organismsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
                 let total = StopoverStatistics.totalNumberOfOrganisms();
 
+                const margin = {top: 5, right: 5, bottom: 5, left: 5},
+                    width = 500 - margin.left - margin.right,
+                    height = 40 - margin.top - margin.bottom;
+
                 // Create a temporary svg element on the tooltip.
                 let svg = d3.select(tooltipID).append("svg")
-                      .attr("width", 500)
-                      .attr("height", 40);
+                      .attr("width", width + margin.left + margin.right)
+                      .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+
                 // Show the statistical information.
                 svg.append("text")
                     .text(`Females:${this.femaleOrganisms().length} Males:${this.maleOrganisms().length}`)
