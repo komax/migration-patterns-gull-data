@@ -35,7 +35,8 @@ namespace  MigrationVisualization {
                         return 1;
                     } else {
                         return 0;
-                    }};
+                    }
+                };
             }
 
             update(selectEvent: ol.interaction.SelectEvent): void {
@@ -159,6 +160,18 @@ namespace  MigrationVisualization {
                     return this.filterOrganismPerGender(ids, Gender.Male);
                 }
             }
+
+            renderSVGTooltip(): string {
+                let statistics =
+                    `Females:${this.femaleOrganisms().length} Males:${this.maleOrganisms().length}`;
+                return `<svg xmlns="http://www.w3.org/2000/svg"
+     width="500" height="40" viewBox="0 0 500 40">
+
+  <text x="0" y="35" font-family="Verdana" font-size="35">
+    ${statistics}
+  </text>
+</svg>`;
+            }
         }
 
         /**
@@ -168,22 +181,21 @@ namespace  MigrationVisualization {
         const visualizeToolTipStatistics = (selectEvent: ol.interaction.SelectEvent) => {
             if (selectEvent.selected.length === 1) {
                 let stat = new StopoverStatistics(selectEvent);
-                let statistics =
-                    `Females:${stat.femaleOrganisms().length} Males:${stat.maleOrganisms().length}`;
-                console.log(statistics);
-                console.log(stat.numberOfOrganisms());
-                console.log(StopoverStatistics.totalNumberOfOrganisms());
+
+                // Get the center of the node.
                 let feature: ol.Feature = selectEvent.selected[0];
                 let geometry = feature.getGeometry();
-                console.log(geometry);
                 let extent = geometry.getExtent();
                 let center = ol.extent.getCenter(extent);
-                console.log("The center is "+ center);
-
+                // Update the overlay's position to the center.
                 schematic.stopoverStatisticsPopover.setPosition(center);
-                $('#stopover-statistics').tooltipster('content', `<span>${statistics}</span>`);
-                $('#stopover-statistics').tooltipster('show');
+
+                // Update the content of the tooltip and show it.
+                let statPopup = $('#stopover-statistics');
+                statPopup.tooltipster('content', stat.renderSVGTooltip());
+                statPopup.tooltipster('show');
             } else {
+                // Hide it if we deselected a node.
                 $('#stopover-statistics').tooltipster('hide');
             }
         };
@@ -370,8 +382,8 @@ namespace  MigrationVisualization {
             if (!nodes.length) {
                 let features: Feature[] = schematic.source.getFeatures();
                 nodes = features.filter(function (d) {
-                        return d.get('type') == 'node';
-                    });
+                    return d.get('type') == 'node';
+                });
             }
             calendar.load(nodes, selected);
 
@@ -463,7 +475,6 @@ namespace  MigrationVisualization {
             return (this.elements || []).slice(0);
         }
     }
-
 
 
 }
