@@ -44,10 +44,23 @@ namespace  MigrationVisualization {
                 this.nodes = this.nodes.concat(selectEvent.selected);
                 // Remove the deselected ones.
                 let deselected = selectEvent.deselected;
+                for (let feature of deselected) {
+                    feature.unset("selectionNumber");
+                }
                 this.nodes = this.nodes.filter((elem) => {
                     // Keep only the ones that are still selected (not deselected).
                     return deselected.indexOf(elem) === -1;
                 });
+                for (let feature of schematic.source.getFeatures()) {
+                    const index = this.nodes.indexOf(feature);
+                    if (index !== -1) {
+                        feature.set('selectionNumber', index);
+                        // let s = schematic.layer.getStyle();
+                        // const style = feature.getStyle();
+                        console.log("Set up value for feature");
+                    }
+                }
+                schematic.source.getFeatures()[0].getStyle();
             }
 
             idsPerStopover(): Array<Array<string>> {

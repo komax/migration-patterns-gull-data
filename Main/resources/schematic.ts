@@ -41,25 +41,38 @@ namespace MigrationVisualization {
         }
     };
 
+    const styledText = new ol.style.Text({
+        fill: new ol.style.Fill({
+            color: 'white',
+        }),
+        stroke: new ol.style.Stroke({
+            color: 'black',
+            width: 2,
+        })
+    });
+
     function nodeStyle(mode) {
         return function (feature: ol.Feature | ol.render.Feature, resolution: number) {
             let radii = feature.get('radii').split(',').map(Number);
+
             if (radii.length < 4)
                 return new ol.style.Style({
                     image: new ol.style.Circle({
                         fill: mode.smallstop[0],
                         stroke: mode.smallstop[1],
                         radius: 500 / resolution
-                    })
+                    }),
+                    text: styledText
                 });
             return radii.map(function (radius, i) {
                 return new ol.style.Style({
                     image: new ol.style.Circle({
                         fill: mode.nodecolors[i],
                         radius: radius / resolution
+                    }),
+                    text: styledText
                     })
                 });
-            });
         };
     }
 
@@ -112,10 +125,31 @@ namespace MigrationVisualization {
             this.source = new ol.source.Vector({});
             this.layer = new ol.layer.Vector({
                 source: this.source,
-                style: function (feature, resolution) {
+                style: function (feature: ol.Feature, resolution) {
                     let type = feature.get('type');
                     if (type == 'node') {
-                        return nodeStyle(defaults)(feature, resolution);
+                        const nodestyle = nodeStyle(defaults)(feature, resolution);
+                        console.log(nodestyle);
+                        const selectionNumber = feature.get('selectionNumber');
+                        console.log(selectionNumber);
+                        if (selectionNumber !== undefined) {
+                            if (Array.isArray(nodestyle)) {
+                                for (let ns of nodestyle) {
+                                    ns.getText().setText(`We found a selection: ${selectionNumber}`);
+                                }
+                            } else {
+                                nodestyle.getText().setText(`We found a selection: ${selectionNumber}`);
+                            }
+                        } else {
+                            if (Array.isArray(nodestyle)) {
+                                for (let ns of nodestyle) {
+                                    ns.getText().setText("");
+                                }
+                            } else {
+                                nodestyle.getText().setText("");
+                            }
+                        }
+                        return nodestyle;
                     } else if (type == 'edge') {
                         return edgeStyle(feature, resolution);
                     }
