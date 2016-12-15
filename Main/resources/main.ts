@@ -180,6 +180,12 @@ namespace  MigrationVisualization {
                     .append("g")
                     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+                // Set up the x-Axis.
+                let x = d3.scale.linear().rangeRound([0, width]);
+                let xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom");
+
 
                 // Show the statistical information.
                 svg.append("text")
@@ -188,6 +194,12 @@ namespace  MigrationVisualization {
                     .attr("y", 35)
                     .attr("font-family", "Verdana")
                     .attr("font-size", 30);
+
+                // Generate the x-axis within the svg object.
+                // svg.append("g")
+                //     .attr("class", "axis axis--x")
+                //     .attr("transform", "translate(0," + height + ")")
+                //     .call(xAxis);
 
                 // Generate the html code for the tooltip.
                 let svgString: string = $(`${tooltipID}`).html();
