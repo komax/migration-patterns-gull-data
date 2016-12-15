@@ -28,16 +28,17 @@ namespace MigrationVisualization {
     }, selected = {
         smallstop: [
             new ol.style.Fill({color: [165, 75, 0, 1]}),
-            new ol.style.Stroke({color: [255, 255, 255, .5]})
+            new ol.style.Stroke({color: [255, 255, 255, .3]})
         ],
         nodecolors: [
-            new ol.style.Fill({color: [210, 45, 175, .5]}),
-            new ol.style.Fill({color: [210, 75, 135, .5]}),
-            new ol.style.Fill({color: [210, 105, 105, .5]}),
-            new ol.style.Fill({color: [210, 135, 75, .5]})
+            new ol.style.Fill({color: [158, 202, 225, .4]}),
+            new ol.style.Fill({color: [107, 174, 214, .4]}),
+            new ol.style.Fill({color: [49, 130, 189, .4]}),
+            new ol.style.Fill({color: [8, 81, 156, .4]})
         ],
+        // Dark gray for selected edges.
         edgecolor: (a: number) => {
-            return [180, 45, 180, a] as ol.Color;
+            return [70, 70, 70, a] as ol.Color;
         }
     };
 
@@ -68,7 +69,7 @@ namespace MigrationVisualization {
                     }),
                     text: styledText
                 });
-            return radii.map(function (radius, i) {
+            let styles = radii.slice(1).map(function (radius, i) {
                 return new ol.style.Style({
                     image: new ol.style.Circle({
                         fill: mode.nodecolors[i],
@@ -77,6 +78,34 @@ namespace MigrationVisualization {
                     text: styledText
                     })
                 });
+            if (mode === selected) {
+                // Style it with an orange circle if selected.
+                styles.unshift(
+                    new ol.style.Style({
+                        image: new ol.style.Circle({
+                            fill: mode.nodecolors[0],
+                            radius: radii[0] / resolution,
+                            stroke: new ol.style.Stroke({
+                                color: "rgba(253,174,97,0.4)",
+                                width: 10
+                            })
+                        }),
+                        text: styledText
+                        })
+                    );
+            } else {
+                // Style as the other ones.
+                styles.unshift(
+                    new ol.style.Style({
+                    image: new ol.style.Circle({
+                        fill: mode.nodecolors[0],
+                        radius: radii[0] / resolution
+                    }),
+                    text: styledText
+                    })
+                );
+            }
+            return styles;
         };
     }
 
