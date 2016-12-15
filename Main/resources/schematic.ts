@@ -146,8 +146,7 @@ namespace MigrationVisualization {
                         const selectionNumber = feature.get('selectionNumber');
                         // Check whether the selection number exists, then update the text.
                         if (selectionNumber !== undefined) {
-                            const textLabel = (parseInt(selectionNumber) + 1).toString();
-                            setTextOnStyle(nodestyle, textLabel);
+                            setTextOnStyle(nodestyle, `${selectionNumber}`);
                         } else {
                             setTextOnStyle(nodestyle, "");
                         }
