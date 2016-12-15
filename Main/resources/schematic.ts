@@ -114,6 +114,16 @@ namespace MigrationVisualization {
         return 'data/schematic_' + depth + '.geojsonp';
     }
 
+    function setTextOnStyle(style: ol.style.Style | ol.style.Style[], text: string): void {
+        if (Array.isArray(style)) {
+            for (let ns of style) {
+                ns.getText().setText(text);
+            }
+        } else {
+            style.getText().setText(text);
+        }
+    }
+
     export class Schematic {
         readonly source: ol.source.Vector;
         readonly layer: ol.layer.Vector;
@@ -129,31 +139,20 @@ namespace MigrationVisualization {
                     let type = feature.get('type');
                     if (type == 'node') {
                         const nodestyle: ol.style.Style | ol.style.Style[] = nodeStyle(defaults)(feature, resolution);
-                        console.log(nodestyle);
                         const selectionNumber = feature.get('selectionNumber');
-                        console.log(selectionNumber);
+                        // Check whether the selection number exists, then update the text.
                         if (selectionNumber !== undefined) {
-                            if (Array.isArray(nodestyle)) {
-                                for (let ns of nodestyle) {
-                                    ns.getText().setText(`We found a selection: ${selectionNumber}`);
-                                }
-                            } else {
-                                nodestyle.getText().setText(`We found a selection: ${selectionNumber}`);
-                            }
+                            const textLabel = (parseInt(selectionNumber) + 1).toString();
+                            setTextOnStyle(nodestyle, textLabel);
                         } else {
-                            if (Array.isArray(nodestyle)) {
-                                for (let ns of nodestyle) {
-                                    ns.getText().setText("");
-                                }
-                            } else {
-                                nodestyle.getText().setText("");
-                            }
+                            setTextOnStyle(nodestyle, "");
                         }
                         return nodestyle;
                     } else if (type == 'edge') {
                         return edgeStyle(feature, resolution);
                     } else {
-                        throw new Error("Undefined type to style.");
+                        // Stop working if we want to style somethin different than edges and nodes.
+                        throw new Error("Undefined type to style: only edge and node are allowed");
                     }
                 }
             });
