@@ -48,7 +48,7 @@ namespace MigrationVisualization {
         }),
         stroke: new ol.style.Stroke({
             color: 'black',
-            width: 3,
+            width: 2,
         }),
         font: '20px sans-serif',
         textAlign: "right",
@@ -149,8 +149,8 @@ namespace MigrationVisualization {
 
     function setTextOnStyle(style: ol.style.Style | ol.style.Style[], text: string): void {
         if (Array.isArray(style)) {
-            for (let ns of style) {
-                ns.getText().setText(text);
+            if (style.length > 0) {
+                style[0].getText().setText(text);
             }
         } else {
             style.getText().setText(text);
