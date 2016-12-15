@@ -52,7 +52,7 @@ namespace MigrationVisualization {
     });
 
     function nodeStyle(mode) {
-        return function (feature: ol.Feature | ol.render.Feature, resolution: number) {
+        return function (feature: ol.Feature | ol.render.Feature, resolution: number): ol.style.Style | ol.style.Style[] {
             let radii = feature.get('radii').split(',').map(Number);
 
             if (radii.length < 4)
@@ -89,7 +89,7 @@ namespace MigrationVisualization {
         10: 0.750000
     };
 
-    function edgeStyle(feature: ol.Feature | ol.render.Feature, resolution: number) {
+    function edgeStyle(feature: ol.Feature | ol.render.Feature, resolution: number): ol.style.Style {
         let gullIds = feature.get('ids');
         let mode = Main.inGullSelection(gullIds)
                 ? selected : defaults,
@@ -125,10 +125,10 @@ namespace MigrationVisualization {
             this.source = new ol.source.Vector({});
             this.layer = new ol.layer.Vector({
                 source: this.source,
-                style: function (feature: ol.Feature, resolution) {
+                style: function (feature: ol.Feature, resolution): ol.style.Style | ol.style.Style[] {
                     let type = feature.get('type');
                     if (type == 'node') {
-                        const nodestyle = nodeStyle(defaults)(feature, resolution);
+                        const nodestyle: ol.style.Style | ol.style.Style[] = nodeStyle(defaults)(feature, resolution);
                         console.log(nodestyle);
                         const selectionNumber = feature.get('selectionNumber');
                         console.log(selectionNumber);
@@ -152,6 +152,8 @@ namespace MigrationVisualization {
                         return nodestyle;
                     } else if (type == 'edge') {
                         return edgeStyle(feature, resolution);
+                    } else {
+                        throw new Error("Undefined type to style.");
                     }
                 }
             });
