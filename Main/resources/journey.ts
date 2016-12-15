@@ -16,20 +16,20 @@ namespace MigrationVisualization {
             stroke: new ol.style.Stroke({
                 //color: [220, 20, 60, .8],
                 color: [120, 200, 240, .8],
-                width: 3,
+                width: 4,
             }),
         }),
         night: new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: [40, 10, 40, .8],
-                width: 3,
+                width: 4,
             }),
         }),
         twilight: new ol.style.Style({
             stroke: new ol.style.Stroke({
                 //color: [90, 180, 220, .8],
                 color: [180, 90, 220, .8],
-                width: 3,
+                width: 4,
             }),
         }),
         text: {
@@ -42,7 +42,7 @@ namespace MigrationVisualization {
             }),
         },
         stop: new ol.style.Circle({
-            radius: 5,
+            radius: 8,
             fill: new ol.style.Fill({
                 color: [180, 220, 90, .8],
             }),
@@ -60,6 +60,7 @@ namespace MigrationVisualization {
             stamp = resolution > 500 ? dateStamp : timeStamp;
         return new ol.style.Style({
             text: new ol.style.Text({
+                font: '12px sans-serif',
                 text: stamp(new Date(top.get('date'))),
                 fill: defaults.text.fill,
                 stroke: defaults.text.stroke,
