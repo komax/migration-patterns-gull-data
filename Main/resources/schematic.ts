@@ -63,12 +63,25 @@ namespace MigrationVisualization {
         };
     }
 
+    const edge_opacity = {
+        1: 0.300000,
+        2: 0.350000,
+        3: 0.400000,
+        4: 0.450000,
+        5: 0.500000,
+        6: 0.550000,
+        7: 0.600000,
+        8: 0.650000,
+        9: 0.700000,
+        10: 0.750000
+    };
+
     function edgeStyle(feature: ol.Feature | ol.render.Feature, resolution: number) {
         let gullIds = feature.get('ids');
         let mode = Main.inGullSelection(gullIds)
                 ? selected : defaults,
             count = Math.min(feature.get('count'), 10),
-            opacity = count / 10,
+            opacity = edge_opacity[count],
             width = count / 1.5;
 
         if (mode == selected) {
