@@ -47,8 +47,12 @@ namespace MigrationVisualization {
         }),
         stroke: new ol.style.Stroke({
             color: 'black',
-            width: 2,
-        })
+            width: 3,
+        }),
+        font: '20px sans-serif',
+        textAlign: "right",
+        textBaseline: "bottom",
+        offsetX: -10,
     });
 
     function nodeStyle(mode) {
