@@ -46,9 +46,11 @@
 #gulls .gull-list li {
 	width: 25%;
 }
-#gulls .gull-list li:hover {
-	text-decoration: line-through;
-	font-weight: normal;
+#gulls .gull-list li:hover,
+#gulls .gull-list li.selected,
+#gulls .gull-list li:focus {
+	text-decoration: underline;
+	font-weight: bold;
 }
 
 #calendar-map {
