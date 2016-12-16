@@ -5,9 +5,9 @@
  * Calendar heatmap for stop frequency
  */
 
- interface JQuery {
-     prependText(text: String): JQuery;
- }
+interface JQuery {
+    prependText(text: String): JQuery;
+}
 
 namespace MigrationVisualization {
 
@@ -145,7 +145,7 @@ namespace MigrationVisualization {
                         data[id] = new Range();
                     }
                     for (let j = events[id].length - 2; j >= 0; j -= 2) {
-                        let [start, end] = [events[id][j], events[id][j+1]];
+                        let [start, end] = [events[id][j], events[id][j + 1]];
                         data[id].add(start, end);
                     }
                 }
@@ -154,7 +154,87 @@ namespace MigrationVisualization {
                 data[id] = data[id].toArray();
             }
             // console.log(data);
-            visualizeCalendar.call(this, data, ids);
+            this.visualizeCalendar(data, ids);
+        }
+
+        private visualizeCalendar(data, gullIDs) {
+            function dateToString(date) {
+                let formattedString = "";
+                formattedString += date.getFullYear();
+                let month = date.getMonth() + 1;
+                if (month < 10) {
+                    formattedString += "0";
+                }
+                formattedString += month;
+                let day = date.getDate();
+                if (day < 10) {
+                    formattedString += "0";
+                }
+                formattedString += day;
+                return formattedString;
+            }
+
+            // Compute the counts of stops for each day.
+            let stopoverDays = {},
+                stopoverGulls = this.stopoverGulls = {};
+            for (let j = 0, l = gullIDs.length; j < l; ++j) {
+                let gullID = gullIDs[j];
+                if (data.hasOwnProperty(gullID)) {
+                    let length = data[gullID].length;
+                    let i = 0;
+                    do {
+                        let startDate: Date = new Date(data[gullID][i]);
+                        let endDate: Date = new Date(data[gullID][i + 1]);
+
+                        while (startDate <= endDate) {
+                            // Consider only yearmonthdays and not times anymore.
+                            let formattedDate = dateToString(startDate);
+                            if (!(stopoverDays.hasOwnProperty(formattedDate))) {
+                                stopoverDays[formattedDate] = 0;
+                                stopoverGulls[formattedDate] = {};
+                            }
+                            stopoverDays[formattedDate]++;
+                            stopoverGulls[formattedDate][gullID] = true;
+                            let newDate = startDate.setDate(startDate.getDate() + 1);
+                            startDate = new Date(newDate);
+                        }
+
+                        i += 2;
+                    } while (i < length);
+                }
+            }
+            for (let id in stopoverGulls) {
+                stopoverGulls[id] = Object.keys(stopoverGulls[id]);
+            }
+
+            // Compute the max count in the stop overs.
+            let maxValue = Number.MIN_VALUE;
+
+            let counts = $.map(stopoverDays, function (v) {
+                return v;
+            });
+            counts.forEach(function (value) {
+                if (value > maxValue) {
+                    maxValue = value;
+                }
+            });
+            //console.log(maxValue);
+
+            // Visualize the results.
+            let color = this.color;
+            this.rect//.filter(function(d) { return stopoverDays[d]; })
+                .attr("fill", function (d) {
+                    return color((stopoverDays[d] / maxValue) || 0);
+                })
+                .each(function (d) {
+                    let stops = Math.round(stopoverDays[d] || 0);
+                    let content: string = formatNames(stopoverGulls[d] || [])
+                        .prependText('' + stops + (stops == 1 ? ' stop' : ' stops'))
+                        .html();
+                    $(this).tooltipster('content', content);
+                });
+
+
         }
     }
 
@@ -172,85 +252,6 @@ namespace MigrationVisualization {
         return div;
     }
 
-    function visualizeCalendar(data, gullIDs) {
-        function dateToString(date) {
-            let formattedString = "";
-            formattedString += date.getFullYear();
-            let month = date.getMonth() + 1;
-            if (month < 10) {
-                formattedString += "0";
-            }
-            formattedString += month;
-            let day = date.getDate();
-            if (day < 10) {
-                formattedString += "0";
-            }
-            formattedString += day;
-            return formattedString;
-        }
-
-        // Compute the counts of stops for each day.
-        let stopoverDays = this.stopoverDays = {},
-            stopoverGulls = this.stopoverGulls = {};
-        for (let j = 0, l = gullIDs.length; j < l; ++j) {
-            let gullID = gullIDs[j];
-            if (data.hasOwnProperty(gullID)) {
-                let length = data[gullID].length;
-                let i = 0;
-                do {
-                    let startDate: Date = new Date(data[gullID][i]);
-                    let endDate: Date = new Date(data[gullID][i + 1]);
-
-                    while (startDate <= endDate) {
-                        // Consider only yearmonthdays and not times anymore.
-                        let formattedDate = dateToString(startDate);
-                        if (!(stopoverDays.hasOwnProperty(formattedDate))) {
-                            stopoverDays[formattedDate] = 0;
-                            stopoverGulls[formattedDate] = {};
-                        }
-                        stopoverDays[formattedDate]++;
-                        stopoverGulls[formattedDate][gullID] = true;
-                        let newDate = startDate.setDate(startDate.getDate() + 1);
-                        startDate = new Date(newDate);
-                    }
-
-                    i += 2;
-                } while (i < length);
-            }
-        }
-        for (let id in stopoverGulls) {
-            stopoverGulls[id] = Object.keys(stopoverGulls[id]);
-        }
-
-        // Compute the max count in the stop overs.
-        let maxValue = Number.MIN_VALUE;
-
-        let counts = $.map(stopoverDays, function (v) {
-            return v;
-        });
-        counts.forEach(function (value) {
-            if (value > maxValue) {
-                maxValue = value;
-            }
-        });
-        //console.log(maxValue);
-
-        // Visualize the results.
-        let color = this.color;
-        this.rect//.filter(function(d) { return stopoverDays[d]; })
-            .attr("fill", function (d) {
-                return color((stopoverDays[d] / maxValue) || 0);
-            })
-            .each(function (d) {
-                let stops = Math.round(stopoverDays[d] || 0);
-                let content: string = formatNames(stopoverGulls[d] || [])
-                        .prependText('' + stops + (stops == 1 ? ' stop' : ' stops'))
-                        .html();
-                $(this).tooltipster('content', content);
-            });
-
-
-    }
 
 //------------------------------------------------------------------------------
 
