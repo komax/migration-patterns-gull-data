@@ -9,11 +9,6 @@
      prependText(text: String): JQuery;
  }
 
-
- interface Stopovers {
-     [id: string]: Array<number>;
- }
-
 namespace MigrationVisualization {
 
     export class CalendarMap {
@@ -144,7 +139,7 @@ namespace MigrationVisualization {
             // console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
-                let events: Stopovers = stops[i].get('events') || {};
+                let events: Stopover = stops[i].get('events') || {};
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();

@@ -13,6 +13,10 @@ namespace  MigrationVisualization {
         id: string;
     }
 
+    export interface Stopover {
+        [id: string]: Array<number>;
+    }
+
 //------------------------------------------------------------------------------
     export namespace Main {
         export let organisms: any = {};
@@ -63,7 +67,7 @@ namespace  MigrationVisualization {
                 return this.nodes.map((d: Feature) => {
                     // console.log(d.getKeys());
                     // console.log(d.get('type'));
-                    // console.log(d.get('events'));
+                    console.log(d.get('events'));
                     return Object.keys(d.get('events'));
                 });
             }
