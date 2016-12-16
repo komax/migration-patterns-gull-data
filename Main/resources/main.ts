@@ -27,6 +27,8 @@ namespace  MigrationVisualization {
         class StopoverSequence {
             private nodes: ol.Feature[];
             private sortBy: (id1: string, id2: string) => number;
+            private hasChanged: boolean;
+            private result: any;
 
             constructor() {
                 this.nodes = [];
@@ -41,9 +43,12 @@ namespace  MigrationVisualization {
                         return 0;
                     }
                 };
+                this.hasChanged = false;
             }
 
             update(selectEvent: ol.interaction.SelectEvent): void {
+                // Set the changed flag.
+                this.hasChanged = true;
                 // Add the new selected ones to the selection.
                 this.nodes = this.nodes.concat(selectEvent.selected);
                 // Remove the deselected ones.
@@ -88,6 +93,18 @@ namespace  MigrationVisualization {
                 // Sort them alphabetically.
                 ids.sort(this.sortBy);
                 return ids;
+            }
+
+            getSelection(): string[] {
+                if (!this.hasChanged) {
+                    // Reuse the cached result if not changed.
+                    return this.result;
+                } else {
+                    // Compute the selection first.
+
+
+                    return this.result;
+                }
             }
 
             selectDuration(startDate: Date, endDate: Date): void {
@@ -424,9 +441,13 @@ namespace  MigrationVisualization {
                 hash[d] = true;
             });
             inGullSelection = function (arr) {
-                for (let i = arr.length - 1; i >= 0; --i)
-                    if (arr[i] in hash)
+                console.log(hash);
+                console.log(arr);
+                for (let i = arr.length - 1; i >= 0; --i) {
+                    if (arr[i] in hash) {
                         return true;
+                    }
+                }
                 return false;
             };
 
