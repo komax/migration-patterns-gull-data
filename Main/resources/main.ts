@@ -351,6 +351,9 @@ namespace  MigrationVisualization {
                             })
                             .on('mouseover', (organism: Organism) => {
                                 journey.load(organism.id);
+                            })
+                            .on('mouseout', (organism: Organism) => {
+                                journey.clear();
                             });
                     next();
                 })
@@ -477,6 +480,9 @@ namespace  MigrationVisualization {
                 })
                 .on('mouseover', (id: string) => {
                     journey.load(id);
+                })
+                .on('mouseout', (id: string) => {
+                    journey.clear();
                 })
                 .on('click', function (id: string) {
                     const event: MouseEvent = <MouseEvent>d3.event;
