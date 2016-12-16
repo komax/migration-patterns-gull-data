@@ -429,26 +429,9 @@ namespace  MigrationVisualization {
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
 
-        let selectGulls: (selected: string[]) => void = function selectGulls(selected: string[]) {
+        function selectGulls(selected: string[]): void {
             console.log(selected);
-            getGullSelection = function (): string[] {
-                return selected.slice(0);
-            };
-
-            let hash = {};
-            selected.forEach(function (d) {
-                hash[d] = true;
-            });
-            inGullSelection = function (arr) {
-                console.log(hash);
-                console.log(arr);
-                for (let i = arr.length - 1; i >= 0; --i) {
-                    if (arr[i] in hash) {
-                        return true;
-                    }
-                }
-                return false;
-            };
+            gullSelection = selected;
 
             schematic.refresh();
 
@@ -488,19 +471,22 @@ namespace  MigrationVisualization {
                     selectGulls(selected);
                 });
             list.exit().remove();
-        };
+        }
 
-        let getGullSelection: () => string[] = function () {
-            return [];
-        };
+        let gullSelection: string[] = [];
 
-        export let inGullSelection: (arr: Array<string>) => boolean = function () {
+        export let inGullSelection: (organismsIds: Array<string>) => boolean = function (organismsIds) {
+            for (let id of organismsIds) {
+                if (gullSelection.indexOf(id) !== -1) {
+                    return true;
+                }
+            }
             return false;
         };
 
         export let intersectGullSelection = function intersectGullSelection(gullIds: string[]) {
             selectGulls(new Intersection()
-                .add(getGullSelection())
+                .add(gullSelection)
                 .add(gullIds)
                 .toArray());
         };
