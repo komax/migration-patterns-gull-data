@@ -466,9 +466,23 @@ namespace  MigrationVisualization {
                 .attr('class', function (d: string) {
                     return organisms[d].sex;
                 })
-                .on('click', function (d) {
-                    selected.splice(selected.indexOf(d), 1);
-                    selectGulls(selected);
+                .on('mouseover', (id: string) => {
+                    journey.load(id);
+                })
+                .on('click', function (id: string, i, ) {
+                    const s = d3.select(this);
+                    if (s.classed('selected')) {
+                        s.classed('selected', false);
+                    } else {
+                        s.classed('selected', true);
+                    }
+                    console.log(this);
+                    const event: MouseEvent = <MouseEvent>d3.event;
+                    if (event.shiftKey) {
+                        console.log("shift and click");
+                    }
+                    //selected.splice(selected.indexOf(d), 1);
+                    //selectGulls(selected);
                 });
             list.exit().remove();
         }
