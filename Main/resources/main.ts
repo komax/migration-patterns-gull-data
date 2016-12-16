@@ -20,29 +20,37 @@ namespace  MigrationVisualization {
 //------------------------------------------------------------------------------
     export namespace Main {
         export let organisms: any = {};
+
+        /**
+         * Sort the organism ids alphabetically based on their names. (Sorted in-place)
+         * @param ids array of organism's identifiers
+         */
+        function sortOrganismsIds(ids: string[]): void {
+            const sortBy = (id1: string, id2: string) => {
+                let o1 = organisms[id1];
+                let o2 = organisms[id2];
+                if (o1.name < o2.name) {
+                    return -1;
+                } else if (o1.name > o2.name) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            };
+            ids.sort(sortBy);
+        }
+
         let calendar: CalendarMap;
         /**
          * Maintaining the selection and deselection of nodes within the schematic map.
          */
         class StopoverSequence {
             private nodes: ol.Feature[];
-            private sortBy: (id1: string, id2: string) => number;
             private hasChanged: boolean;
             private result: any;
 
             constructor() {
                 this.nodes = [];
-                this.sortBy = (id1: string, id2: string) => {
-                    let o1 = organisms[id1];
-                    let o2 = organisms[id2];
-                    if (o1.name < o2.name) {
-                        return -1;
-                    } else if (o1.name > o2.name) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                };
                 this.hasChanged = false;
             }
 
@@ -81,7 +89,7 @@ namespace  MigrationVisualization {
                 // Flatten array of the ids.
                 const ids = [].concat.apply([], this.idsPerStopover());
                 // Sort them alphabetically.
-                ids.sort(this.sortBy);
+                sortOrganismsIds(ids);
                 return ids;
             }
 
@@ -92,7 +100,7 @@ namespace  MigrationVisualization {
                     intersect.addAll(this.idsPerStopover());
                     const ids = intersect.toArray();
                     // Sort them alphabetically.
-                    ids.sort(this.sortBy);
+                    sortOrganismsIds(ids);
                     this.result = ids;
                 }
                 return this.result;
@@ -493,6 +501,7 @@ namespace  MigrationVisualization {
                             selectGulls([id]);
                         } else {
                             // Select eventually those entities.
+                            sortOrganismsIds(newSelection);
                             selectGulls(newSelection);
                         }
                         // Allow a new selection.
