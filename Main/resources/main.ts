@@ -54,7 +54,7 @@ namespace  MigrationVisualization {
                 });
                 this.nodes.forEach((feature, i, nodes) => {
                     // Set for each selected feature its index starting from 1.
-                    feature.set('selectionNumber', i+1);
+                    feature.set('selectionNumber', i + 1);
                 });
             }
 
@@ -177,37 +177,73 @@ namespace  MigrationVisualization {
                 let organismsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
                 let total = StopoverStatistics.totalNumberOfOrganisms();
 
-                const margin = {top: 5, right: 5, bottom: 5, left: 5},
-                    width = 500 - margin.left - margin.right,
-                    height = 40 - margin.top - margin.bottom;
+                let palette = ["#d73027", "#4575b4", "#969696"];
+
+                const data: any[] = [];
+                let offset = 0;
+                for (let val of [numberFemales, numberMales, organismsNotAtStopover]) {
+                    data.push({x: offset, w: val});
+                    offset += val;
+                }
+
+                const height = 40;
+                const width = 400;
+
+                const margin = {top: 2, right: 2, bottom: 2, left: 2},
+                    innerWidth = width - margin.left - margin.right,
+                    innerHeight = height - margin.top - margin.bottom;
 
                 // Create a temporary svg element on the tooltip.
                 let svg = d3.select(tooltipID).append("svg")
-                      .attr("width", width + margin.left + margin.right)
-                      .attr("height", height + margin.top + margin.bottom)
+                    .attr("width", innerWidth + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
                     .append("g")
                     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-                // Set up the x-Axis.
-                let x = d3.scale.linear().rangeRound([0, width]);
-                let xAxis = d3.svg.axis()
-                    .scale(x)
-                    .orient("bottom");
+                // Set up the scale to map number of organisms to innerWidth.
+                let x = d3.scale.linear()
+                    .rangeRound([0, innerWidth])
+                    .domain([0, StopoverStatistics.totalNumberOfOrganisms()]);
 
+                // Enter the data with the corresponding color.
+                svg.selectAll("rect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("width", (d) => {
+                        return x(d.w);
+                    })
+                    .attr("height", innerHeight)
+                    .attr("x", (d) => {
+                        return x(d.x);
+                    })
+                    .attr("y", margin.top)
+                    .style("fill", (d, i) => {
+                        return palette[i];
+                    });
 
-                // Show the statistical information.
-                svg.append("text")
-                    .text(`Females:${this.femaleOrganisms().length} Males:${this.maleOrganisms().length}`)
-                    .attr("x", 0)
-                    .attr("y", 35)
-                    .attr("font-family", "Verdana")
-                    .attr("font-size", 30);
-
-                // Generate the x-axis within the svg object.
-                // svg.append("g")
-                //     .attr("class", "axis axis--x")
-                //     .attr("transform", "translate(0," + height + ")")
-                //     .call(xAxis);
+                // Add text labels to the columns.
+                svg.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text((d) => {
+                        if (d.w > 0) {
+                            return d.w;
+                        } else {
+                            return "";
+                        }
+                    })
+                    .attr("x", (d) => {
+                        return x(d.w / 2 + d.x);
+                    })
+                    .attr("y", margin.top + innerHeight / 2)
+                    .style("text-anchor", "middle")
+                    .style("alignment-baseline", "middle")
+                    .style("fill", "#ffffff")
+                    .style("stroke", "#000000")
+                    .style("stroke-width", 1)
+                    .style("font-weight", "bold");
 
                 // Generate the html code for the tooltip.
                 let svgString: string = $(`${tooltipID}`).html();
