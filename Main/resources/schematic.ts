@@ -212,7 +212,9 @@ namespace MigrationVisualization {
             });
 
             $(document).ready(() => {
-                $('#stopover-statistics').tooltipster({contentAsHTML: true});
+                $('#stopover-statistics').tooltipster({
+                    contentAsHTML: true,
+                    autoClose: true});
 
                 let popUpElem: Element | null = document.getElementById('stopover-statistics');
                 if (popUpElem === null) {
