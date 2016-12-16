@@ -507,6 +507,10 @@ namespace  MigrationVisualization {
                         // Allow a new selection.
                         newSelection = [];
                     }
+                })
+                .on('dblclick', function(id: string) {
+                    // Return to the gull list by double clicking.
+                    selectGulls([]);
                 });
             list.exit().remove();
         }
