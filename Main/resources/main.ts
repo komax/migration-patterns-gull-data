@@ -457,6 +457,7 @@ namespace  MigrationVisualization {
 
             calendar.load(schematic.getNodes(), selected);
 
+            let newSelection: string[] = [];
             let list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
             list.enter().append('li');
             list
@@ -469,20 +470,34 @@ namespace  MigrationVisualization {
                 .on('mouseover', (id: string) => {
                     journey.load(id);
                 })
-                .on('click', function (id: string, i, ) {
-                    const s = d3.select(this);
-                    if (s.classed('selected')) {
-                        s.classed('selected', false);
-                    } else {
-                        s.classed('selected', true);
-                    }
-                    console.log(this);
+                .on('click', function (id: string) {
                     const event: MouseEvent = <MouseEvent>d3.event;
-                    if (event.shiftKey) {
-                        console.log("shift and click");
+                    // Cover multiple selections using Crtl+click.
+                    if (event.ctrlKey) {
+                        const s = d3.select(this);
+                        if (s.classed('selected')) {
+                            // Deselection case. Style it as not selected.
+                            s.classed('selected', false);
+                            // Removing the id from the newSelection.
+                            newSelection.splice(newSelection.indexOf(id), 1);
+                        } else {
+                            // Selection case. Style it accordingly.
+                            s.classed('selected', true);
+                            // Add this entity to the selection.
+                            newSelection.push(id);
+                        }
+                    } else {
+                        // Finalize the selection if not a Ctrl key has been pushed (or released).
+                        if (newSelection.length === 0) {
+                            // If not a single entity has been selected, just select one.
+                            selectGulls([id]);
+                        } else {
+                            // Select eventually those entities.
+                            selectGulls(newSelection);
+                        }
+                        // Allow a new selection.
+                        newSelection = [];
                     }
-                    //selected.splice(selected.indexOf(d), 1);
-                    //selectGulls(selected);
                 });
             list.exit().remove();
         }
