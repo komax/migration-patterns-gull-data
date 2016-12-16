@@ -248,6 +248,13 @@ namespace MigrationVisualization {
         refresh() {
             this.source.dispatchEvent('change');
         }
+
+        getNodes(): ol.Feature[] {
+            const features = this.source.getFeatures();
+            return features.filter(function (d) {
+                return d.get('type') == 'node';
+            });
+        }
     }
 
     export const schematic: Schematic = new Schematic();

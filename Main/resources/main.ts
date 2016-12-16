@@ -86,13 +86,16 @@ namespace  MigrationVisualization {
             }
 
             intersection(): Array<string> {
-                // Compute first the intersection for all ids per stopover.
-                const intersect = new Intersection();
-                intersect.addAll(this.idsPerStopover());
-                const ids = intersect.toArray();
-                // Sort them alphabetically.
-                ids.sort(this.sortBy);
-                return ids;
+                if (this.hasChanged) {
+                    // Compute first the intersection for all ids per stopover.
+                    const intersect = new Intersection();
+                    intersect.addAll(this.idsPerStopover());
+                    const ids = intersect.toArray();
+                    // Sort them alphabetically.
+                    ids.sort(this.sortBy);
+                    this.result = ids;
+                }
+                return this.result;
             }
 
             getSelection(): string[] {
@@ -423,10 +426,6 @@ namespace  MigrationVisualization {
             ;
         }
 
-        let getNodeSelection: () => Feature[] = () => {
-            return [];
-        };
-
 //------------------------------------------------------------------------------
 // Select gulls by id (takes an array of ids)
 
@@ -473,14 +472,7 @@ namespace  MigrationVisualization {
                 }
             }
 
-            let nodes: Feature[] = getNodeSelection();
-            if (!nodes.length) {
-                let features: Feature[] = schematic.source.getFeatures();
-                nodes = features.filter(function (d) {
-                    return d.get('type') == 'node';
-                });
-            }
-            calendar.load(nodes, selected);
+            calendar.load(schematic.getNodes(), selected);
 
             let list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
             list.enter().append('li');
