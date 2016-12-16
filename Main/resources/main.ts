@@ -139,16 +139,6 @@ namespace  MigrationVisualization {
                 return ids.length;
             }
 
-            numberOfOrganisms(): number {
-                let events = this.stopoverFeature.get('events');
-                if (events === undefined || events === null) {
-                    return 0;
-                } else {
-                    const ids: string[] = Object.keys(events);
-                    return ids.length;
-                }
-            }
-
             femaleOrganisms(): string[] {
                 let events = this.stopoverFeature.get('events');
                 if (events === undefined || events === null) {
@@ -175,7 +165,6 @@ namespace  MigrationVisualization {
                 let numberFemales = this.femaleOrganisms().length;
                 let organismsAtStopover = numberFemales + numberMales;
                 let organismsNotAtStopover = StopoverStatistics.totalNumberOfOrganisms() - organismsAtStopover;
-                let total = StopoverStatistics.totalNumberOfOrganisms();
 
                 let palette = ["#d73027", "#4575b4", "#969696"];
 
