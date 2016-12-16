@@ -227,6 +227,7 @@ namespace  MigrationVisualization {
                         return x(d.w / 2 + d.x);
                     })
                     .attr("y", margin.top + innerHeight / 2)
+                    .attr("font-size", 20)
                     .style("text-anchor", "middle")
                     .style("alignment-baseline", "middle")
                     .style("fill", "#ffffff")
@@ -373,26 +374,26 @@ namespace  MigrationVisualization {
                         ;
                     next();
                 })
-                .queue((next) => {
-                    // let checkbox = $('#placenames-left')
-                    //         .val(0)
-                    //         .on('change input', () => {
-                    //             maps.layers.topologyLeft.setVisible(this.checked);
-                    //         })
-                    //     ;
-                    // maps.layers.topologyLeft.setVisible(this.checked);
-                    next();
-                })
-                .queue((next) => {
-                    // let checkbox = $('#placenames-right')
-                    //         .val(0)
-                    //         .on('change input', () => {
-                    //             maps.layers.topologyRight.setVisible(this.checked);
-                    //         })
-                    //     ;
-                    // maps.layers.topologyRight.setVisible(this.checked);
-                    next();
-                })
+                // .queue((next) => {
+                //     // let checkbox = $('#placenames-left')
+                //     //         .val(0)
+                //     //         .on('change input', () => {
+                //     //             maps.layers.topologyLeft.setVisible(this.checked);
+                //     //         })
+                //     //     ;
+                //     // maps.layers.topologyLeft.setVisible(this.checked);
+                //     next();
+                // })
+                // .queue((next) => {
+                //     // let checkbox = $('#placenames-right')
+                //     //         .val(0)
+                //     //         .on('change input', () => {
+                //     //             maps.layers.topologyRight.setVisible(this.checked);
+                //     //         })
+                //     //     ;
+                //     // maps.layers.topologyRight.setVisible(this.checked);
+                //     next();
+                // })
                 .queue((next) => {
                     calendar = new CalendarMap('calendar-map', [2013, 2015]);
                     next();
@@ -544,6 +545,4 @@ namespace  MigrationVisualization {
             return (this.elements || []).slice(0);
         }
     }
-
-
 }
