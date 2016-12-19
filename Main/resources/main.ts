@@ -154,8 +154,11 @@ namespace  MigrationVisualization {
                             const nextStopover: Stopover = this.nodes[i + 1].get('events');
                             const idsNextStop = Object.keys(nextStopover);
                             for (let id of idsNextStop) {
+                                console.log(`==== Handling gull: ${organisms[id].name}`);
                                 if (!currentStopover.hasOwnProperty(id))  {
-                                    // Nothing to do, since result does not contain id.
+                                    // Delete the id from the result.
+                                    delete this.result[id];
+                                    console.log("Kicking gull: "+organisms[id].name);
                                 } else {
                                     const iterNextStop = new DurationRangeIterator(nextStopover[id]);
                                     // Check whether per id there is at least one predecssor node.
@@ -183,14 +186,14 @@ namespace  MigrationVisualization {
                                     }
                                     console.log("predesssorList");
                                     console.log(predecessorList);
-                                    if (predecessorList.every((b) => {return b;})) {
+                                    if (predecessorList.some((b) => {return b;})) {
                                         console.log(`Keeping gull: ${organisms[id].name}`);
                                         // Keep this link, nothing to do.
                                     } else {
                                         console.log("Before deleting:");
                                         console.log(this.result);
                                         console.log(`Deleting ${id}: ${organisms[id].name}`);
-                                        delete this.result.id;
+                                        delete this.result[id];
                                         console.log("After deleting:");
                                         console.log(this.result);
                                     }
