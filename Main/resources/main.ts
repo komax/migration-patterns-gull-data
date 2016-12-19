@@ -143,6 +143,7 @@ namespace  MigrationVisualization {
                     if (this.nodes.length === 0) {
                         this.result = {};
                     } else {
+                        console.log("Recalculation");
                         // Compute the selection first.
                         const events: Stopover = this.nodes[0].get('events');
                         // Start with the events from the first stopover by copying the stopover vals.
@@ -159,14 +160,18 @@ namespace  MigrationVisualization {
                                     const iterNextStop = new DurationRangeIterator(nextStopover[id]);
                                     // Check whether per id there is at least one predecssor node.
                                     const predecessorList: boolean[] = [];
+                                    console.log(iterNextStop.hasNext());
                                     while(iterNextStop.hasNext()) {
                                         const [startNextStopover, endNextStopover] = iterNextStop.next();
+                                        console.log([startNextStopover, endNextStopover]);
                                         const iterCurrentStop = new DurationRangeIterator(currentStopover[id]);
                                         let hasPredecessor = false;
                                         while(iterCurrentStop.hasNext()) {
                                             const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
+                                            console.log([startCurrentStopover, endCurrentStopover]);
                                             let diff = +endCurrentStopover - +startNextStopover;
-                                            if (diff) {
+                                            console.log(`diff=${diff}`);
+                                            if (diff > 0) {
                                                 hasPredecessor = true;
                                             }
                                         }
@@ -176,18 +181,27 @@ namespace  MigrationVisualization {
                                             predecessorList.push(false);
                                         }
                                     }
-                                    if (predecessorList.some((b) => {return b;})) {
+                                    console.log("predesssorList");
+                                    console.log(predecessorList);
+                                    if (predecessorList.every((b) => {return b;})) {
+                                        console.log(`Keeping gull: ${organisms[id].name}`);
                                         // Keep this link, nothing to do.
                                     } else {
+                                        console.log("Before deleting:");
+                                        console.log(this.result);
+                                        console.log(`Deleting ${id}: ${organisms[id].name}`);
                                         delete this.result.id;
+                                        console.log("After deleting:");
+                                        console.log(this.result);
                                     }
                                 }
                             }
                         }
                     }
                 }
-                console.log(this.result);
-                return Object.keys(this.result);
+                let ids = Object.keys(this.result);
+                sortOrganismsIds(ids);
+                return ids;
             }
 
             selectDuration(startDate: Date, endDate: Date): void {
@@ -439,7 +453,7 @@ namespace  MigrationVisualization {
                         ;
                     schematic.stopoverSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         stopOverSeq.update(selectEvent);
-                        selectGulls(stopOverSeq.intersection());
+                        selectGulls(stopOverSeq.getSelection());
                     });
                     schematic.statisticsSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         visualizeToolTipStatistics(selectEvent);
