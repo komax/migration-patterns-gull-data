@@ -13,8 +13,10 @@ namespace  MigrationVisualization {
         id: string;
     }
 
+    type DurationRange = [Date, Date];
+
     export interface Stopover {
-        [id: string]: Array<number>;
+        [id: string]: number[];
     }
 
 //------------------------------------------------------------------------------
@@ -38,6 +40,35 @@ namespace  MigrationVisualization {
                 }
             };
             ids.sort(sortBy);
+        }
+
+
+        class DurationRangeIterator {
+            private current: DurationRange;
+            private currentIndex: number;
+
+            constructor(private list: number[]) {
+                this.currentIndex = 0;
+            }
+
+            hasNext(): boolean {
+                return this.currentIndex <= (this.list.length - 1);
+            }
+
+            next(): DurationRange {
+                if (this.hasNext()) {
+                    const elems = <[number, number]>this.list.slice(this.currentIndex,
+                        this.currentIndex + 2);
+                    this.current = <DurationRange>elems.map((n) => {
+                        return new Date(n);
+                    });
+                    this.currentIndex += 2;
+                    return this.current;
+                } else {
+                    throw new Error("The list has been exhausted. It cannot be iterated anymore.");
+                }
+            }
+
         }
 
         let calendar: CalendarMap;
@@ -107,15 +138,34 @@ namespace  MigrationVisualization {
             }
 
             getSelection(): string[] {
-                if (!this.hasChanged) {
-                    // Reuse the cached result if not changed.
-                    return this.result;
-                } else {
-                    // Compute the selection first.
+                if (this.hasChanged) {
+                    // If nothing is selected, return an empty object.
+                    if (this.nodes.length === 0) {
+                        this.result = {};
+                    } else {
+                        // Compute the selection first.
+                        const events: Stopover = this.nodes[0].get('events');
+                        // Start with the events from the first stopover by copying the stopover vals.
+                        this.result = jQuery.extend(true, {}, events);
 
-
-                    return this.result;
+                        for (let i = 0; i < this.nodes.length - 1; i++) {
+                            const currentStopover: Stopover = this.nodes[i].get('events');
+                            const nextStopover: Stopover = this.nodes[i + 1].get('events');
+                            const idsNextStop = Object.keys(nextStopover);
+                            for (let id of idsNextStop) {
+                                if (!currentStopover.hasOwnProperty(id))  {
+                                    // Nothing to do, since result does not contain id.
+                                } else {
+                                    const iter = new DurationRangeIterator(nextStopover[id]);
+                                    while(iter.hasNext()) {
+                                        const [left, right] = iter.next();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+                return this.result;
             }
 
             selectDuration(startDate: Date, endDate: Date): void {
