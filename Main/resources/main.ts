@@ -156,16 +156,38 @@ namespace  MigrationVisualization {
                                 if (!currentStopover.hasOwnProperty(id))  {
                                     // Nothing to do, since result does not contain id.
                                 } else {
-                                    const iter = new DurationRangeIterator(nextStopover[id]);
-                                    while(iter.hasNext()) {
-                                        const [left, right] = iter.next();
+                                    const iterNextStop = new DurationRangeIterator(nextStopover[id]);
+                                    // Check whether per id there is at least one predecssor node.
+                                    const predecessorList: boolean[] = [];
+                                    while(iterNextStop.hasNext()) {
+                                        const [startNextStopover, endNextStopover] = iterNextStop.next();
+                                        const iterCurrentStop = new DurationRangeIterator(currentStopover[id]);
+                                        let hasPredecessor = false;
+                                        while(iterCurrentStop.hasNext()) {
+                                            const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
+                                            let diff = +endCurrentStopover - +startNextStopover;
+                                            if (diff) {
+                                                hasPredecessor = true;
+                                            }
+                                        }
+                                        if (hasPredecessor) {
+                                            predecessorList.push(true);
+                                        } else {
+                                            predecessorList.push(false);
+                                        }
+                                    }
+                                    if (predecessorList.some((b) => {return b;})) {
+                                        // Keep this link, nothing to do.
+                                    } else {
+                                        delete this.result.id;
                                     }
                                 }
                             }
                         }
                     }
                 }
-                return this.result;
+                console.log(this.result);
+                return Object.keys(this.result);
             }
 
             selectDuration(startDate: Date, endDate: Date): void {
