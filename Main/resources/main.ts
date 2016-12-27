@@ -159,7 +159,9 @@ namespace  MigrationVisualization {
                             const idsNextStop = Object.keys(nextStopover);
                             for (let id of idsNextStop) {
                                 console.log(`==== Handling gull: ${organisms[id].name} (${id})`);
-                                if (this.result.hasOwnProperty(id) && !currentStopover.hasOwnProperty(id))  {
+                                if (!this.result.hasOwnProperty(id)) {
+                                }
+                                else if (!currentStopover.hasOwnProperty(id))  {
                                     delete this.result[id];
                                 } else {
                                     const iterNextStop = new DurationRangeIterator(nextStopover[id]);
@@ -171,7 +173,7 @@ namespace  MigrationVisualization {
                                         let hasPredecessor = false;
                                         while(iterCurrentStop.hasNext()) {
                                             const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
-                                            let diff = +endCurrentStopover - +startNextStopover;
+                                            let diff = +startNextStopover - +endCurrentStopover;
                                             console.log(`From ${[startCurrentStopover, endCurrentStopover]} to ${[startNextStopover, endNextStopover]}: diff=${diff}`);
                                             if (diff > 0) {
                                                 hasPredecessor = true;
