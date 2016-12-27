@@ -52,7 +52,11 @@ namespace  MigrationVisualization {
             }
 
             hasNext(): boolean {
-                return this.currentIndex <= (this.list.length - 1);
+                if (this.list === undefined) {
+                    return false;
+                } else {
+                    return this.currentIndex <= (this.list.length - 1);
+                }
             }
 
             next(): DurationRange {
@@ -154,26 +158,21 @@ namespace  MigrationVisualization {
                             const nextStopover: Stopover = this.nodes[i + 1].get('events');
                             const idsNextStop = Object.keys(nextStopover);
                             for (let id of idsNextStop) {
-                                console.log(`==== Handling gull: ${organisms[id].name}`);
-                                if (!currentStopover.hasOwnProperty(id))  {
-                                    // Delete the id from the result.
+                                console.log(`==== Handling gull: ${organisms[id].name} (${id})`);
+                                if (this.result.hasOwnProperty(id) && !currentStopover.hasOwnProperty(id))  {
                                     delete this.result[id];
-                                    console.log("Kicking gull: "+organisms[id].name);
                                 } else {
                                     const iterNextStop = new DurationRangeIterator(nextStopover[id]);
                                     // Check whether per id there is at least one predecssor node.
                                     const predecessorList: boolean[] = [];
-                                    console.log(iterNextStop.hasNext());
                                     while(iterNextStop.hasNext()) {
                                         const [startNextStopover, endNextStopover] = iterNextStop.next();
-                                        console.log([startNextStopover, endNextStopover]);
                                         const iterCurrentStop = new DurationRangeIterator(currentStopover[id]);
                                         let hasPredecessor = false;
                                         while(iterCurrentStop.hasNext()) {
                                             const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
-                                            console.log([startCurrentStopover, endCurrentStopover]);
                                             let diff = +endCurrentStopover - +startNextStopover;
-                                            console.log(`diff=${diff}`);
+                                            console.log(`From ${[startCurrentStopover, endCurrentStopover]} to ${[startNextStopover, endNextStopover]}: diff=${diff}`);
                                             if (diff > 0) {
                                                 hasPredecessor = true;
                                             }
