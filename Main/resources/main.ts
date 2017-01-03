@@ -147,7 +147,6 @@ namespace  MigrationVisualization {
                     if (this.nodes.length === 0) {
                         this.result = {};
                     } else {
-                        console.log("Recalculation");
                         // Compute the selection first.
                         const events: Stopover = this.nodes[0].get('events');
                         // Start with the events from the first stopover by copying the stopover vals.
@@ -156,47 +155,40 @@ namespace  MigrationVisualization {
                         for (let i = 0; i < this.nodes.length - 1; i++) {
                             const currentStopover: Stopover = this.nodes[i].get('events');
                             const nextStopover: Stopover = this.nodes[i + 1].get('events');
+
+                            const idsCurrentStop = Object.keys(currentStopover);
                             const idsNextStop = Object.keys(nextStopover);
-                            for (let id of idsNextStop) {
-                                console.log(`==== Handling gull: ${organisms[id].name} (${id})`);
-                                if (!this.result.hasOwnProperty(id)) {
-                                }
-                                else if (!currentStopover.hasOwnProperty(id))  {
+
+                            // Remove ids which do not occur in the selected stopovers.
+                            for (const id of Object.keys(this.result)) {
+                                if (idsCurrentStop.indexOf(id) === -1) {
+                                    delete  this.result[id];
+                                } else if (idsNextStop.indexOf(id) === -1) {
                                     delete this.result[id];
-                                } else {
-                                    const iterNextStop = new DurationRangeIterator(nextStopover[id]);
-                                    // Check whether per id there is at least one predecssor node.
-                                    const predecessorList: boolean[] = [];
+                                }
+                            }
+
+                            for (const idCurrentStop of idsCurrentStop) {
+                                // Store information whether a duration has a successor.
+                                const successorList: boolean[] = [];
+                                // Iterator of the stops at currentStop.
+                                const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
+                                while (iterCurrentStop.hasNext()) {
+                                    const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
+
+                                    const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
                                     while(iterNextStop.hasNext()) {
                                         const [startNextStopover, endNextStopover] = iterNextStop.next();
-                                        const iterCurrentStop = new DurationRangeIterator(currentStopover[id]);
-                                        let hasPredecessor = false;
-                                        while(iterCurrentStop.hasNext()) {
-                                            const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
-                                            let diff = +startNextStopover - +endCurrentStopover;
-                                            console.log(`From ${[startCurrentStopover, endCurrentStopover]} to ${[startNextStopover, endNextStopover]}: diff=${diff}`);
-                                            if (diff > 0) {
-                                                hasPredecessor = true;
-                                            }
+                                        let hasSuccessor = false;
+                                        const diff = +startNextStopover - +endCurrentStopover;
+                                        if (diff > 0) {
+                                            hasSuccessor = true;
                                         }
-                                        if (hasPredecessor) {
-                                            predecessorList.push(true);
-                                        } else {
-                                            predecessorList.push(false);
-                                        }
+                                        successorList.push(hasSuccessor);
                                     }
-                                    console.log("predesssorList");
-                                    console.log(predecessorList);
-                                    if (predecessorList.some((b) => {return b;})) {
-                                        console.log(`Keeping gull: ${organisms[id].name}`);
-                                        // Keep this link, nothing to do.
-                                    } else {
-                                        console.log("Before deleting:");
-                                        console.log(this.result);
-                                        console.log(`Deleting ${id}: ${organisms[id].name}`);
-                                        delete this.result[id];
-                                        console.log("After deleting:");
-                                        console.log(this.result);
+                                    if (!successorList.some((b) => {return b;})) {
+                                        // If there is not at least one successor, remove the id;
+                                        delete this.result[idCurrentStop];
                                     }
                                 }
                             }
