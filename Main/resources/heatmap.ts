@@ -8,7 +8,7 @@ declare let contours: any;
 
 namespace MigrationVisualization {
 
-    let defaults = {
+    const defaults = {
         colors: ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026'],
         style: function (color) {
             return new ol.style.Style({
@@ -23,6 +23,68 @@ namespace MigrationVisualization {
         heatmap_local: 'heatmapserver/',
         heatmap_webserver: 'http://localhost:5000/'
     };
+
+    function showHeatmapLegend() {
+        const palette = defaults.colors;
+
+        const data: any[] = [];
+        let offset = 0;
+        const rectWidth = 5;
+
+        for (let i = 0; i < palette.length; i++) {
+            data.push({x: offset, w: rectWidth});
+            offset += rectWidth;
+        }
+        console.log(data);
+
+
+        const height = 40, width = 200;
+        const margin = {top: 2, right: 2, bottom: 2, left: 2},
+            innerWidth = width - margin.left - margin.right,
+            innerHeight = height - margin.top - margin.bottom;
+
+        // Create the svg element.
+        const svg = d3.select("#heatmap-legend").append("svg")
+            .attr("width", innerWidth + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Set up the scale to correspond to the rectWidths.
+        const x = d3.scale.linear()
+            .rangeRound([0, innerWidth])
+            .domain([0, (palette.length - 1) * rectWidth]);
+
+        svg.append("text")
+            .text("foo")
+            .attr("x", 0)
+            .attr("y", 35)
+                .attr("font-family", "Verdana")
+            .attr("font-size", 15);
+
+        // // Enter the data with the corresponding color.
+        // svg.selectAll("rect")
+        //     .data(data)
+        //     .enter()
+        //     .append("rect")
+        //     .attr("width", (d) => {
+        //         console.log(d);
+        //         return x(d.w);
+        //     })
+        //     .attr("height", innerHeight)
+        //     .attr("x", (d) => {
+        //         return x(d.x);
+        //     })
+        //     .attr("y", margin.top)
+        //     .style("fill", (d, i) => {
+        //         console.log(`filling ${i}`);
+        //         return palette[i];
+        //     });
+
+        console.log($("#heatmap-legend"));
+
+        console.log("Heatmap legend generated.");
+    }
 
     export class Heatmap {
         private sources: Array<ol.source.Vector>;
@@ -40,6 +102,9 @@ namespace MigrationVisualization {
                     style: defaults.style(defaults.colors[i])
                 }));
             }
+
+            // Paint the legend for the heatmap.
+            showHeatmapLegend();
         };
 
         loadHeatmapFrom(url: string, fallback: string) {
