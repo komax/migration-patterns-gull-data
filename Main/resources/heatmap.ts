@@ -53,37 +53,28 @@ namespace MigrationVisualization {
         // Set up the scale to correspond to the rectWidths.
         const x = d3.scale.linear()
             .rangeRound([0, innerWidth])
-            .domain([0, (palette.length - 1) * rectWidth]);
+            .domain([0, palette.length * rectWidth - 1]);
 
-        svg.append("text")
-            .text("foo")
-            .attr("x", 0)
-            .attr("y", 35)
-                .attr("font-family", "Verdana")
-            .attr("font-size", 15);
+        // Enter the data with the corresponding color.
+        svg.selectAll("rect")
+            .data(data)
+            .enter()
+            .append("rect")
+            .attr("width", (d) => {
+                console.log(d);
+                return x(d.w);
+            })
+            .attr("height", innerHeight)
+            .attr("x", (d) => {
+                return x(d.x);
+            })
+            .attr("y", margin.top)
+            .style("fill", (d, i) => {
+                return palette[i];
+            });
 
-        // // Enter the data with the corresponding color.
-        // svg.selectAll("rect")
-        //     .data(data)
-        //     .enter()
-        //     .append("rect")
-        //     .attr("width", (d) => {
-        //         console.log(d);
-        //         return x(d.w);
-        //     })
-        //     .attr("height", innerHeight)
-        //     .attr("x", (d) => {
-        //         return x(d.x);
-        //     })
-        //     .attr("y", margin.top)
-        //     .style("fill", (d, i) => {
-        //         console.log(`filling ${i}`);
-        //         return palette[i];
-        //     });
+        console.log($("#heatmap-legend").html());
 
-        console.log($("#heatmap-legend"));
-
-        console.log("Heatmap legend generated.");
     }
 
     export class Heatmap {
@@ -103,9 +94,11 @@ namespace MigrationVisualization {
                 }));
             }
 
-            // Paint the legend for the heatmap.
-            showHeatmapLegend();
-        };
+            $(document).ready(() => {
+                // Paint the legend for the heatmap.
+                showHeatmapLegend();
+            });
+        }
 
         loadHeatmapFrom(url: string, fallback: string) {
             $.ajax({
