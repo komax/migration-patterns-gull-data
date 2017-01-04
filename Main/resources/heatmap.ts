@@ -29,7 +29,7 @@ namespace MigrationVisualization {
 
         const data: any[] = [];
         let offset = 0;
-        const rectWidth = 5;
+        const rectWidth = 20;
 
         for (let i = 0; i < palette.length; i++) {
             data.push({x: offset, w: rectWidth});
@@ -38,7 +38,7 @@ namespace MigrationVisualization {
         console.log(data);
 
 
-        const height = 40, width = 200;
+        const height = 30, width = 180;
         const margin = {top: 2, right: 2, bottom: 2, left: 2},
             innerWidth = width - margin.left - margin.right,
             innerHeight = height - margin.top - margin.bottom;
@@ -61,7 +61,6 @@ namespace MigrationVisualization {
             .enter()
             .append("rect")
             .attr("width", (d) => {
-                console.log(d);
                 return x(d.w);
             })
             .attr("height", innerHeight)
@@ -72,6 +71,32 @@ namespace MigrationVisualization {
             .style("fill", (d, i) => {
                 return palette[i];
             });
+
+        // Add text labels to the columns.
+        svg.selectAll("text")
+            .data(data)
+            .enter()
+            .append("text")
+            .text((d, i) => {
+                if (i === 0) {
+                    return "Less";
+                } else if (i === palette.length - 1) {
+                    return "More";
+                } else {
+                    return "";
+                }
+            })
+            .attr("x", (d) => {
+                return x(d.w / 2 + d.x);
+            })
+            .attr("y", margin.top + innerHeight / 2)
+            .attr("font-size", 15)
+            .style("text-anchor", "middle")
+            .style("alignment-baseline", "middle")
+            .style("fill", "#ffffff")
+            .style("stroke", "#000000")
+            .style("stroke-width", 1)
+            .style("font-weight", "bold");
 
         console.log($("#heatmap-legend").html());
 
