@@ -22,6 +22,9 @@ namespace MigrationVisualization {
                 // Use DigitalGlobe Maps API: Recent Imagery with Streets
                 source: new ol.source.XYZ({
                     url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0mpda/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpcGg5dHkzYTAxM290bG1kemJraHU5bmoifQ.CHhq1DFgZPSQQC-DYWpzaQ', // You will need to replace the 'access_token' and 'Map ID' values with your own. http://developer.digitalglobe.com/docs/maps-api
+                    attributions: [new ol.Attribution(({
+                        html: heatmapLegend()
+                    }))]
                 }),
                // minResolution: 50,
             }),
@@ -33,7 +36,9 @@ namespace MigrationVisualization {
                 //minResolution: 50,
             }),
             topologyLeft: new ol.layer.Tile({
-                source: new ol.source.CartoDB({} as any),
+                source: new ol.source.CartoDB({attributions: [new ol.Attribution(({
+                    html: heatmapLegend()
+                }))]} as any),
             }),
             topologyRight: new ol.layer.Tile({
                 source: new ol.source.CartoDB({} as any),
@@ -73,7 +78,7 @@ namespace MigrationVisualization {
             layers: <Layer[]>[layers.positron, layers.satelliteLeft]
                 .concat(heatmap.layers as any)
                 .concat([layers.topologyLeft, journey.layer] as any),
-            view: maps.view,
+            view: maps.view
         });
 
 // For migration map
