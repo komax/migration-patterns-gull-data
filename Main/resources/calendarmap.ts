@@ -51,71 +51,71 @@ namespace MigrationVisualization {
                 .append("g")
                 .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
 
-            // svg.append("text")
-            //     .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
-            //     .style("text-anchor", "middle")
-            //     .text((d) => {
-            //         return d;
-            //     });
-            //
-            // for (let i = 0; i < 7; i++) {
-            //     svg.append("text")
-            //         .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
-            //         .style("text-anchor", "end")
-            //         .attr("dy", "-.25em")
-            //         .text((d) => {
-            //             return week_days[i];
-            //         });
-            // }
-            //
-            // let rect = this.rect = svg.selectAll(".day")
-            //     .data((d) => {
-            //         return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-            //     })
-            //     .enter()
-            //     .append("rect")
-            //     .attr("class", "day")
-            //     .attr("width", cellSize)
-            //     .attr("height", cellSize)
-            //     .attr("x", (d) => {
-            //         return (<any>week(d)) * cellSize;
-            //     })
-            //     .attr("y", (d) => {
-            //         return (<any>day(d)) * cellSize;
-            //     })
-            //     .attr("fill", '#fff')
-            //     .datum(format);
-            //
-            // let legend = svg.selectAll(".legend")
-            //     .data(month)
-            //     .enter().append("g")
-            //     .attr("class", "legend")
-            //     .attr("transform", (d, i) => {
-            //         return "translate(" + (((i + 1) * 50) + 8) + ",0)";
-            //     });
-            //
-            // legend.append("text")
-            //     .attr("class", function (d, i) {
-            //         return month[i]
-            //     })
-            //     .style("text-anchor", "end")
-            //     .attr("dy", "-.25em")
-            //     .text(function (d, i) {
-            //         return month[i]
-            //     });
-            //
-            // svg.selectAll(".month")
-            //     .data(function (d) {
-            //         return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-            //     })
-            //     .enter().append("path")
-            //     .attr("class", "month")
-            //     .attr("id", function (d, i) {
-            //         return month[i]
-            //     })
-            //     .attr("d", monthPath);
-            //
-            // $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
+            svg.append("text")
+                .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
+                .style("text-anchor", "middle")
+                .text((d) => {
+                    return d;
+                });
+
+            for (let i = 0; i < 7; i++) {
+                svg.append("text")
+                    .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
+                    .style("text-anchor", "end")
+                    .attr("dy", "-.25em")
+                    .text((d) => {
+                        return week_days[i];
+                    });
+            }
+
+            let rect = this.rect = svg.selectAll(".day")
+                .data((d) => {
+                    return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+                })
+                .enter()
+                .append("rect")
+                .attr("class", "day")
+                .attr("width", cellSize)
+                .attr("height", cellSize)
+                .attr("x", (d) => {
+                    return (<any>week(d)) * cellSize;
+                })
+                .attr("y", (d) => {
+                    return (<any>day(d)) * cellSize;
+                })
+                .attr("fill", '#fff')
+                .datum(format);
+
+            let legend = svg.selectAll(".legend")
+                .data(month)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => {
+                    return "translate(" + (((i + 1) * 50) + 8) + ",0)";
+                });
+
+            legend.append("text")
+                .attr("class", function (d, i) {
+                    return month[i]
+                })
+                .style("text-anchor", "end")
+                .attr("dy", "-.25em")
+                .text(function (d, i) {
+                    return month[i]
+                });
+
+            svg.selectAll(".month")
+                .data(function (d) {
+                    return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+                })
+                .enter().append("path")
+                .attr("class", "month")
+                .attr("id", function (d, i) {
+                    return month[i]
+                })
+                .attr("d", monthPath);
+
+            $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
 
             function monthPath(t0) {
                 let t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
@@ -128,18 +128,18 @@ namespace MigrationVisualization {
                     + "H" + (w0 + 1) * cellSize + "Z";
             }
 
-            // rect.on('click', (d) => {
-            //     let gulls = this.stopoverGulls[d] || [];
-            //     Main.intersectGullSelection(gulls);
-            // });
+            rect.on('click', (d) => {
+                let gulls = this.stopoverGulls[d] || [];
+                Main.intersectGullSelection(gulls);
+            });
 
-            this.paintLegend(svg);
+            this.paintLegend();
         }
 
-        paintLegend(svg) {
+        paintLegend() {
             const data: any[] = [];
             let offset = 0;
-            const rectWidth = 20;
+            const rectWidth = 50;
 
             for (let i = 0; i < this.palette.length; i++) {
                 data.push({x: offset, w: rectWidth});
@@ -147,10 +147,17 @@ namespace MigrationVisualization {
             }
 
 
-            const height = 30, width = 180;
-            const margin = {top: 2, right: 2, bottom: 2, left: 2},
+            const height = 50, width = 250;
+            const margin = {top: 10, right: 2, bottom: 2, left: 50},
                 innerWidth = width - margin.left - margin.right,
                 innerHeight = height - margin.top - margin.bottom;
+
+            // Create the svg element.
+            const svg = d3.select("#calendar-legend").append("svg")
+                .attr("width", innerWidth + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 
             // Set up the scale to correspond to the rectWidths.
@@ -172,11 +179,8 @@ namespace MigrationVisualization {
                 })
                 .attr("y", margin.top)
                 .style("fill", (d, i) => {
-                    console.log(`iteration ${i}`);
                     return this.palette[i];
                 });
-
-            console.log(data);
 
             // Add text labels to the columns.
             svg.selectAll("text")
@@ -192,8 +196,13 @@ namespace MigrationVisualization {
                         return "";
                     }
                 })
-                .attr("x", (d) => {
-                    return x(d.w / 2 + d.x);
+                .attr("x", (d, i) => {
+                    if (i === 0) {
+                        return x(d.w + d.x);
+                    } else {
+                        return x(d.x);
+                    }
+
                 })
                 .attr("y", margin.top + innerHeight / 2)
                 .attr("font-size", 15)
@@ -207,9 +216,6 @@ namespace MigrationVisualization {
         }
 
         load(stops: ol.Feature[], ids: string[]) {
-            // console.log("CalendarMap.load");
-            // console.log(stops);
-            // console.log(ids);
             let data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 let events: Stopover = stops[i].get('events') || {};
@@ -226,7 +232,7 @@ namespace MigrationVisualization {
             for (let id in data) {
                 data[id] = data[id].toArray();
             }
-            // console.log(data);
+            
             this.visualizeCalendar(data, ids);
         }
 
