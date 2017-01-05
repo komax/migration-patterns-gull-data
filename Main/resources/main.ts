@@ -384,6 +384,82 @@ namespace  MigrationVisualization {
             }
         };
 
+        function showGenderLegend() {
+            const palette = ["#d73027", "#4575b4"]; // [ female, male ]
+
+            const data: any[] = [];
+            let offset = 0;
+            const rectWidth = 50;
+
+            for (let i = 0; i < palette.length; i++) {
+                data.push({x: offset, w: rectWidth});
+                offset += rectWidth;
+            }
+
+
+            const height = 50, width = 250;
+            const margin = {top: 10, right: 2, bottom: 2, left: 50},
+                innerWidth = width - margin.left - margin.right,
+                innerHeight = height - margin.top - margin.bottom;
+
+            // Create the svg element.
+            const svg = d3.select("#gender-legend").append("svg")
+                .attr("width", innerWidth + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+
+            // Set up the scale to correspond to the rectWidths.
+            const x = d3.scale.linear()
+                .rangeRound([0, innerWidth])
+                .domain([0, palette.length * rectWidth - 1]);
+
+            // Enter the data with the corresponding color.
+            svg.selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", (d) => {
+                    return x(d.w);
+                })
+                .attr("height", innerHeight)
+                .attr("x", (d) => {
+                    return x(d.x);
+                })
+                .attr("y", margin.top)
+                .style("fill", (d, i) => {
+                    console.log("filling "+i);
+                    return palette[i];
+                });
+
+            // Add text labels to the columns.
+            svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .text((d, i) => {
+                    if (i === 0) {
+                        return "Female";
+                    } else if (i === palette.length - 1) {
+                        return "Male";
+                    } else {
+                        return "";
+                    }
+                })
+                .attr("x", (d, i) => {
+                    return x(d.w / 2 + d.x);
+                })
+                .attr("y", margin.top + innerHeight / 2)
+                .attr("font-size", 15)
+                .style("text-anchor", "middle")
+                .style("alignment-baseline", "middle")
+                .style("fill", "#ffffff")
+                .style("stroke", "#000000")
+                .style("stroke-width", 1)
+                .style("font-weight", "bold");
+        }
+
         export function initialize() {
             new Batch()
                 .queue((next) => {
@@ -405,7 +481,7 @@ namespace  MigrationVisualization {
                     });
                 })
                 .queue((next) => {
-                    let organisms_array = d3.values(organisms);
+                    const organisms_array = d3.values(organisms);
                     // Sort the organisms based on their name.
                     organisms_array.sort(
                         (o1: Organism, o2: Organism) => {
@@ -418,7 +494,7 @@ namespace  MigrationVisualization {
                             }
                         }
                     );
-                    let ul = d3.select('#global-overview .gull-list'),
+                    const ul = d3.select('#global-overview .gull-list'),
                         items = ul.selectAll('li')
                             .data(organisms_array),
                         li = items.enter().append('li')
@@ -437,6 +513,9 @@ namespace  MigrationVisualization {
                             .on('mouseout', (organism: Organism) => {
                                 journey.clear();
                             });
+
+                    // Show the legend for the color coding of genders.
+                    showGenderLegend();
                     next();
                 })
                 .queue((next) => {
