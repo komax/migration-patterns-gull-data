@@ -18,6 +18,7 @@ namespace MigrationVisualization {
         private svg;
         private rect;
         private stopoverGulls;
+        private palette: string[];
 
         constructor(id: string, range: Array<number>) {
             this.id = id;
@@ -35,8 +36,8 @@ namespace MigrationVisualization {
                 format = d3.time.format("%Y%m%d"),
                 parseDate = d3.time.format("%Y%m%d").parse;
 
-            let palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
-            let color = this.color = d3.scale.quantize().range(palette)//(["white", '#002b53'])
+            this.palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
+            this.color = d3.scale.quantize().range(this.palette)//(["white", '#002b53'])
                 .domain([0, 1]);
 
             let svg = this.svg = d3.select('#' + id).selectAll("svg")
@@ -50,71 +51,71 @@ namespace MigrationVisualization {
                 .append("g")
                 .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
 
-            svg.append("text")
-                .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
-                .style("text-anchor", "middle")
-                .text((d) => {
-                    return d;
-                });
-
-            for (let i = 0; i < 7; i++) {
-                svg.append("text")
-                    .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
-                    .style("text-anchor", "end")
-                    .attr("dy", "-.25em")
-                    .text((d) => {
-                        return week_days[i];
-                    });
-            }
-
-            let rect = this.rect = svg.selectAll(".day")
-                .data((d) => {
-                    return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-                })
-                .enter()
-                .append("rect")
-                .attr("class", "day")
-                .attr("width", cellSize)
-                .attr("height", cellSize)
-                .attr("x", (d) => {
-                    return (<any>week(d)) * cellSize;
-                })
-                .attr("y", (d) => {
-                    return (<any>day(d)) * cellSize;
-                })
-                .attr("fill", '#fff')
-                .datum(format);
-
-            let legend = svg.selectAll(".legend")
-                .data(month)
-                .enter().append("g")
-                .attr("class", "legend")
-                .attr("transform", (d, i) => {
-                    return "translate(" + (((i + 1) * 50) + 8) + ",0)";
-                });
-
-            legend.append("text")
-                .attr("class", function (d, i) {
-                    return month[i]
-                })
-                .style("text-anchor", "end")
-                .attr("dy", "-.25em")
-                .text(function (d, i) {
-                    return month[i]
-                });
-
-            svg.selectAll(".month")
-                .data(function (d) {
-                    return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
-                })
-                .enter().append("path")
-                .attr("class", "month")
-                .attr("id", function (d, i) {
-                    return month[i]
-                })
-                .attr("d", monthPath);
-
-            $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
+            // svg.append("text")
+            //     .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
+            //     .style("text-anchor", "middle")
+            //     .text((d) => {
+            //         return d;
+            //     });
+            //
+            // for (let i = 0; i < 7; i++) {
+            //     svg.append("text")
+            //         .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
+            //         .style("text-anchor", "end")
+            //         .attr("dy", "-.25em")
+            //         .text((d) => {
+            //             return week_days[i];
+            //         });
+            // }
+            //
+            // let rect = this.rect = svg.selectAll(".day")
+            //     .data((d) => {
+            //         return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+            //     })
+            //     .enter()
+            //     .append("rect")
+            //     .attr("class", "day")
+            //     .attr("width", cellSize)
+            //     .attr("height", cellSize)
+            //     .attr("x", (d) => {
+            //         return (<any>week(d)) * cellSize;
+            //     })
+            //     .attr("y", (d) => {
+            //         return (<any>day(d)) * cellSize;
+            //     })
+            //     .attr("fill", '#fff')
+            //     .datum(format);
+            //
+            // let legend = svg.selectAll(".legend")
+            //     .data(month)
+            //     .enter().append("g")
+            //     .attr("class", "legend")
+            //     .attr("transform", (d, i) => {
+            //         return "translate(" + (((i + 1) * 50) + 8) + ",0)";
+            //     });
+            //
+            // legend.append("text")
+            //     .attr("class", function (d, i) {
+            //         return month[i]
+            //     })
+            //     .style("text-anchor", "end")
+            //     .attr("dy", "-.25em")
+            //     .text(function (d, i) {
+            //         return month[i]
+            //     });
+            //
+            // svg.selectAll(".month")
+            //     .data(function (d) {
+            //         return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
+            //     })
+            //     .enter().append("path")
+            //     .attr("class", "month")
+            //     .attr("id", function (d, i) {
+            //         return month[i]
+            //     })
+            //     .attr("d", monthPath);
+            //
+            // $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
 
             function monthPath(t0) {
                 let t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
@@ -127,10 +128,82 @@ namespace MigrationVisualization {
                     + "H" + (w0 + 1) * cellSize + "Z";
             }
 
-            rect.on('click', (d) => {
-                let gulls = this.stopoverGulls[d] || [];
-                Main.intersectGullSelection(gulls);
-            });
+            // rect.on('click', (d) => {
+            //     let gulls = this.stopoverGulls[d] || [];
+            //     Main.intersectGullSelection(gulls);
+            // });
+
+            this.paintLegend(svg);
+        }
+
+        paintLegend(svg) {
+            const data: any[] = [];
+            let offset = 0;
+            const rectWidth = 20;
+
+            for (let i = 0; i < this.palette.length; i++) {
+                data.push({x: offset, w: rectWidth});
+                offset += rectWidth;
+            }
+
+
+            const height = 30, width = 180;
+            const margin = {top: 2, right: 2, bottom: 2, left: 2},
+                innerWidth = width - margin.left - margin.right,
+                innerHeight = height - margin.top - margin.bottom;
+
+
+            // Set up the scale to correspond to the rectWidths.
+            const x = d3.scale.linear()
+                .rangeRound([0, innerWidth])
+                .domain([0, this.palette.length * rectWidth - 1]);
+
+            // Enter the data with the corresponding color.
+            svg.selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", (d) => {
+                    return x(d.w);
+                })
+                .attr("height", innerHeight)
+                .attr("x", (d) => {
+                    return x(d.x);
+                })
+                .attr("y", margin.top)
+                .style("fill", (d, i) => {
+                    console.log(`iteration ${i}`);
+                    return this.palette[i];
+                });
+
+            console.log(data);
+
+            // Add text labels to the columns.
+            svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .text((d, i) => {
+                    if (i === 0) {
+                        return "Less";
+                    } else if (i === this.palette.length - 1) {
+                        return "More";
+                    } else {
+                        return "";
+                    }
+                })
+                .attr("x", (d) => {
+                    return x(d.w / 2 + d.x);
+                })
+                .attr("y", margin.top + innerHeight / 2)
+                .attr("font-size", 15)
+                .style("text-anchor", "middle")
+                .style("alignment-baseline", "middle")
+                .style("fill", "#ffffff")
+                .style("stroke", "#000000")
+                .style("stroke-width", 1)
+                .style("font-weight", "bold");
+
         }
 
         load(stops: ol.Feature[], ids: string[]) {
@@ -221,10 +294,9 @@ namespace MigrationVisualization {
             //console.log(maxValue);
 
             // Visualize the results.
-            let color = this.color;
             this.rect//.filter(function(d) { return stopoverDays[d]; })
-                .attr("fill", function (d) {
-                    return color((stopoverDays[d] / maxValue) || 0);
+                .attr("fill", (d) => {
+                    return this.color((stopoverDays[d] / maxValue) || 0);
                 })
                 .each(function (d) {
                     let stops = Math.round(stopoverDays[d] || 0);
