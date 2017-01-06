@@ -177,7 +177,7 @@ namespace  MigrationVisualization {
                                     const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
 
                                     const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
-                                    while(iterNextStop.hasNext()) {
+                                    while (iterNextStop.hasNext()) {
                                         const [startNextStopover, endNextStopover] = iterNextStop.next();
                                         let hasSuccessor = false;
                                         const diff = +startNextStopover - +endCurrentStopover;
@@ -186,7 +186,9 @@ namespace  MigrationVisualization {
                                         }
                                         successorList.push(hasSuccessor);
                                     }
-                                    if (!successorList.some((b) => {return b;})) {
+                                    if (!successorList.some((b) => {
+                                            return b;
+                                        })) {
                                         // If there is not at least one successor, remove the id;
                                         delete this.result[idCurrentStop];
                                     }
@@ -460,8 +462,10 @@ namespace  MigrationVisualization {
         }
 
         function showGullList(organisms_array: Organism[]) {
-            const ul = d3.select('#global-overview .gull-list'),
-                items = ul.selectAll('li')
+            const ul = d3.select('#global-overview .gull-list');
+            ul.html("");
+
+            const items = ul.selectAll('li')
                     .data(organisms_array),
                 li = items.enter().append('li')
                     .text((organism: Organism) => {
@@ -481,12 +485,37 @@ namespace  MigrationVisualization {
                     });
         }
 
-        function organismsFromGenderSelection() {
-            $('#gender-selection').on('change', function() {
-                console.log(this.value);
-            });
+        function renderGullList(gender: Gender = Gender.All) {
+            console.log("Rendering");
+            let organisms_array: Organism[] = d3.values<Organism>(organisms);
+            console.log(`Count organisms before: ${organisms_array.length}`);
 
-            const organisms_array: Organism[] = d3.values<Organism>(organisms);
+            switch (gender) {
+                case Gender.All:
+                    // Nothing to do.
+                    break;
+                case Gender.Female:
+                    // Filter the female organisms.
+                    organisms_array = organisms_array.filter((organism: Organism) => {
+                        return organism.sex === 'female';
+                    });
+                    break;
+                case Gender.Male:
+                    // Filter the male organisms.
+                    organisms_array = organisms_array.filter((organism: Organism) => {
+                        return organism.sex === 'male';
+                    });
+                    break;
+            }
+            console.log(`Count organisms after: ${organisms_array.length}`);
+
+            // Update the heat map with the subset of ids.
+            const ids = organisms_array.map((organism: Organism) => {
+                return organism.id;
+            });
+            journey.clear();
+            heatmap.load(ids);
+
             // Sort the organisms based on their name.
             organisms_array.sort(
                 (o1: Organism, o2: Organism) => {
@@ -499,7 +528,7 @@ namespace  MigrationVisualization {
                     }
                 }
             );
-            return organisms_array;
+            showGullList(organisms_array);
         }
 
         export function initialize() {
@@ -523,8 +552,20 @@ namespace  MigrationVisualization {
                     });
                 })
                 .queue((next) => {
-                    const organisms_array = organismsFromGenderSelection();
-                    showGullList(organisms_array);
+                    // User interaction: Depending on the new choice rerender the gull list.
+                    $('#gender-selection').on('change', function () {
+                        switch (this.value) {
+                            case "All":
+                                return renderGullList(Gender.All);
+                            case "Females":
+                                return renderGullList(Gender.Female);
+                            case "Males":
+                                return renderGullList(Gender.Male);
+                        }
+                    });
+
+                    // Default rendering, show the whole list of gulls.
+                    renderGullList(Gender.All);
 
                     // Show the legend for the color coding of genders.
                     showGenderLegend();
@@ -687,7 +728,7 @@ namespace  MigrationVisualization {
                         newSelection = [];
                     }
                 })
-                .on('dblclick', function(id: string) {
+                .on('dblclick', function (id: string) {
                     // Return to the gull list by double clicking.
                     selectGulls([]);
                 });
