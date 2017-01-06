@@ -20,11 +20,7 @@
     width: 50%;
 }
 
-#gender-settings {
-    margin-bottom: 2em;
-}
-
-#gender-settings div {
+.gender-settings div {
     display: inline;
     width: 30%;
 }

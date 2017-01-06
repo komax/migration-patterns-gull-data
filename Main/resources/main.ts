@@ -405,7 +405,7 @@ namespace  MigrationVisualization {
                 innerHeight = height - margin.top - margin.bottom;
 
             // Create the svg element.
-            const svg = d3.select(".gender-legend").append("svg")
+            const svg = d3.selectAll(".gender-legend").append("svg")
                 .attr("width", innerWidth + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
