@@ -515,6 +515,17 @@ namespace  MigrationVisualization {
                     .on('mouseout', (organism: Organism) => {
                         journey.clear();
                     });
+
+            d3.select("body").on('keydown', () => {
+                const event: any = d3.event;
+                // if ESC key is pressed.
+                if (event.keyCode === 27) {
+                    // release the selection.
+                    newSelection = [];
+                    // remove the selection class from the list as well.
+                    items.classed('selected', false);
+                }
+            });
         }
 
         function renderGullList(gender: Gender = Gender.All) {
@@ -762,6 +773,17 @@ namespace  MigrationVisualization {
                     selectGulls([]);
                 });
             list.exit().remove();
+
+            d3.select("body").on('keydown', () => {
+                const event: any = d3.event;
+                // if ESC key is pressed.
+                if (event.keyCode === 27) {
+                    // release the selection.
+                    newSelection = [];
+                    // remove the selection class from the list as well.
+                    list.classed('selected', false);
+                }
+            });
         }
 
         let gullSelection: string[] = [];
