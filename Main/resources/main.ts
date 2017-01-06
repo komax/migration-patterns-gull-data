@@ -213,9 +213,9 @@ namespace  MigrationVisualization {
          * Enum to group and select genders.
          */
         enum Gender {
-            Male,
+            All,
             Female,
-            All
+            Male
         }
 
         /**
@@ -459,6 +459,49 @@ namespace  MigrationVisualization {
                 .style("font-weight", "bold");
         }
 
+        function showGullList(organisms_array: Organism[]) {
+            const ul = d3.select('#global-overview .gull-list'),
+                items = ul.selectAll('li')
+                    .data(organisms_array),
+                li = items.enter().append('li')
+                    .text((organism: Organism) => {
+                        return organism.name;
+                    })
+                    .attr('class', (organism: Organism) => {
+                        return organism.sex;
+                    })
+                    .on('click', (organsim: Organism) => {
+                        selectGulls([organsim.id]);
+                    })
+                    .on('mouseover', (organism: Organism) => {
+                        journey.load(organism.id);
+                    })
+                    .on('mouseout', (organism: Organism) => {
+                        journey.clear();
+                    });
+        }
+
+        function organismsFromGenderSelection() {
+            $('#gender-selection').on('change', function() {
+                console.log(this.value);
+            });
+
+            const organisms_array: Organism[] = d3.values<Organism>(organisms);
+            // Sort the organisms based on their name.
+            organisms_array.sort(
+                (o1: Organism, o2: Organism) => {
+                    if (o1.name < o2.name) {
+                        return -1;
+                    } else if (o1.name > o2.name) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            );
+            return organisms_array;
+        }
+
         export function initialize() {
             new Batch()
                 .queue((next) => {
@@ -480,38 +523,8 @@ namespace  MigrationVisualization {
                     });
                 })
                 .queue((next) => {
-                    const organisms_array = d3.values(organisms);
-                    // Sort the organisms based on their name.
-                    organisms_array.sort(
-                        (o1: Organism, o2: Organism) => {
-                            if (o1.name < o2.name) {
-                                return -1;
-                            } else if (o1.name > o2.name) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        }
-                    );
-                    const ul = d3.select('#global-overview .gull-list'),
-                        items = ul.selectAll('li')
-                            .data(organisms_array),
-                        li = items.enter().append('li')
-                            .text((organism: Organism) => {
-                                return organism.name;
-                            })
-                            .attr('class', (organism: Organism) => {
-                                return organism.sex;
-                            })
-                            .on('click', (organsim: Organism) => {
-                                selectGulls([organsim.id]);
-                            })
-                            .on('mouseover', (organism: Organism) => {
-                                journey.load(organism.id);
-                            })
-                            .on('mouseout', (organism: Organism) => {
-                                journey.clear();
-                            });
+                    const organisms_array = organismsFromGenderSelection();
+                    showGullList(organisms_array);
 
                     // Show the legend for the color coding of genders.
                     showGenderLegend();
