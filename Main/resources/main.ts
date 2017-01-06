@@ -405,7 +405,7 @@ namespace  MigrationVisualization {
                 innerHeight = height - margin.top - margin.bottom;
 
             // Create the svg element.
-            const svg = d3.select("#gender-legend").append("svg")
+            const svg = d3.select(".gender-legend").append("svg")
                 .attr("width", innerWidth + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
@@ -593,7 +593,7 @@ namespace  MigrationVisualization {
                 })
                 .queue((next) => {
                     // User interaction: Depending on the new choice rerender the gull list.
-                    $('#gender-selection').on('change', function () {
+                    $('.gender-selection').on('change', function () {
                         switch (this.value) {
                             case "All":
                                 return renderGullList(Gender.All);
