@@ -43,7 +43,9 @@
     cursor: pointer;
 }
 
-.gull-list li:hover {
+.gull-list li:hover,
+.gull-list li.selected,
+.gull-list li:focus {
     text-decoration: underline;
     font-weight: bold;
 }

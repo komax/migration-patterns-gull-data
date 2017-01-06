@@ -465,6 +465,8 @@ namespace  MigrationVisualization {
             const ul = d3.select('#global-overview .gull-list');
             ul.html("");
 
+            let newSelection: string[] = [];
+
             const items = ul.selectAll('li')
                     .data(organisms_array),
                 li = items.enter().append('li')
@@ -474,8 +476,38 @@ namespace  MigrationVisualization {
                     .attr('class', (organism: Organism) => {
                         return organism.sex;
                     })
-                    .on('click', (organsim: Organism) => {
-                        selectGulls([organsim.id]);
+                    .on('click', function (organism: Organism) {
+                        const event: MouseEvent = <MouseEvent>d3.event;
+                        // Cover multiple selections using Crtl+click.
+                        if (event.ctrlKey) {
+                            const s = d3.select(this);
+                            if (s.classed('selected')) {
+                                // Deselection case. Style it as not selected.
+                                s.classed('selected', false);
+                                // Removing the id from the newSelection.
+                                newSelection.splice(newSelection.indexOf(organism.id), 1);
+                            } else {
+                                // Selection case. Style it accordingly.
+                                s.classed('selected', true);
+                                // Add this entity to the selection.
+                                newSelection.push(organism.id);
+                            }
+                        } else {
+                            // Finalize the selection if not a Ctrl key has been pushed (or released).
+                            if (newSelection.length === 0) {
+                                // If not a single entity has been selected, just select one.
+                                selectGulls([organism.id]);
+                            } else {
+                                // Select eventually those entities.
+                                sortOrganismsIds(newSelection);
+                                selectGulls(newSelection);
+                            }
+                            // remove the selection class from the list either way.
+                            items.classed('selected', false);
+
+                            // Allow a new selection.
+                            newSelection = [];
+                        }
                     })
                     .on('mouseover', (organism: Organism) => {
                         journey.load(organism.id);
@@ -486,9 +518,7 @@ namespace  MigrationVisualization {
         }
 
         function renderGullList(gender: Gender = Gender.All) {
-            console.log("Rendering");
             let organisms_array: Organism[] = d3.values<Organism>(organisms);
-            console.log(`Count organisms before: ${organisms_array.length}`);
 
             switch (gender) {
                 case Gender.All:
@@ -507,7 +537,6 @@ namespace  MigrationVisualization {
                     });
                     break;
             }
-            console.log(`Count organisms after: ${organisms_array.length}`);
 
             // Update the heat map with the subset of ids.
             const ids = organisms_array.map((organism: Organism) => {
