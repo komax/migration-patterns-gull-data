@@ -1,5 +1,5 @@
 #global-overview {
-	padding: 2em;
+    padding: 2em;
 }
 
 #global-overview div {
@@ -7,16 +7,17 @@
 }
 
 #selection-overview {
-	display: none;
-	padding: 2em;
+    display: none;
+    padding: 2em;
 }
 
 #schema-settings {
-	margin-bottom: 2em;
+    margin-bottom: 2em;
 }
+
 #schema-slider {
-	margin-left: 1em;
-	width: 50%;
+    margin-left: 1em;
+    width: 50%;
 }
 
 #gender-settings {
@@ -28,60 +29,68 @@
     width: 30%;
 }
 
-
-
 .gull-list {
-	height: 100%;
-	width: 100%;
-	overflow: auto;
-	list-style: disc inside;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    list-style: disc inside;
 }
+
 .gull-list li {
-	display: inline;
-	float: left;
-	width: 10%;
-	cursor: pointer;
+    display: inline;
+    float: left;
+    width: 10%;
+    cursor: pointer;
 }
+
 .gull-list li:hover {
-	text-decoration: underline;
-	font-weight: bold;
+    text-decoration: underline;
+    font-weight: bold;
 }
+
 .female {
-	color: #d73027;
+    color: #d73027;
 }
+
 .male {
-	color: #4575b4;
+    color: #4575b4;
 }
+
 #gulls {
-	display: inline-block;
-	float: right;
-	width: 40%;
-	z-index: 100;
+    display: inline-block;
+    float: right;
+    width: 40%;
+    z-index: 100;
 }
+
 #gulls .gull-list li {
-	width: 25%;
+    width: 25%;
 }
+
 #gulls .gull-list li:hover,
 #gulls .gull-list li.selected,
 #gulls .gull-list li:focus {
-	text-decoration: underline;
-	font-weight: bold;
+    text-decoration: underline;
+    font-weight: bold;
 }
 
 #calendar-map {
-	font: 10px sans-serif;
-	shape-rendering: crispEdges;
-	width: 55%;
-	z-index: 50;
+    font: 10px sans-serif;
+    shape-rendering: crispEdges;
+    width: 55%;
+    z-index: 50;
 }
+
 .day {
-	stroke: #666;
+    stroke: #666;
 }
+
 .month {
-	fill: none;
-	stroke: #000;
-	stroke-width: 2px;
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
 }
+
 #calendar-map rect {
-	cursor: pointer;
+    cursor: pointer;
 }
