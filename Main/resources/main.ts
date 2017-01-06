@@ -398,7 +398,7 @@ namespace  MigrationVisualization {
 
 
             const height = 50, width = 250;
-            const margin = {top: 10, right: 2, bottom: 2, left: 50},
+            const margin = {top: 0, right: 0, bottom: 0, left: 25},
                 innerWidth = width - margin.left - margin.right,
                 innerHeight = height - margin.top - margin.bottom;
 
@@ -429,7 +429,6 @@ namespace  MigrationVisualization {
                 })
                 .attr("y", margin.top)
                 .style("fill", (d, i) => {
-                    console.log("filling "+i);
                     return palette[i];
                 });
 
@@ -451,7 +450,7 @@ namespace  MigrationVisualization {
                     return x(d.w / 2 + d.x);
                 })
                 .attr("y", margin.top + innerHeight / 2)
-                .attr("font-size", 15)
+                .attr("font-size", 20)
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
                 .style("fill", "#ffffff")

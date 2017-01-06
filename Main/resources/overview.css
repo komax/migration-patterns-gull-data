@@ -1,6 +1,11 @@
 #global-overview {
 	padding: 2em;
 }
+
+#global-overview div {
+    display: inline;
+}
+
 #selection-overview {
 	display: none;
 	padding: 2em;
@@ -13,6 +18,16 @@
 	margin-left: 1em;
 	width: 50%;
 }
+
+#gender-settings {
+    margin-bottom: 2em;
+}
+
+#gender-settings div {
+    display: inline;
+    width: 30%;
+}
+
 
 
 .gull-list {
