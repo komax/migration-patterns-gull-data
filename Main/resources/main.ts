@@ -691,8 +691,13 @@ namespace  MigrationVisualization {
             ;
         }
 
-//------------------------------------------------------------------------------
-// Select gulls by id (takes an array of ids)
+        function showDefaultOverview() {
+            // Deselect all current selections.
+            selectGulls([]);
+            // Resetting to all gulls and all genders.
+            $(".gender-selection").val("All");
+            renderGullList(Gender.All);
+        }
 
         function selectGulls(selected: string[]): void {
             console.log(selected);
@@ -770,7 +775,7 @@ namespace  MigrationVisualization {
                 })
                 .on('dblclick', function (id: string) {
                     // Return to the gull list by double clicking.
-                    selectGulls([]);
+                    showDefaultOverview();
                 });
             list.exit().remove();
 
