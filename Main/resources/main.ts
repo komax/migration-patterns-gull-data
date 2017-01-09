@@ -597,7 +597,7 @@ namespace  MigrationVisualization {
                 })
                 .queue((next) => {
                     // User interaction: Depending on the new choice rerender the gull list.
-                    $('.gender-selection').on('change', function () {
+                    $('#genders-all').on('change', function () {
                         switch (this.value) {
                             case "All":
                                 return renderGullList(Gender.All);
@@ -613,6 +613,20 @@ namespace  MigrationVisualization {
 
                     // Show the legend for the color coding of genders.
                     showGenderLegend();
+                    next();
+                })
+                .queue((next) => {
+                    // User interaction for the gender choice within an OD-selection.
+                    $('#genders-od').on('change', function () {
+                       switch(this.value) {
+                           case "All":
+                               return selectGulls(stopOverSeq.getSelection(Gender.All));
+                           case "Females":
+                               return selectGulls(stopOverSeq.getSelection(Gender.Female));
+                           case "Males":
+                               return selectGulls(stopOverSeq.getSelection(Gender.Male));
+                       }
+                    });
                     next();
                 })
                 .queue((next) => {
@@ -699,7 +713,6 @@ namespace  MigrationVisualization {
             // Deselect all current selections.
             selectGulls([]);
             // Resetting to all gulls and all genders.
-            $(".gender-selection").val("All");
             renderGullList(Gender.All);
         }
 
@@ -713,6 +726,7 @@ namespace  MigrationVisualization {
                 // all is deselected
                 $('#global-overview').show();
                 $('#selection-overview').hide();
+                $(".gender-selection").val("All");
                 journey.clear();
                 heatmap.clear(); // clearing the heatmap shows the default one
             } else {
