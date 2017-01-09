@@ -141,7 +141,7 @@ namespace  MigrationVisualization {
                 return this.result;
             }
 
-            getSelection(): string[] {
+            getSelection(gender: Gender = Gender.All): string[] {
                 if (this.hasChanged) {
                     // If nothing is selected, return an empty object.
                     if (this.nodes.length === 0) {
@@ -198,6 +198,10 @@ namespace  MigrationVisualization {
                     }
                 }
                 let ids = Object.keys(this.result);
+                // Filter those ids of the selected gender.
+                ids = filterOrganismPerGender(ids, gender);
+
+                // Sort the ids based on their names.
                 sortOrganismsIds(ids);
                 return ids;
             }
@@ -220,6 +224,21 @@ namespace  MigrationVisualization {
             Male
         }
 
+        function filterOrganismPerGender(ids, gender: Gender): string[] {
+            switch (gender) {
+                case Gender.All:
+                    return ids;
+                case Gender.Female:
+                    return ids.filter((id) => {
+                        return organisms[id].sex === 'female';
+                    });
+                case Gender.Male:
+                    return ids.filter((id) => {
+                        return organisms[id].sex === 'male';
+                    });
+            }
+        }
+
         /**
          * Compute statistics for the tooltip at a specific stopover.
          */
@@ -235,21 +254,6 @@ namespace  MigrationVisualization {
 
             }
 
-            private filterOrganismPerGender(ids, gender: Gender): string[] {
-                switch (gender) {
-                    case Gender.All:
-                        return ids;
-                    case Gender.Female:
-                        return ids.filter((id) => {
-                            return organisms[id].sex === 'female';
-                        });
-                    case Gender.Male:
-                        return ids.filter((id) => {
-                            return organisms[id].sex === 'male';
-                        });
-                }
-            }
-
             static totalNumberOfOrganisms(): number {
                 let ids = Object.keys(organisms);
                 return ids.length;
@@ -261,7 +265,7 @@ namespace  MigrationVisualization {
                     return [];
                 } else {
                     const ids: string[] = Object.keys(events);
-                    return this.filterOrganismPerGender(ids, Gender.Female);
+                    return filterOrganismPerGender(ids, Gender.Female);
                 }
             }
 
@@ -271,7 +275,7 @@ namespace  MigrationVisualization {
                     return [];
                 } else {
                     const ids: string[] = Object.keys(events);
-                    return this.filterOrganismPerGender(ids, Gender.Male);
+                    return filterOrganismPerGender(ids, Gender.Male);
                 }
             }
 
