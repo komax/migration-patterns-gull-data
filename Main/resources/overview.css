@@ -20,6 +20,10 @@
     width: 50%;
 }
 
+.gender-settings {
+    margin-bottom: 4em;
+}
+
 .gender-settings div {
     display: inline;
     width: 30%;
