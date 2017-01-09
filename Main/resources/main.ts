@@ -239,6 +239,17 @@ namespace  MigrationVisualization {
             }
         }
 
+        function doSelectOrganims(val: string): void {
+            switch(val) {
+                case "All":
+                    return selectGulls(stopOverSeq.getSelection(Gender.All));
+                case "Females":
+                    return selectGulls(stopOverSeq.getSelection(Gender.Female));
+                case "Males":
+                    return selectGulls(stopOverSeq.getSelection(Gender.Male));
+            }
+        }
+
         /**
          * Compute statistics for the tooltip at a specific stopover.
          */
@@ -618,14 +629,7 @@ namespace  MigrationVisualization {
                 .queue((next) => {
                     // User interaction for the gender choice within an OD-selection.
                     $('#genders-od').on('change', function () {
-                       switch(this.value) {
-                           case "All":
-                               return selectGulls(stopOverSeq.getSelection(Gender.All));
-                           case "Females":
-                               return selectGulls(stopOverSeq.getSelection(Gender.Female));
-                           case "Males":
-                               return selectGulls(stopOverSeq.getSelection(Gender.Male));
-                       }
+                        doSelectOrganims(this.value);
                     });
                     next();
                 })
@@ -639,7 +643,8 @@ namespace  MigrationVisualization {
                         ;
                     schematic.stopoverSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         stopOverSeq.update(selectEvent);
-                        selectGulls(stopOverSeq.getSelection());
+                        const val = $('#genders-od').val();
+                        doSelectOrganims(val);
                     });
                     schematic.statisticsSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         visualizeToolTipStatistics(selectEvent);
