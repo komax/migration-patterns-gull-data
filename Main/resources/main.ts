@@ -13,6 +13,7 @@ namespace  MigrationVisualization {
         id: string;
     }
 
+    // Type for a duration [from, to].
     type DurationRange = [Date, Date];
 
     export interface Stopover {
@@ -42,7 +43,9 @@ namespace  MigrationVisualization {
             ids.sort(sortBy);
         }
 
-
+        /**
+         * An Iterator for a DurationRange.
+         */
         class DurationRangeIterator {
             private current: DurationRange;
             private currentIndex: number;
@@ -89,6 +92,10 @@ namespace  MigrationVisualization {
                 this.hasChanged = false;
             }
 
+            /**
+             * Process the selectEvent from the aggregation in openlayers.
+             * @param selectEvent: Selection event from open layers that will be processed.
+             */
             update(selectEvent: ol.interaction.SelectEvent): void {
                 // Set the changed flag.
                 this.hasChanged = true;
@@ -128,6 +135,10 @@ namespace  MigrationVisualization {
                 return ids;
             }
 
+            /**
+             * @deprecated use getSelection instead.
+             * @returns {any}
+             */
             intersection(): Array<string> {
                 if (this.hasChanged) {
                     // Compute first the intersection for all ids per stopover.
@@ -141,6 +152,12 @@ namespace  MigrationVisualization {
                 return this.result;
             }
 
+            /**
+             * Compute what organims are visiting the the current selection from origin to its destination by
+             * having at least one duration that visits the sequence as OD pair.
+             * @param gender Restrict the selection to a certain gender. Default all genders.
+             * @returns {string[]} an array of organisms' ids visiting the nodes in a sequential order.
+             */
             getSelection(gender: Gender = Gender.All): string[] {
                 if (this.hasChanged) {
                     // If nothing is selected, return an empty object.
@@ -239,6 +256,10 @@ namespace  MigrationVisualization {
             }
         }
 
+        /**
+         * Trigger a selection of organisms based on their gender.
+         * @param val : "All", "Females" or "Males" as values from the hmtl select.
+         */
         function doSelectOrganims(val: string): void {
             switch(val) {
                 case "All":
@@ -290,6 +311,11 @@ namespace  MigrationVisualization {
                 }
             }
 
+            /**
+             * Generate a svg for the gender distribution on
+             * @param tooltipID html element on which the svg will be generated temporarily and deleted after that
+             * @returns {string} the complete svg element as a string.
+             */
             renderSVGTooltip(tooltipID: string): string {
                 // Obtain the statistical values.
                 let numberMales = this.maleOrganisms().length;
@@ -401,7 +427,10 @@ namespace  MigrationVisualization {
             }
         };
 
-        function showGenderLegend() {
+        /**
+         * Add the legend for the genders to all .gender-legend classes as svg element.
+         */
+        function showGenderLegend(): void {
             const palette = ["#d73027", "#4575b4"]; // [ female, male ]
 
             const data: any[] = [];
@@ -476,7 +505,11 @@ namespace  MigrationVisualization {
                 .style("font-weight", "bold");
         }
 
-        function showGullList(organisms_array: Organism[]) {
+        /**
+         * Show all organisms as a list and add user interactions with mouse and keys to it.
+         * @param organisms_array an array of organisms that needs to be added.
+         */
+        function showGullList(organisms_array: Organism[]): void {
             const ul = d3.select('#global-overview .gull-list');
             ul.html("");
 
@@ -532,9 +565,8 @@ namespace  MigrationVisualization {
                     });
 
             d3.select("body").on('keydown', () => {
-                const event: any = d3.event;
                 // if ESC key is pressed.
-                if (event.keyCode === 27) {
+                if ((d3.event as any).keyCode === 27) {
                     // release the selection.
                     newSelection = [];
                     // remove the selection class from the list as well.
@@ -543,7 +575,11 @@ namespace  MigrationVisualization {
             });
         }
 
-        function renderGullList(gender: Gender = Gender.All) {
+        /**
+         * Prepare the list of gulls on a subselection of genders and visualize those gulls at a heatmap.
+         * @param gender selection of gender: male, female or all. Default is all.
+         */
+        function renderGullList(gender: Gender = Gender.All): void {
             let organisms_array: Organism[] = d3.values<Organism>(organisms);
 
             switch (gender) {
@@ -568,8 +604,12 @@ namespace  MigrationVisualization {
             const ids = organisms_array.map((organism: Organism) => {
                 return organism.id;
             });
-            journey.clear();
-            heatmap.load(ids);
+
+            // Show those ids as a heatmap.
+            if (ids.length > 0) {
+                journey.clear();
+                heatmap.load(ids);
+            }
 
             // Sort the organisms based on their name.
             organisms_array.sort(
@@ -586,6 +626,9 @@ namespace  MigrationVisualization {
             showGullList(organisms_array);
         }
 
+        /**
+         * Initialize the whole UI as a batch process.
+         */
         export function initialize() {
             new Batch()
                 .queue((next) => {
@@ -714,7 +757,10 @@ namespace  MigrationVisualization {
             ;
         }
 
-        function showDefaultOverview() {
+        /**
+         * Deselect current gulls and render the list of gulls for all genders.
+         */
+        function showDefaultOverview(): void {
             // Deselect all current selections.
             selectGulls([]);
             // Resetting to all gulls and all genders.
