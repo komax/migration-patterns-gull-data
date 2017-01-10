@@ -24,18 +24,19 @@ namespace MigrationVisualization {
             this.id = id;
             this.range = d3.range(range[0], range[1] + 1);
 
-            let width = 700,
+            const width = 700,
                 height = 105,
                 cellSize = 12, // cell size
                 week_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
                 month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-            let day = d3.time.format("%w"),
+            const day = d3.time.format("%w"),
                 week = d3.time.format("%U"),
                 percent = d3.format(".1%"),
                 format = d3.time.format("%Y%m%d"),
                 parseDate = d3.time.format("%Y%m%d").parse;
 
+            // Same palette as for coloring the nodes.
             this.palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
             this.color = d3.scale.quantize().range(this.palette)//(["white", '#002b53'])
                 .domain([0, 1]);
@@ -68,7 +69,7 @@ namespace MigrationVisualization {
                     });
             }
 
-            let rect = this.rect = svg.selectAll(".day")
+            const rect = this.rect = svg.selectAll(".day")
                 .data((d) => {
                     return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
                 })
@@ -86,7 +87,7 @@ namespace MigrationVisualization {
                 .attr("fill", '#fff')
                 .datum(format);
 
-            let legend = svg.selectAll(".legend")
+            const legend = svg.selectAll(".legend")
                 .data(month)
                 .enter().append("g")
                 .attr("class", "legend")
@@ -118,7 +119,7 @@ namespace MigrationVisualization {
             $('#' + this.id + ' rect').tooltipster({contentAsHTML: true});
 
             function monthPath(t0) {
-                let t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                const t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
                     d0 = +day(t0), w0 = +week(t0),
                     d1 = +day(t1), w1 = +week(t1);
                 return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
@@ -129,7 +130,7 @@ namespace MigrationVisualization {
             }
 
             rect.on('click', (d) => {
-                let gulls = this.stopoverGulls[d] || [];
+                const gulls = this.stopoverGulls[d] || [];
                 Main.intersectGullSelection(gulls);
             });
 
@@ -216,15 +217,15 @@ namespace MigrationVisualization {
         }
 
         load(stops: ol.Feature[], ids: string[]) {
-            let data = {};
+            const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
-                let events: Stopover = stops[i].get('events') || {};
+                const events: Stopover = stops[i].get('events') || {};
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();
                     }
                     for (let j = events[id].length - 2; j >= 0; j -= 2) {
-                        let [start, end] = [events[id][j], events[id][j + 1]];
+                        const [start, end] = [events[id][j], events[id][j + 1]];
                         data[id].add(start, end);
                     }
                 }
@@ -274,7 +275,7 @@ namespace MigrationVisualization {
                             }
                             stopoverDays[formattedDate]++;
                             stopoverGulls[formattedDate][gullID] = true;
-                            let newDate = startDate.setDate(startDate.getDate() + 1);
+                            const newDate = startDate.setDate(startDate.getDate() + 1);
                             startDate = new Date(newDate);
                         }
 
@@ -305,8 +306,8 @@ namespace MigrationVisualization {
                     return this.color((stopoverDays[d] / maxValue) || 0);
                 })
                 .each(function (d) {
-                    let stops = Math.round(stopoverDays[d] || 0);
-                    let content: string = formatNames(stopoverGulls[d] || [])
+                    const stops = Math.round(stopoverDays[d] || 0);
+                    const content: string = formatNames(stopoverGulls[d] || [])
                         .prependText('' + stops + (stops == 1 ? ' stop' : ' stops'))
                         .html();
                     $(this).tooltipster('content', content);
