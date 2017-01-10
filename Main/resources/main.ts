@@ -62,6 +62,15 @@ namespace  MigrationVisualization {
                 }
             }
 
+            private ensureCorrectOrder() {
+                const [first, second] = this.current;
+                const diff = +second - +first;
+                if (diff < 0) {
+                    // Swap the values;
+                    this.current = [second, first];
+                }
+            }
+
             next(): DurationRange {
                 if (this.hasNext()) {
                     const elems = <[number, number]>this.list.slice(this.currentIndex,
@@ -69,6 +78,7 @@ namespace  MigrationVisualization {
                     this.current = <DurationRange>elems.map((n) => {
                         return new Date(n);
                     });
+                    this.ensureCorrectOrder();
                     this.currentIndex += 2;
                     return this.current;
                 } else {
@@ -79,13 +89,17 @@ namespace  MigrationVisualization {
         }
 
         let calendar: CalendarMap;
+
+        interface ODResult {
+            [id: string]: DurationRange[][];
+        }
         /**
          * Maintaining the selection and deselection of nodes within the schematic map.
          */
         class StopoverSequence {
             private nodes: ol.Feature[];
             private hasChanged: boolean;
-            private result: any;
+            private result: ODResult;
 
             constructor() {
                 this.nodes = [];
@@ -140,16 +154,13 @@ namespace  MigrationVisualization {
              * @returns {any}
              */
             intersection(): Array<string> {
-                if (this.hasChanged) {
-                    // Compute first the intersection for all ids per stopover.
-                    const intersect = new Intersection();
-                    intersect.addAll(this.idsPerStopover());
-                    const ids = intersect.toArray();
-                    // Sort them alphabetically.
-                    sortOrganismsIds(ids);
-                    this.result = ids;
-                }
-                return this.result;
+                // Compute first the intersection for all ids per stopover.
+                const intersect = new Intersection();
+                intersect.addAll(this.idsPerStopover());
+                const ids = intersect.toArray();
+                // Sort them alphabetically.
+                sortOrganismsIds(ids);
+                return ids;
             }
 
             /**
@@ -167,7 +178,12 @@ namespace  MigrationVisualization {
                         // Compute the selection first.
                         const events: Stopover = this.nodes[0].get('events');
                         // Start with the events from the first stopover by copying the stopover vals.
-                        this.result = jQuery.extend(true, {}, events);
+                        this.result = {};
+                        for (const id in events) {
+                            if (events.hasOwnProperty(id)) {
+                                this.result[id] = [];
+                            }
+                        }
 
                         for (let i = 0; i < this.nodes.length - 1; i++) {
                             const currentStopover: Stopover = this.nodes[i].get('events');
@@ -176,44 +192,79 @@ namespace  MigrationVisualization {
                             const idsCurrentStop = Object.keys(currentStopover);
                             const idsNextStop = Object.keys(nextStopover);
 
+                            // Preprocessing:
                             // Remove ids which do not occur in the selected stopovers.
                             for (const id of Object.keys(this.result)) {
                                 if (idsCurrentStop.indexOf(id) === -1) {
-                                    delete  this.result[id];
+                                    delete this.result[id];
                                 } else if (idsNextStop.indexOf(id) === -1) {
                                     delete this.result[id];
                                 }
                             }
+                            console.log("After preprocessing");
+                            console.log(this.result);
+                            if (Object.keys(this.result).length === 0) {
+                                // Abort if the result is already empty.
+                                break;
+                            }
 
                             for (const idCurrentStop of idsCurrentStop) {
-                                // Store information whether a duration has a successor.
-                                const successorList: boolean[] = [];
-                                // Iterator of the stops at currentStop.
-                                const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
-                                while (iterCurrentStop.hasNext()) {
-                                    const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
+                                if (idCurrentStop in this.result) {
+                                    // Iterator of the stops at currentStop.
+                                    const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
+                                    while (iterCurrentStop.hasNext()) {
+                                        const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
 
-                                    const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
-                                    while (iterNextStop.hasNext()) {
-                                        const [startNextStopover, endNextStopover] = iterNextStop.next();
-                                        let hasSuccessor = false;
-                                        const diff = +startNextStopover - +endCurrentStopover;
-                                        if (diff > 0) {
-                                            hasSuccessor = true;
+                                        const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
+                                        while (iterNextStop.hasNext()) {
+                                            const [startNextStopover, endNextStopover] = iterNextStop.next();
+                                            const diff = +startNextStopover - +endCurrentStopover;
+                                            if (diff > 0) {
+                                                // Found a fitting pair.
+                                                let foundCurrentStop = false;
+                                                for (const odSequence of this.result[idCurrentStop]) {
+                                                    // 1. case: extend the current sequence.
+                                                    if (!foundCurrentStop && odSequence[odSequence.length - 1] ===
+                                                        [startCurrentStopover, endCurrentStopover]) {
+                                                        odSequence.push([startNextStopover, endNextStopover]);
+                                                        foundCurrentStop = true;
+                                                    }
+                                                }
+                                                // 2. case open up a new sequence if currentStop cannot be found.
+                                                if (!foundCurrentStop) {
+                                                    const newODSequence: DurationRange[] = [[startCurrentStopover, endCurrentStopover],
+                                                        [startNextStopover, endCurrentStopover]];
+                                                    this.result[idCurrentStop].push(newODSequence);
+                                                }
+                                            }
                                         }
-                                        successorList.push(hasSuccessor);
-                                    }
-                                    if (!successorList.some((b) => {
-                                            return b;
-                                        })) {
-                                        // If there is not at least one successor, remove the id;
-                                        delete this.result[idCurrentStop];
                                     }
                                 }
                             }
                         }
+                        console.log("After processing");
+                        console.log(this.result);
+                        const acceptedNumberOfHops = this.nodes.length;
+                        if (acceptedNumberOfHops > 1) {
+                            // Postprocessing to check whether there is a sequence of length nodes.length,
+                            // otherwise trim it off.
+                            for (const id of Object.keys(this.result)) {
+                                if (!this.result[id].some((odSeq) => {
+                                        return odSeq.length === acceptedNumberOfHops;
+                                    })) {
+                                    // Remove the id if there exist only a path of shorter hops.
+                                    delete this.result[id];
+                                }
+                            }
+                            console.log("After postprocessing");
+                            console.log(this.result);
+                        }
+                        console.log("Accepted hops "+acceptedNumberOfHops);
+
+
                     }
                 }
+                console.log(this.result);
                 let ids = Object.keys(this.result);
                 // Filter those ids of the selected gender.
                 ids = filterOrganismPerGender(ids, gender);
