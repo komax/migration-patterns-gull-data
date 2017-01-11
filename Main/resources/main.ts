@@ -71,8 +71,6 @@ namespace  MigrationVisualization {
                 const diff = diffDateInHours(second, first);
                 if (diff > 0) {
                     // Swap the values;
-                    console.log("Swapped");
-                    console.log([second, first]);
                     this.current = [second, first];
                 }
             }
@@ -168,13 +166,16 @@ namespace  MigrationVisualization {
                 return ids;
             }
 
+            private static endsBefore(lastStopOver: DurationRange, newStopOver: DurationRange): boolean {
+                const [startA, endA] = lastStopOver;
+                const [startB, endB] = newStopOver;
+                return diffDateInHours(endA, startB) > 0;
+            }
+
             private static isMergeable(lastStopOver: DurationRange, newStopOver: DurationRange, followingStopOver: DurationRange): boolean {
                 const [startA, endA] = lastStopOver;
                 const [startB, endB] = newStopOver;
                 const [startC, endC] = followingStopOver;
-                console.log(`First condition: ${diffDateInHours(startA, startB) > 0}`);
-                console.log(`Second condition: ${diffDateInHours(startB, endA) > 0}`);
-                console.log(`Third condition: ${diffDateInHours(endA, startC) > 0}`);
                 return diffDateInHours(startA, startB) > 0 && diffDateInHours(startB, endA) > 0 && diffDateInHours(endA, startC) > 0;
             }
 
@@ -195,28 +196,33 @@ namespace  MigrationVisualization {
                 }
             }
 
-            private updateODSequences(currentStop: DurationRange, nextStop: DurationRange, idCurrentStop: string): void {
+            private updateODSequences(currentStop: DurationRange, nextStop: DurationRange, idCurrentStop: string, segLength: number): void {
                 const [startCurrentStopover, endCurrentStopover] = currentStop;
                 const [startNextStopover, endNextStopover] = nextStop;
                 const diff = diffDateInHours(endCurrentStopover, startNextStopover);
                 if (diff > 0) {
                     const odSequences = this.result[idCurrentStop];
                     if (odSequences.length === 0) {
-                        console.log("Base case");
                         // Base case: Start a new sequence of stops.
                         const newODSequence: DurationRange[] = [currentStop, nextStop];
                         this.result[idCurrentStop].push(newODSequence);
                     } else {
                         // Merge all current stopOvers and extend them.
                         for (const odSequence of odSequences) {
-                            const lastStopOver = odSequence[odSequence.length - 1];
-                            if (StopoverSequence.isMergeable(lastStopOver, currentStop, nextStop)) {
-                                console.log("Found a mergeable sequence");
-                                // Replace the last element by the new duration.
-                                odSequence[odSequence.length - 1] = StopoverSequence.mergeDuration(
-                                    lastStopOver, currentStop, nextStop);
-                                // Append the following stopover.
-                                odSequence.push(nextStop);
+                            // Sanity check whether the odSequence used i-1 hops up to now. Don't look at shorter ones.
+                            if (odSequence.length === segLength) {
+                                const lastStopOver = odSequence[odSequence.length - 1];
+                                if (StopoverSequence.isMergeable(lastStopOver, currentStop, nextStop)) {
+                                    // Replace the last element by the new duration.
+                                    odSequence[odSequence.length - 1] = StopoverSequence.mergeDuration(
+                                        lastStopOver, currentStop, nextStop);
+                                    // Append the following stopover.
+                                    odSequence.push(nextStop);
+                                } else if (StopoverSequence.endsBefore(lastStopOver, currentStop)) {
+                                    // Let the lastStopOver remain the same.
+                                    // Just append the following stopover.
+                                    odSequence.push(nextStop);
+                                }
                             }
                         }
                     }
@@ -276,7 +282,7 @@ namespace  MigrationVisualization {
                                         const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
                                         while (iterNextStop.hasNext()) {
                                             const nextStop = iterNextStop.next();
-                                            this.updateODSequences(currentStop, nextStop, idCurrentStop);
+                                            this.updateODSequences(currentStop, nextStop, idCurrentStop, i + 1);
                                         }
                                     }
                                 }
@@ -289,7 +295,6 @@ namespace  MigrationVisualization {
                             // otherwise trim it off.
                             for (const id of Object.keys(this.result)) {
                                 if (!this.result[id].some((odSeq) => {
-                                        console.log(odSeq.length);
                                         return odSeq.length === acceptedNumberOfHops;
                                     })) {
                                     // Remove the id if there exist only a path of shorter hops.
