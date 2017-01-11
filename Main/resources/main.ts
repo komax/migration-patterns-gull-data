@@ -168,22 +168,24 @@ namespace  MigrationVisualization {
                 return ids;
             }
 
-            private static isMergeable(lastStopOver: DurationRange, newStopOver: DurationRange): boolean {
+            private static isMergeable(lastStopOver: DurationRange, newStopOver: DurationRange, followingStopOver: DurationRange): boolean {
                 const [startA, endA] = lastStopOver;
                 const [startB, endB] = newStopOver;
-                console.log(diffDateInHours(startA, startB) > 0);
-                console.log(diffDateInHours(startB, endA) > 0);
-                return diffDateInHours(startA, startB) > 0 && diffDateInHours(startB, endA) > 0;
+                const [startC, endC] = followingStopOver;
+                console.log(`First condition: ${diffDateInHours(startA, startB) > 0}`);
+                console.log(`Second condition: ${diffDateInHours(startB, endA) > 0}`);
+                console.log(`Third condition: ${diffDateInHours(endA, startC) > 0}`);
+                return diffDateInHours(startA, startB) > 0 && diffDateInHours(startB, endA) > 0 && diffDateInHours(endA, startC) > 0;
             }
 
-            private static mergeDuration(lastStopOver: DurationRange, newStopOver: DurationRange): DurationRange {
+            private static mergeDuration(lastStopOver: DurationRange, newStopOver: DurationRange, nextStopOver): DurationRange {
                 const [startA, endA] = lastStopOver;
                 const [startB, endB] = newStopOver;
 
-                if (StopoverSequence.isMergeable(lastStopOver, newStopOver)) {
+                if (StopoverSequence.isMergeable(lastStopOver, newStopOver, nextStopOver)) {
                     if (diffDateInHours(endB, endA)) {
-                        // if the new stopover fits into the old one, use the more specific one.
-                        return newStopOver;
+                        // Use the one that cover both durations.
+                        return lastStopOver;
                     } else {
                         //  Otherwise use the longest duration covering both.
                         return [startA, endB];
@@ -193,8 +195,36 @@ namespace  MigrationVisualization {
                 }
             }
 
+            private updateODSequences(currentStop: DurationRange, nextStop: DurationRange, idCurrentStop: string): void {
+                const [startCurrentStopover, endCurrentStopover] = currentStop;
+                const [startNextStopover, endNextStopover] = nextStop;
+                const diff = diffDateInHours(endCurrentStopover, startNextStopover);
+                if (diff > 0) {
+                    const odSequences = this.result[idCurrentStop];
+                    if (odSequences.length === 0) {
+                        console.log("Base case");
+                        // Base case: Start a new sequence of stops.
+                        const newODSequence: DurationRange[] = [currentStop, nextStop];
+                        this.result[idCurrentStop].push(newODSequence);
+                    } else {
+                        // Merge all current stopOvers and extend them.
+                        for (const odSequence of odSequences) {
+                            const lastStopOver = odSequence[odSequence.length - 1];
+                            if (StopoverSequence.isMergeable(lastStopOver, currentStop, nextStop)) {
+                                console.log("Found a mergeable sequence");
+                                // Replace the last element by the new duration.
+                                odSequence[odSequence.length - 1] = StopoverSequence.mergeDuration(
+                                    lastStopOver, currentStop, nextStop);
+                                // Append the following stopover.
+                                odSequence.push(nextStop);
+                            }
+                        }
+                    }
+                }
+            }
+
             /**
-             * Compute what organims are visiting the the current selection from origin to its destination by
+             * Compute what organisms are visiting the the current selection from origin to its destination by
              * having at least one duration that visits the sequence as OD pair.
              * @param gender Restrict the selection to a certain gender. Default all genders.
              * @returns {string[]} an array of organisms' ids visiting the nodes in a sequential order.
@@ -241,35 +271,12 @@ namespace  MigrationVisualization {
                                     // Iterator of the stops at currentStop.
                                     const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
                                     while (iterCurrentStop.hasNext()) {
-                                        const [startCurrentStopover, endCurrentStopover] = iterCurrentStop.next();
+                                        const currentStop = iterCurrentStop.next();
 
                                         const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
                                         while (iterNextStop.hasNext()) {
-                                            const [startNextStopover, endNextStopover] = iterNextStop.next();
-                                            const diff = diffDateInHours(endCurrentStopover, startNextStopover);
-                                            if (diff > 0) {
-                                                const odSequences = this.result[idCurrentStop];
-                                                if (odSequences.length === 0) {
-                                                    console.log("Base case");
-                                                    // Base case: Start a new sequence of stops.
-                                                    const newODSequence: DurationRange[] = [[startCurrentStopover, endCurrentStopover],
-                                                        [startNextStopover, endNextStopover]];
-                                                    this.result[idCurrentStop].push(newODSequence);
-                                                } else {
-                                                    // Merge all current stopOvers and extend them.
-                                                    for (const odSequence of odSequences) {
-                                                        const lastStopOver = odSequence[odSequence.length - 1];
-                                                        if (StopoverSequence.isMergeable(lastStopOver, [startCurrentStopover, endCurrentStopover])) {
-                                                            console.log("Found a mergeable sequence");
-                                                            // Replace the last element by the new duration.
-                                                            odSequence[odSequence.length - 1] = StopoverSequence.mergeDuration(
-                                                                lastStopOver, [startCurrentStopover, endCurrentStopover]);
-                                                            // Append the following stopover.
-                                                            odSequence.push([startNextStopover, endNextStopover]);
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            const nextStop = iterNextStop.next();
+                                            this.updateODSequences(currentStop, nextStop, idCurrentStop);
                                         }
                                     }
                                 }
