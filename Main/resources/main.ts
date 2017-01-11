@@ -179,23 +179,6 @@ namespace  MigrationVisualization {
                 return diffDateInHours(startA, startB) > 0 && diffDateInHours(startB, endA) > 0 && diffDateInHours(endA, startC) > 0;
             }
 
-            private static mergeDuration(lastStopOver: DurationRange, newStopOver: DurationRange, nextStopOver): DurationRange {
-                const [startA, endA] = lastStopOver;
-                const [startB, endB] = newStopOver;
-
-                if (StopoverSequence.isMergeable(lastStopOver, newStopOver, nextStopOver)) {
-                    if (diffDateInHours(endB, endA)) {
-                        // Use the one that cover both durations.
-                        return lastStopOver;
-                    } else {
-                        //  Otherwise use the longest duration covering both.
-                        return [startA, endB];
-                    }
-                } else {
-                    throw new Error("Cannot merge non-mergeable durations");
-                }
-            }
-
             private updateODSequences(currentStop: DurationRange, nextStop: DurationRange, idCurrentStop: string, segLength: number): void {
                 const [startCurrentStopover, endCurrentStopover] = currentStop;
                 const [startNextStopover, endNextStopover] = nextStop;
@@ -212,13 +195,7 @@ namespace  MigrationVisualization {
                             // Sanity check whether the odSequence used i-1 hops up to now. Don't look at shorter ones.
                             if (odSequence.length === segLength) {
                                 const lastStopOver = odSequence[odSequence.length - 1];
-                                if (StopoverSequence.isMergeable(lastStopOver, currentStop, nextStop)) {
-                                    // Replace the last element by the new duration.
-                                    odSequence[odSequence.length - 1] = StopoverSequence.mergeDuration(
-                                        lastStopOver, currentStop, nextStop);
-                                    // Append the following stopover.
-                                    odSequence.push(nextStop);
-                                } else if (StopoverSequence.endsBefore(lastStopOver, currentStop)) {
+                                if (StopoverSequence.endsBefore(lastStopOver, currentStop)) {
                                     // Let the lastStopOver remain the same.
                                     // Just append the following stopover.
                                     odSequence.push(nextStop);
