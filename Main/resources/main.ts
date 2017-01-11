@@ -172,13 +172,6 @@ namespace  MigrationVisualization {
                 return diffDateInHours(endA, startB) > 0;
             }
 
-            private static isMergeable(lastStopOver: DurationRange, newStopOver: DurationRange, followingStopOver: DurationRange): boolean {
-                const [startA, endA] = lastStopOver;
-                const [startB, endB] = newStopOver;
-                const [startC, endC] = followingStopOver;
-                return diffDateInHours(startA, startB) > 0 && diffDateInHours(startB, endA) > 0 && diffDateInHours(endA, startC) > 0;
-            }
-
             private updateODSequences(currentStop: DurationRange, nextStop: DurationRange, idCurrentStop: string, segLength: number): void {
                 const [startCurrentStopover, endCurrentStopover] = currentStop;
                 const [startNextStopover, endNextStopover] = nextStop;
