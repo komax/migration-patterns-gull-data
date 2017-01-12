@@ -207,9 +207,10 @@ namespace  MigrationVisualization {
              * Compute what organisms are visiting the the current selection from origin to its destination by
              * having at least one duration that visits the sequence as OD pair.
              * @param gender Restrict the selection to a certain gender. Default all genders.
+             * @param duration Restrict the selection to a specific duration. Default no restrictions.
              * @returns {string[]} an array of organisms' ids visiting the nodes in a sequential order.
              */
-            getSelection(gender: Gender = Gender.All): string[] {
+            getSelection(gender: Gender = Gender.All, duration: DurationRange | undefined = undefined): string[] {
                 if (this.hasChanged) {
                     // If nothing is selected, return an empty object.
                     if (this.nodes.length === 0) {
@@ -276,8 +277,27 @@ namespace  MigrationVisualization {
                                 }
                             }
                         }
+                    }
 
-
+                    // Check the duration if required.
+                    if (duration !== undefined) {
+                        const [startSelection, endSelection] = duration;
+                        for (const id of Object.keys(this.result)) {
+                            let isOrganismInSelection = false;
+                            for (const odSequence of this.result[id]) {
+                                const [startTimeOrigin, endTimeOrigin] = odSequence[0];
+                                const [startTimeDestination, endTimeDestination] = odSequence[odSequence.length - 1];
+                                // Check whether the od sequence fits into the duration.
+                                if (diffDateInHours(startSelection, startTimeOrigin) >= 0 &&
+                                    diffDateInHours(endTimeDestination, endSelection) >= 0) {
+                                    isOrganismInSelection = true;
+                                }
+                            }
+                            if (!isOrganismInSelection) {
+                                // Remove the id if it does not obey the selection.
+                                delete this.result[id];
+                            }
+                        }
                     }
                 }
                 let ids = Object.keys(this.result);
@@ -288,12 +308,6 @@ namespace  MigrationVisualization {
                 sortOrganismsIds(ids);
                 return ids;
             }
-
-            selectDuration(startDate: Date, endDate: Date): void {
-                // TODO Implement this method.
-            }
-
-            // TODO Add more features.
         }
         const stopOverSeq: StopoverSequence = new StopoverSequence();
 
