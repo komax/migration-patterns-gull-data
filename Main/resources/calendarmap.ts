@@ -129,9 +129,29 @@ namespace MigrationVisualization {
                     + "H" + (w0 + 1) * cellSize + "Z";
             }
 
-            rect.on('click', (d) => {
-                const gulls = this.stopoverGulls[d] || [];
-                Main.selectGulls(gulls);
+            const self = this;
+            // Objects to maintain a time range as a selection.
+            let timeRange: [Date, Date] | undefined;
+            let rangeAsElem: [Element, Element] | undefined;
+            rect.on('click', function (d: string) {
+                const event: any = d3.event;
+                console.log(format.parse(d));
+                if (event.shiftKey) {
+                    const svgElement = d3.select(this);
+                    // Check whether the current element has been selected.
+                    if (svgElement.classed('selected')) {
+                        // Deselect it then
+                        svgElement.classed('selected', false);
+                    } else {
+                        // Select it otherwise.
+                        svgElement.classed('selected', true);
+                    }
+                    console.log(`Click+Shift: Selecting: ${d}`);
+                } else {
+                    console.log("Simple click");
+                }
+                // const gulls = self.stopoverGulls[d] || [];
+                // Main.selectGulls(gulls);
             });
 
             this.paintLegend();

@@ -87,6 +87,10 @@
     stroke: #666;
 }
 
+.day.selected {
+    fill: rgb(253,174,97);
+}
+
 .month {
     fill: none;
     stroke: #000;
