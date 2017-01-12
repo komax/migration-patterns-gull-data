@@ -97,6 +97,12 @@
     stroke-width: 2px;
 }
 
+.selected-time-range {
+    fill: none;
+    stroke: rgb(253,174,97);
+    stroke-width: 2px;
+}
+
 #calendar-map rect {
     cursor: pointer;
 }

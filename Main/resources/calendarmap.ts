@@ -133,20 +133,84 @@ namespace MigrationVisualization {
             // Objects to maintain a time range as a selection.
             let timeRange: [Date, Date] | undefined;
             let rangeAsElem: [Element, Element] | undefined;
+
             rect.on('click', function (d: string) {
-                const event: any = d3.event;
-                console.log(format.parse(d));
+                const selectedDate = format.parse(d);
+                const event: MouseEvent = <MouseEvent>d3.event;
                 if (event.shiftKey) {
                     const svgElement = d3.select(this);
                     // Check whether the current element has been selected.
                     if (svgElement.classed('selected')) {
                         // Deselect it then
                         svgElement.classed('selected', false);
+                        if (timeRange !== undefined && rangeAsElem !== undefined) {
+                            const [startTimeRange, endTimeRange] = timeRange;
+                            // Reduce the time range to one of them
+                            if (startTimeRange.getTime() === selectedDate.getTime()) {
+                                timeRange = [endTimeRange, endTimeRange];
+                                rangeAsElem[0] = rangeAsElem[1];
+                            } else if (endTimeRange.getTime() === selectedDate.getTime()) {
+                                timeRange = [startTimeRange, startTimeRange];
+                                rangeAsElem[1] = rangeAsElem[0];
+                            } else {
+                                // or delete the elements.
+                                timeRange = rangeAsElem = undefined;
+                            }
+                        }
                     } else {
                         // Select it otherwise.
                         svgElement.classed('selected', true);
+                        if (timeRange !== undefined && rangeAsElem !== undefined) {
+                            const [startTimeRange, endTimeRange] = timeRange;
+                            // time range is just a single date.
+                            if (startTimeRange === endTimeRange) {
+                                if (hasEndedBefore(startTimeRange, selectedDate)) {
+                                    timeRange = [startTimeRange, selectedDate];
+                                    rangeAsElem[1] = this;
+                                } else {
+                                    timeRange = [selectedDate, endTimeRange];
+                                    rangeAsElem[0] = this;
+                                }
+                            } else {
+                                // Extension to one side: start or to the end.
+                                if (hasEndedBefore(endTimeRange, selectedDate)) {
+                                    const endElement = d3.select(rangeAsElem[1]);
+                                    // Deselect the old end of the time range.
+                                    endElement.classed('selected', false);
+                                    rangeAsElem[1] = this;
+                                    timeRange = [startTimeRange, selectedDate];
+                                } else if (hasEndedBefore(selectedDate, startTimeRange)) {
+                                    const startElement = d3.select(rangeAsElem[0]);
+                                    // Deselect the old end of the time range.
+                                    startElement.classed('selected', false);
+                                    rangeAsElem[0] = this;
+                                    timeRange = [selectedDate, endTimeRange];
+                                } else {
+                                    // selected date lies within the range.
+                                    // Decide on which end it will be.
+                                    if (diffDateInHours(startTimeRange, selectedDate) <
+                                        diffDateInHours(selectedDate, endTimeRange)) {
+                                        const startElement = d3.select(rangeAsElem[0]);
+                                        // Deselect the old end of the time range.
+                                        startElement.classed('selected', false);
+                                        rangeAsElem[0] = this;
+                                        timeRange = [selectedDate, endTimeRange];
+                                    } else {
+                                        const endElement = d3.select(rangeAsElem[1]);
+                                        // Deselect the old end of the time range.
+                                        endElement.classed('selected', false);
+                                        rangeAsElem[1] = this;
+                                        timeRange = [startTimeRange, selectedDate];
+                                    }
+                                }
+                            }
+                        } else {
+                            // Create a new selection.
+                            timeRange = [selectedDate, selectedDate];
+                            rangeAsElem = [this, this];
+                        }
                     }
-                    console.log(`Click+Shift: Selecting: ${d}`);
+                    console.log(`Click+Shift: Selecting: ${timeRange}`);
                 } else {
                     console.log("Simple click");
                 }

@@ -16,8 +16,12 @@ namespace  MigrationVisualization {
     // Type for a duration [from, to].
     type DurationRange = [Date, Date];
 
-    function diffDateInHours(fromDate: Date, ToDate: Date): number {
+    export function diffDateInHours(fromDate: Date, ToDate: Date): number {
         return Math.round((+ToDate - +fromDate) / (1000 * 60 * 60));
+    }
+
+    export function hasEndedBefore(fromDate: Date, toDate: Date): boolean {
+        return diffDateInHours(fromDate, toDate) > 0;
     }
 
     export interface Stopover {
