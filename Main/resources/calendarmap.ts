@@ -137,19 +137,27 @@ namespace MigrationVisualization {
             this.paintLegend();
         }
 
-        paintLegend() {
+        /**
+         * Draw the legend of the color coding for the calendar view.
+         *
+         */
+        private paintLegend() {
             const data: any[] = [];
             let offset = 0;
             const rectWidth = 50;
 
-            for (let i = 0; i < this.palette.length; i++) {
+            const extendedPalette = this.palette.slice();
+            extendedPalette.unshift('rgba(0,0,0,0)');
+            extendedPalette.push('rgba(0,0,0,0)');
+
+            for (let i = 0; i < extendedPalette.length; i++) {
                 data.push({x: offset, w: rectWidth});
                 offset += rectWidth;
             }
 
 
-            const height = 50, width = 250;
-            const margin = {top: 10, right: 2, bottom: 2, left: 50},
+            const height = 50, width = 370;
+            const margin = {top: 10, right: 2, bottom: 2, left: 20},
                 innerWidth = width - margin.left - margin.right,
                 innerHeight = height - margin.top - margin.bottom;
 
@@ -164,7 +172,7 @@ namespace MigrationVisualization {
             // Set up the scale to correspond to the rectWidths.
             const x = d3.scale.linear()
                 .rangeRound([0, innerWidth])
-                .domain([0, this.palette.length * rectWidth - 1]);
+                .domain([0, extendedPalette.length * rectWidth - 1]);
 
             // Enter the data with the corresponding color.
             svg.selectAll("rect")
@@ -180,7 +188,7 @@ namespace MigrationVisualization {
                 })
                 .attr("y", margin.top)
                 .style("fill", (d, i) => {
-                    return this.palette[i];
+                    return extendedPalette[i];
                 });
 
             // Add text labels to the columns.
@@ -191,27 +199,29 @@ namespace MigrationVisualization {
                 .text((d, i) => {
                     if (i === 0) {
                         return "Less";
-                    } else if (i === this.palette.length - 1) {
+                    } else if (i === extendedPalette.length - 1) {
                         return "More";
                     } else {
                         return "";
                     }
                 })
                 .attr("x", (d, i) => {
-                    if (i === 0) {
-                        return x(d.w + d.x);
-                    } else {
-                        return x(d.x);
-                    }
+                    return x(d.w / 2 + d.x);
+                    // if (i === 0) {
+                    //     return x(d.w + d.x);
+                    // } else {
+                    //     return x(d.x);
+                    // }
 
                 })
                 .attr("y", margin.top + innerHeight / 2)
-                .attr("font-size", 15)
+                .attr("font-size", 13)
+                .attr('font-family','sans-serif')
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
-                .style("fill", "#ffffff")
-                .style("stroke", "#000000")
-                .style("stroke-width", 1)
+                .style("fill", "#000000")
+                // .style("stroke", "#000000")
+                // .style("stroke-width", 1)
                 .style("font-weight", "bold");
 
         }

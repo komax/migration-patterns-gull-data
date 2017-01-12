@@ -447,11 +447,12 @@ namespace  MigrationVisualization {
                     })
                     .attr("y", margin.top + innerHeight / 2)
                     .attr("font-size", 20)
+                    .attr('font-family','sans-serif')
                     .style("text-anchor", "middle")
                     .style("alignment-baseline", "middle")
                     .style("fill", "#ffffff")
-                    .style("stroke", "#000000")
-                    .style("stroke-width", 1)
+                    // .style("stroke", "#000000")
+                    // .style("stroke-width", 1)
                     .style("font-weight", "bold");
 
                 // Generate the html code for the tooltip.
@@ -558,12 +559,13 @@ namespace  MigrationVisualization {
                     return x(d.w / 2 + d.x);
                 })
                 .attr("y", margin.top + innerHeight / 2)
+                .attr('font-family','sans-serif')
                 .attr("font-size", 20)
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
                 .style("fill", "#ffffff")
-                .style("stroke", "#000000")
-                .style("stroke-width", 1)
+                // .style("stroke", "#000000")
+                // .style("stroke-width", 1)
                 .style("font-weight", "bold");
         }
 
