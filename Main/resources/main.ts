@@ -282,22 +282,7 @@ namespace  MigrationVisualization {
                     // Check the duration if required.
                     if (duration !== undefined) {
                         const [startSelection, endSelection] = duration;
-                        for (const id of Object.keys(this.result)) {
-                            let isOrganismInSelection = false;
-                            for (const odSequence of this.result[id]) {
-                                const [startTimeOrigin, endTimeOrigin] = odSequence[0];
-                                const [startTimeDestination, endTimeDestination] = odSequence[odSequence.length - 1];
-                                // Check whether the od sequence fits into the duration.
-                                if (diffDateInHours(startSelection, startTimeOrigin) >= 0 &&
-                                    diffDateInHours(endTimeDestination, endSelection) >= 0) {
-                                    isOrganismInSelection = true;
-                                }
-                            }
-                            if (!isOrganismInSelection) {
-                                // Remove the id if it does not obey the selection.
-                                delete this.result[id];
-                            }
-                        }
+                        this.selectDuration(startSelection, endSelection);
                     }
                 }
                 let ids = Object.keys(this.result);
@@ -308,6 +293,26 @@ namespace  MigrationVisualization {
                 sortOrganismsIds(ids);
                 return ids;
             }
+
+            private selectDuration(startDate: Date, endDate: Date): void {
+                for (const id of Object.keys(this.result)) {
+                    let isOrganismInSelection = false;
+                    for (const odSequence of this.result[id]) {
+                        const [startTimeOrigin, endTimeOrigin] = odSequence[0];
+                        const [startTimeDestination, endTimeDestination] = odSequence[odSequence.length - 1];
+                        // Check whether the od sequence fits into the duration.
+                        if (diffDateInHours(startDate, startTimeOrigin) >= 0 &&
+                            diffDateInHours(endTimeDestination, endDate) >= 0) {
+                            isOrganismInSelection = true;
+                        }
+                    }
+                    if (!isOrganismInSelection) {
+                        // Remove the id if it does not obey the selection.
+                        delete this.result[id];
+                    }
+                }
+            }
+
         }
         const stopOverSeq: StopoverSequence = new StopoverSequence();
 
