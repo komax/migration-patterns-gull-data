@@ -28,7 +28,10 @@ namespace MigrationVisualization {
         let heatmapLegendHTMLcode: string = "";
 
         function computeLegend(): string {
-            const palette = defaults.colors;
+            const palette = defaults.colors.slice();
+            // Pad with invisible rects on the left and the right.
+            palette.unshift('rgba(0,0,0,0)');
+            palette.push('rgba(0,0,0,0)');
 
             const data: any[] = [];
             let offset = 0;
@@ -40,7 +43,7 @@ namespace MigrationVisualization {
             }
 
 
-            const height = 30, width = 180;
+            const height = 30, width = 280;
             const margin = {top: 2, right: 2, bottom: 2, left: 2},
                 innerWidth = width - margin.left - margin.right,
                 innerHeight = height - margin.top - margin.bottom;
@@ -93,11 +96,12 @@ namespace MigrationVisualization {
                 })
                 .attr("y", margin.top + innerHeight / 2)
                 .attr("font-size", 15)
+                .attr('font-family','sans-serif')
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
-                .style("fill", "#ffffff")
-                .style("stroke", "#000000")
-                .style("stroke-width", 1)
+                .style("fill", "#000000")
+                // .style("stroke", "#000000")
+                // .style("stroke-width", 1)
                 .style("font-weight", "bold");
 
             // Generate the html code for the legend.
