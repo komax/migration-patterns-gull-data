@@ -41,7 +41,7 @@ namespace MigrationVisualization {
             this.color = d3.scale.quantize().range(this.palette)//(["white", '#002b53'])
                 .domain([0, 1]);
 
-            let svg = this.svg = d3.select('#' + id).selectAll("svg")
+            const svg = this.svg = d3.select('#' + id).selectAll("svg")
                 .data(this.range)
                 .enter().append("svg")
                 .attr("width", width)
@@ -49,6 +49,10 @@ namespace MigrationVisualization {
                 .attr("viewBox", '0 0 ' + width + ' ' + height)
                 .attr("shape-rendering", "crispEdges")
                 .attr("class", "RdYlGn")
+                // year as id;
+                .attr("id", function (d) {
+                    return `year${d}`;
+                })
                 .append("g")
                 .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
 
@@ -214,11 +218,42 @@ namespace MigrationVisualization {
                 } else {
                     console.log("Simple click");
                 }
+                if (timeRange) {
+                    self.drawSelectionContours(timeRange[0], timeRange[1]);
+                }
                 // const gulls = self.stopoverGulls[d] || [];
                 // Main.selectGulls(gulls);
             });
 
             this.paintLegend();
+        }
+
+        private drawSelectionContours(startDate: Date, endDate: Date): void {
+            const day = d3.time.format("%w"),
+                week = d3.time.format("%U"),
+                cellSize = 12;
+
+
+            function selectionPath() {
+                const d0 = +day(startDate), w0 = +week(startDate),
+                    d1 = +day(endDate), w1 = +week(endDate);
+                return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+                    + "H" + w0 * cellSize + "V" + 7 * cellSize
+                    + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+                    + "H" + (w1 + 1) * cellSize + "V" + 0
+                    + "H" + (w0 + 1) * cellSize + "Z";
+            }
+
+            const year = startDate.getFullYear();
+            const selection = this.svg.selectAll(`#year${year}`);
+            selection
+                .data(function (d) {
+                    return d3.time.months(startDate, endDate);
+                })
+                .enter().append("path")
+                .attr("class", "selected-time-range")
+                .attr("d", selectionPath);
+
         }
 
         /**
