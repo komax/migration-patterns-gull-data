@@ -131,7 +131,7 @@ namespace MigrationVisualization {
 
             rect.on('click', (d) => {
                 const gulls = this.stopoverGulls[d] || [];
-                Main.intersectGullSelection(gulls);
+                Main.selectGulls(gulls);
             });
 
             this.paintLegend();

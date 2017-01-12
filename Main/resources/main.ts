@@ -831,7 +831,7 @@ namespace  MigrationVisualization {
             renderGullList(Gender.All);
         }
 
-        function selectGulls(selected: string[]): void {
+        export function selectGulls(selected: string[]): void {
             console.log(selected);
             gullSelection = selected;
 
@@ -933,13 +933,6 @@ namespace  MigrationVisualization {
                 }
             }
             return false;
-        };
-
-        export let intersectGullSelection = function intersectGullSelection(gullIds: string[]) {
-            selectGulls(new Intersection()
-                .add(gullSelection)
-                .add(gullIds)
-                .toArray());
         };
     }
 
