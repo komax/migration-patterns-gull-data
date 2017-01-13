@@ -385,7 +385,7 @@ namespace  MigrationVisualization {
         export function selectOrganismsWithinDuration(duration: DurationRange): void {
             const selected = stopOverSeq.selectDuration(duration).getSelection();
             if (selected.length >= 1) {
-                return selectGulls(selected, duration);
+                return selectGulls(selected);
             } else {
                 // Recovering from the bad choice.
                 alert("Empty selection");
@@ -891,7 +891,7 @@ namespace  MigrationVisualization {
             renderGullList(Gender.All);
         }
 
-        export function selectGulls(selected: string[], duration: DurationRange | undefined = undefined): void {
+        export function selectGulls(selected: string[]): void {
             console.log(selected);
             gullSelection = selected;
 
@@ -918,7 +918,7 @@ namespace  MigrationVisualization {
                 }
             }
 
-            calendar.load(schematic.getNodes(), selected, duration);
+            calendar.load(schematic.getNodes(), selected);
 
             let newSelection: string[] = [];
             let list = d3.select('#gulls .gull-list').selectAll('li').data(selected);
