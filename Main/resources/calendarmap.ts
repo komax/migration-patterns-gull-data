@@ -241,6 +241,21 @@ namespace MigrationVisualization {
                 // }
             });
 
+            d3.select("body").on('keydown', () => {
+                // if ESC key is pressed.
+                if ((d3.event as any).keyCode === 27) {
+                    // release the selection.
+                    newDuration = undefined;
+                    // remove the selection class from the list as well.
+                    if (rangeAsElem !== undefined) {
+                        rangeAsElem.forEach((elem) => {
+                            d3.select(elem).classed('selected', false);
+                        });
+                        rangeAsElem = undefined;
+                    }
+                }
+            });
+
             this.paintLegend();
         }
 
@@ -383,6 +398,8 @@ namespace MigrationVisualization {
         }
 
         load(stops: ol.Feature[], ids: string[]) {
+            // Invalidate the current selected duration.
+            this.selectedDuration = undefined;
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};

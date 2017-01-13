@@ -148,6 +148,8 @@ namespace  MigrationVisualization {
             update(selectEvent: ol.interaction.SelectEvent): void {
                 // Set the changed flag.
                 this.hasChanged = true;
+                // Invalidate the current time frame.
+                this.selectedDuration = undefined;
                 // Add the new selected ones to the selection.
                 this.nodes = this.nodes.concat(selectEvent.selected);
                 // Remove the deselected ones.
@@ -685,7 +687,10 @@ namespace  MigrationVisualization {
                         journey.load(organism.id);
                     })
                     .on('mouseout', (organism: Organism) => {
-                        journey.clear();
+                        const event: MouseEvent = <MouseEvent>d3.event;
+                        if(!event.altKey) {
+                            journey.clear();
+                        }
                     });
 
             d3.select("body").on('keydown', () => {
@@ -934,7 +939,10 @@ namespace  MigrationVisualization {
                     journey.load(id);
                 })
                 .on('mouseout', (id: string) => {
-                    journey.clear();
+                    const event: MouseEvent = <MouseEvent>d3.event;
+                    if(!event.altKey) {
+                      journey.clear();
+                    }
                 })
                 .on('click', function (id: string) {
                     const event: MouseEvent = <MouseEvent>d3.event;
