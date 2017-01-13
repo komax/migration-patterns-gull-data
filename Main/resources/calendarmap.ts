@@ -36,7 +36,6 @@ namespace MigrationVisualization {
         constructor(id: string, range: [number, number]) {
             this.id = id;
             this.yearsRange = d3.range(range[0], range[1] + 1);
-            console.log(this.yearsRange);
 
             // Same palette as for coloring the nodes.
             this.palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
@@ -144,7 +143,7 @@ namespace MigrationVisualization {
 
             const self = this;
             // Objects to maintain a time range as a selection.
-            this.selectedDuration = undefined;
+            let newDuration: DurationRange | undefined = undefined;
             let rangeAsElem: [Element, Element] | undefined;
 
             // Handle a single click action and/or selecting a range by clicking and using shift.
@@ -157,32 +156,32 @@ namespace MigrationVisualization {
                     if (svgElement.classed('selected')) {
                         // Deselect it then
                         svgElement.classed('selected', false);
-                        if (this.selectedDuration !== undefined && rangeAsElem !== undefined) {
-                            const [startTimeRange, endTimeRange] = this.selectedDuration;
+                        if (newDuration !== undefined && rangeAsElem !== undefined) {
+                            const [startTimeRange, endTimeRange] = newDuration;
                             // Reduce the time range to one of them
                             if (startTimeRange.getTime() === selectedDate.getTime()) {
-                                this.selectedDuration = [endTimeRange, endTimeRange];
+                                newDuration = [endTimeRange, endTimeRange];
                                 rangeAsElem[0] = rangeAsElem[1];
                             } else if (endTimeRange.getTime() === selectedDate.getTime()) {
-                                this.selectedDuration = [startTimeRange, startTimeRange];
+                                newDuration = [startTimeRange, startTimeRange];
                                 rangeAsElem[1] = rangeAsElem[0];
                             } else {
                                 // or delete the elements.
-                                this.selectedDuration = rangeAsElem = undefined;
+                                newDuration = rangeAsElem = undefined;
                             }
                         }
                     } else {
                         // Select it otherwise.
                         svgElement.classed('selected', true);
-                        if (this.selectedDuration !== undefined && rangeAsElem !== undefined) {
-                            const [startTimeRange, endTimeRange] = this.selectedDuration;
+                        if (newDuration !== undefined && rangeAsElem !== undefined) {
+                            const [startTimeRange, endTimeRange] = newDuration;
                             // time range is just a single date.
                             if (startTimeRange === endTimeRange) {
                                 if (hasEndedBefore(startTimeRange, selectedDate)) {
-                                    this.selectedDuration = [startTimeRange, selectedDate];
+                                    newDuration = [startTimeRange, selectedDate];
                                     rangeAsElem[1] = this;
                                 } else {
-                                    this.selectedDuration = [selectedDate, endTimeRange];
+                                    newDuration = [selectedDate, endTimeRange];
                                     rangeAsElem[0] = this;
                                 }
                             } else {
@@ -192,13 +191,13 @@ namespace MigrationVisualization {
                                     // Deselect the old end of the time range.
                                     endElement.classed('selected', false);
                                     rangeAsElem[1] = this;
-                                    this.selectedDuration = [startTimeRange, selectedDate];
+                                    newDuration = [startTimeRange, selectedDate];
                                 } else if (hasEndedBefore(selectedDate, startTimeRange)) {
                                     const startElement = d3.select(rangeAsElem[0]);
                                     // Deselect the old end of the time range.
                                     startElement.classed('selected', false);
                                     rangeAsElem[0] = this;
-                                    this.selectedDuration = [selectedDate, endTimeRange];
+                                    newDuration = [selectedDate, endTimeRange];
                                 } else {
                                     // selected date lies within the range.
                                     // Decide on which end it will be.
@@ -208,28 +207,33 @@ namespace MigrationVisualization {
                                         // Deselect the old end of the time range.
                                         startElement.classed('selected', false);
                                         rangeAsElem[0] = this;
-                                        this.selectedDuration = [selectedDate, endTimeRange];
+                                        newDuration = [selectedDate, endTimeRange];
                                     } else {
                                         const endElement = d3.select(rangeAsElem[1]);
                                         // Deselect the old end of the time range.
                                         endElement.classed('selected', false);
                                         rangeAsElem[1] = this;
-                                        this.selectedDuration = [startTimeRange, selectedDate];
+                                        newDuration = [startTimeRange, selectedDate];
                                     }
                                 }
                             }
                         } else {
                             // Create a new selection.
-                            this.selectedDuration = [selectedDate, selectedDate];
+                            newDuration = [selectedDate, selectedDate];
                             rangeAsElem = [this, this];
                         }
                     }
-                    console.log("Current selection"+this.selectedDuration)
                 }
-                if (this.selectedDuration && this.selectedDuration[0].getTime() !== this.selectedDuration[1].getTime()) {
+                self.selectedDuration = newDuration;
+                console.log("Duration after updating"+self.selectedDuration);
+                if (self.selectedDuration && self.selectedDuration[0].getTime() !== self.selectedDuration[1].getTime()) {
                     // Update the selected range.
-                    self.updateContoursOfSelection();
-                    Main.selectOrganismsWithinDuration(this.selectedDuration);
+                    self.selectionContours
+                        .attr("d", (year) => {
+                            return CalendarMap.selectionPath(year, self);
+                        });
+
+                    Main.selectOrganismsWithinDuration(self.selectedDuration);
                 }
                 // else {
                 //     // Select a day
@@ -241,11 +245,11 @@ namespace MigrationVisualization {
             this.paintLegend();
         }
 
-        private selectionPath(year: number): string {
-            if (this.selectedDuration === undefined) {
+        private static selectionPath(year: number, self: CalendarMap): string {
+            if (self.selectedDuration === undefined) {
                 return "";
             } else {
-                const [startDate, endDate] = this.selectedDuration;
+                const [startDate, endDate] = self.selectedDuration;
                 const startYear: number = startDate.getFullYear();
                 const endYear: number = endDate.getFullYear();
                 if (year < startYear || endYear < year) {
@@ -279,6 +283,7 @@ namespace MigrationVisualization {
                 } else {
                     return "";
                 }
+                console.log("found a valid path");
                 return "M" + (fromWeek + 1) * CalendarMap.cellSize + "," + fromDay * CalendarMap.cellSize
                     + "H" + fromWeek * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
                     + "H" + toWeek * CalendarMap.cellSize + "V" + (toDay + 1) * CalendarMap.cellSize
@@ -286,11 +291,6 @@ namespace MigrationVisualization {
                     + "H" + (fromWeek + 1) * CalendarMap.cellSize + "Z";
             }
 
-        }
-
-        private updateContoursOfSelection(): void {
-            this.selectionContours
-                .attr("d", this.selectionPath);
         }
 
         /**

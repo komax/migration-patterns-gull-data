@@ -132,7 +132,7 @@ namespace  MigrationVisualization {
             private hasChanged: boolean;
             private result: ODResult;
             private genderSelection: Gender;
-            private timeRange: DurationRange | undefined;
+            private selectedDuration: DurationRange | undefined;
 
             constructor() {
                 this.nodes = [];
