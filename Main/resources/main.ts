@@ -100,6 +100,30 @@ namespace  MigrationVisualization {
         interface ODResult {
             [id: string]: DurationRange[][];
         }
+
+        /**
+         * Enum to group and select genders.
+         */
+        enum Gender {
+            All,
+            Female,
+            Male
+        }
+
+        function filterOrganismPerGender(ids, gender: Gender): string[] {
+            switch (gender) {
+                case Gender.All:
+                    return ids;
+                case Gender.Female:
+                    return ids.filter((id) => {
+                        return organisms[id].sex === 'female';
+                    });
+                case Gender.Male:
+                    return ids.filter((id) => {
+                        return organisms[id].sex === 'male';
+                    });
+            }
+        }
         /**
          * Maintaining the selection and deselection of nodes within the schematic map.
          */
@@ -107,10 +131,14 @@ namespace  MigrationVisualization {
             private nodes: ol.Feature[];
             private hasChanged: boolean;
             private result: ODResult;
+            private genderSelection: Gender;
+            private timeRange: DurationRange | undefined;
 
             constructor() {
                 this.nodes = [];
                 this.hasChanged = false;
+                this.genderSelection = Gender.All;
+                this.timeRange = undefined;
             }
 
             /**
@@ -272,35 +300,43 @@ namespace  MigrationVisualization {
                 }
             }
 
+            selectGender(gender: Gender): this {
+                this.genderSelection = gender;
+                return this;
+            }
+
+            selectDuration(duration: DurationRange): this {
+                this.timeRange = duration;
+                return this;
+            }
+
             /**
              * Compute what organisms are visiting the the current selection from origin to its destination by
              * having at least one duration that visits the sequence as OD pair.
-             * @param gender Restrict the selection to a certain gender. Default all genders.
-             * @param duration Restrict the selection to a specific duration. Default no restrictions.
              * @returns {string[]} an array of organisms' ids visiting the nodes in a sequential order.
              */
-            getSelection(gender: Gender = Gender.All, duration: DurationRange | undefined = undefined): string[] {
+            getSelection(): string[] {
                 if (this.hasChanged) {
                     this.computeResult();
 
                 }
                 let ids: string[];
                 // Filter the ids within the duration if given.
-                if (duration !== undefined) {
-                    const [startSelection, endSelection] = duration;
-                    ids = this.selectDuration(startSelection, endSelection);
+                if (this.timeRange !== undefined) {
+                    const [startSelection, endSelection] = this.timeRange;
+                    ids = this.organismsWithinDuration(startSelection, endSelection);
                 } else {
                     ids = Object.keys(this.result);
                 }
                 // Filter those ids of the selected gender.
-                ids = filterOrganismPerGender(ids, gender);
+                ids = filterOrganismPerGender(ids, this.genderSelection);
 
                 // Sort the ids based on their names.
                 sortOrganismsIds(ids);
                 return ids;
             }
 
-            private selectDuration(startDate: Date, endDate: Date): string[] {
+            private organismsWithinDuration(startDate: Date, endDate: Date): string[] {
                 const organismsIDsWithinDuration: string[] = [];
                 for (const id of Object.keys(this.result)) {
                     let isOrganismInSelection = false;
@@ -324,29 +360,7 @@ namespace  MigrationVisualization {
         const stopOverSeq: StopoverSequence = new StopoverSequence();
 
 
-        /**
-         * Enum to group and select genders.
-         */
-        enum Gender {
-            All,
-            Female,
-            Male
-        }
 
-        function filterOrganismPerGender(ids, gender: Gender): string[] {
-            switch (gender) {
-                case Gender.All:
-                    return ids;
-                case Gender.Female:
-                    return ids.filter((id) => {
-                        return organisms[id].sex === 'female';
-                    });
-                case Gender.Male:
-                    return ids.filter((id) => {
-                        return organisms[id].sex === 'male';
-                    });
-            }
-        }
 
         /**
          * Trigger a selection of organisms based on their gender.
@@ -355,11 +369,11 @@ namespace  MigrationVisualization {
         function doSelectOrganims(val: string): void {
             switch (val) {
                 case "All":
-                    return selectGulls(stopOverSeq.getSelection(Gender.All));
+                    return selectGulls(stopOverSeq.selectGender(Gender.All).getSelection());
                 case "Females":
-                    return selectGulls(stopOverSeq.getSelection(Gender.Female));
+                    return selectGulls(stopOverSeq.selectGender(Gender.Female).getSelection());
                 case "Males":
-                    return selectGulls(stopOverSeq.getSelection(Gender.Male));
+                    return selectGulls(stopOverSeq.selectGender(Gender.Male).getSelection());
             }
         }
 
