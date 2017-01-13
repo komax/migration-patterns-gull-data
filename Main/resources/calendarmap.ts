@@ -245,7 +245,7 @@ namespace MigrationVisualization {
                 // if ESC key is pressed.
                 if ((d3.event as any).keyCode === 27) {
                     // release the selection.
-                    newDuration = undefined;
+                    this.selectedDuration = newDuration = undefined;
                     // remove the selection class from the list as well.
                     if (rangeAsElem !== undefined) {
                         rangeAsElem.forEach((elem) => {
