@@ -138,7 +138,7 @@ namespace  MigrationVisualization {
                 this.nodes = [];
                 this.hasChanged = false;
                 this.genderSelection = Gender.All;
-                this.timeRange = undefined;
+                this.selectedDuration = undefined;
             }
 
             /**
@@ -306,12 +306,12 @@ namespace  MigrationVisualization {
             }
 
             selectDuration(duration: DurationRange): this {
-                this.timeRange = duration;
+                this.selectedDuration = duration;
                 return this;
             }
 
             selectNoDuration(): this {
-                this.timeRange = undefined;
+                this.selectedDuration = undefined;
                 return this;
             }
 
@@ -327,8 +327,8 @@ namespace  MigrationVisualization {
                 }
                 let ids: string[];
                 // Filter the ids within the duration if given.
-                if (this.timeRange !== undefined && this.nodes.length > 1) {
-                    const [startSelection, endSelection] = this.timeRange;
+                if (this.selectedDuration !== undefined && this.nodes.length > 1) {
+                    const [startSelection, endSelection] = this.selectedDuration;
                     ids = this.organismsWithinDuration(startSelection, endSelection);
                 } else {
                     ids = Object.keys(this.result);

@@ -161,14 +161,14 @@ namespace MigrationVisualization {
                             const [startTimeRange, endTimeRange] = this.selectedDuration;
                             // Reduce the time range to one of them
                             if (startTimeRange.getTime() === selectedDate.getTime()) {
-                                this.timeRange = [endTimeRange, endTimeRange];
+                                this.selectedDuration = [endTimeRange, endTimeRange];
                                 rangeAsElem[0] = rangeAsElem[1];
                             } else if (endTimeRange.getTime() === selectedDate.getTime()) {
-                                this.timeRange = [startTimeRange, startTimeRange];
+                                this.selectedDuration = [startTimeRange, startTimeRange];
                                 rangeAsElem[1] = rangeAsElem[0];
                             } else {
                                 // or delete the elements.
-                                this.timeRange = rangeAsElem = undefined;
+                                this.selectedDuration = rangeAsElem = undefined;
                             }
                         }
                     } else {
@@ -179,10 +179,10 @@ namespace MigrationVisualization {
                             // time range is just a single date.
                             if (startTimeRange === endTimeRange) {
                                 if (hasEndedBefore(startTimeRange, selectedDate)) {
-                                    this.timeRange = [startTimeRange, selectedDate];
+                                    this.selectedDuration = [startTimeRange, selectedDate];
                                     rangeAsElem[1] = this;
                                 } else {
-                                    this.timeRange = [selectedDate, endTimeRange];
+                                    this.selectedDuration = [selectedDate, endTimeRange];
                                     rangeAsElem[0] = this;
                                 }
                             } else {
@@ -192,13 +192,13 @@ namespace MigrationVisualization {
                                     // Deselect the old end of the time range.
                                     endElement.classed('selected', false);
                                     rangeAsElem[1] = this;
-                                    this.timeRange = [startTimeRange, selectedDate];
+                                    this.selectedDuration = [startTimeRange, selectedDate];
                                 } else if (hasEndedBefore(selectedDate, startTimeRange)) {
                                     const startElement = d3.select(rangeAsElem[0]);
                                     // Deselect the old end of the time range.
                                     startElement.classed('selected', false);
                                     rangeAsElem[0] = this;
-                                    this.timeRange = [selectedDate, endTimeRange];
+                                    this.selectedDuration = [selectedDate, endTimeRange];
                                 } else {
                                     // selected date lies within the range.
                                     // Decide on which end it will be.
@@ -208,22 +208,23 @@ namespace MigrationVisualization {
                                         // Deselect the old end of the time range.
                                         startElement.classed('selected', false);
                                         rangeAsElem[0] = this;
-                                        this.timeRange = [selectedDate, endTimeRange];
+                                        this.selectedDuration = [selectedDate, endTimeRange];
                                     } else {
                                         const endElement = d3.select(rangeAsElem[1]);
                                         // Deselect the old end of the time range.
                                         endElement.classed('selected', false);
                                         rangeAsElem[1] = this;
-                                        this.timeRange = [startTimeRange, selectedDate];
+                                        this.selectedDuration = [startTimeRange, selectedDate];
                                     }
                                 }
                             }
                         } else {
                             // Create a new selection.
-                            this.timeRange = [selectedDate, selectedDate];
+                            this.selectedDuration = [selectedDate, selectedDate];
                             rangeAsElem = [this, this];
                         }
                     }
+                    console.log("Current selection"+this.selectedDuration)
                 }
                 if (this.selectedDuration && this.selectedDuration[0].getTime() !== this.selectedDuration[1].getTime()) {
                     // Update the selected range.
