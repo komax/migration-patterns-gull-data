@@ -14,7 +14,7 @@ namespace  MigrationVisualization {
     }
 
     // Type for a duration [from, to].
-    type DurationRange = [Date, Date];
+    export type DurationRange = [Date, Date];
 
     export function diffDateInHours(fromDate: Date, ToDate: Date): number {
         return Math.round((+ToDate - +fromDate) / (1000 * 60 * 60));
@@ -203,6 +203,75 @@ namespace  MigrationVisualization {
                 }
             }
 
+            private computeResult(): void {
+                // If nothing is selected, return an empty object.
+                if (this.nodes.length === 0) {
+                    this.result = {};
+                } else {
+                    // Compute the selection first.
+                    const events: Stopover = this.nodes[0].get('events');
+                    // Start with the events from the first stopover by copying the stopover vals.
+                    this.result = {};
+                    for (const id in events) {
+                        if (events.hasOwnProperty(id)) {
+                            this.result[id] = [];
+                        }
+                    }
+
+                    for (let i = 0; i < this.nodes.length - 1; i++) {
+                        const currentStopover: Stopover = this.nodes[i].get('events');
+                        const nextStopover: Stopover = this.nodes[i + 1].get('events');
+
+                        const idsCurrentStop = Object.keys(currentStopover);
+                        const idsNextStop = Object.keys(nextStopover);
+
+                        // Preprocessing:
+                        // Remove ids which do not occur in the selected stopovers.
+                        for (const id of Object.keys(this.result)) {
+                            if (idsCurrentStop.indexOf(id) === -1) {
+                                delete this.result[id];
+                            } else if (idsNextStop.indexOf(id) === -1) {
+                                delete this.result[id];
+                            }
+                        }
+                        if (Object.keys(this.result).length === 0) {
+                            // Abort if the result is already empty.
+                            break;
+                        }
+
+                        for (const idCurrentStop of idsCurrentStop) {
+                            if (idCurrentStop in this.result) {
+                                // Iterator of the stops at currentStop.
+                                const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
+                                while (iterCurrentStop.hasNext()) {
+                                    const currentStop = iterCurrentStop.next();
+
+                                    const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
+                                    while (iterNextStop.hasNext()) {
+                                        const nextStop = iterNextStop.next();
+                                        this.updateODSequences(currentStop, nextStop, idCurrentStop, i + 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    const acceptedNumberOfHops = this.nodes.length;
+                    if (acceptedNumberOfHops > 1) {
+                        // Postprocessing to check whether there is a sequence of length nodes.length,
+                        // otherwise trim it off.
+                        for (const id of Object.keys(this.result)) {
+                            if (!this.result[id].some((odSeq) => {
+                                    return odSeq.length === acceptedNumberOfHops;
+                                })) {
+                                // Remove the id if there exist only a path of shorter hops.
+                                delete this.result[id];
+                            }
+                        }
+                    }
+                }
+            }
+
             /**
              * Compute what organisms are visiting the the current selection from origin to its destination by
              * having at least one duration that visits the sequence as OD pair.
@@ -212,80 +281,17 @@ namespace  MigrationVisualization {
              */
             getSelection(gender: Gender = Gender.All, duration: DurationRange | undefined = undefined): string[] {
                 if (this.hasChanged) {
-                    // If nothing is selected, return an empty object.
-                    if (this.nodes.length === 0) {
-                        this.result = {};
-                    } else {
-                        // Compute the selection first.
-                        const events: Stopover = this.nodes[0].get('events');
-                        // Start with the events from the first stopover by copying the stopover vals.
-                        this.result = {};
-                        for (const id in events) {
-                            if (events.hasOwnProperty(id)) {
-                                this.result[id] = [];
-                            }
-                        }
+                    this.computeResult();
 
-                        for (let i = 0; i < this.nodes.length - 1; i++) {
-                            const currentStopover: Stopover = this.nodes[i].get('events');
-                            const nextStopover: Stopover = this.nodes[i + 1].get('events');
-
-                            const idsCurrentStop = Object.keys(currentStopover);
-                            const idsNextStop = Object.keys(nextStopover);
-
-                            // Preprocessing:
-                            // Remove ids which do not occur in the selected stopovers.
-                            for (const id of Object.keys(this.result)) {
-                                if (idsCurrentStop.indexOf(id) === -1) {
-                                    delete this.result[id];
-                                } else if (idsNextStop.indexOf(id) === -1) {
-                                    delete this.result[id];
-                                }
-                            }
-                            if (Object.keys(this.result).length === 0) {
-                                // Abort if the result is already empty.
-                                break;
-                            }
-
-                            for (const idCurrentStop of idsCurrentStop) {
-                                if (idCurrentStop in this.result) {
-                                    // Iterator of the stops at currentStop.
-                                    const iterCurrentStop = new DurationRangeIterator(currentStopover[idCurrentStop]);
-                                    while (iterCurrentStop.hasNext()) {
-                                        const currentStop = iterCurrentStop.next();
-
-                                        const iterNextStop = new DurationRangeIterator(nextStopover[idCurrentStop]);
-                                        while (iterNextStop.hasNext()) {
-                                            const nextStop = iterNextStop.next();
-                                            this.updateODSequences(currentStop, nextStop, idCurrentStop, i + 1);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        const acceptedNumberOfHops = this.nodes.length;
-                        if (acceptedNumberOfHops > 1) {
-                            // Postprocessing to check whether there is a sequence of length nodes.length,
-                            // otherwise trim it off.
-                            for (const id of Object.keys(this.result)) {
-                                if (!this.result[id].some((odSeq) => {
-                                        return odSeq.length === acceptedNumberOfHops;
-                                    })) {
-                                    // Remove the id if there exist only a path of shorter hops.
-                                    delete this.result[id];
-                                }
-                            }
-                        }
-                    }
-
-                    // Check the duration if required.
-                    if (duration !== undefined) {
-                        const [startSelection, endSelection] = duration;
-                        this.selectDuration(startSelection, endSelection);
-                    }
                 }
-                let ids = Object.keys(this.result);
+                let ids: string[];
+                // Filter the ids within the duration if given.
+                if (duration !== undefined) {
+                    const [startSelection, endSelection] = duration;
+                    ids = this.selectDuration(startSelection, endSelection);
+                } else {
+                    ids = Object.keys(this.result);
+                }
                 // Filter those ids of the selected gender.
                 ids = filterOrganismPerGender(ids, gender);
 
@@ -294,7 +300,8 @@ namespace  MigrationVisualization {
                 return ids;
             }
 
-            private selectDuration(startDate: Date, endDate: Date): void {
+            private selectDuration(startDate: Date, endDate: Date): string[] {
+                const organismsIDsWithinDuration: string[] = [];
                 for (const id of Object.keys(this.result)) {
                     let isOrganismInSelection = false;
                     for (const odSequence of this.result[id]) {
@@ -306,11 +313,11 @@ namespace  MigrationVisualization {
                             isOrganismInSelection = true;
                         }
                     }
-                    if (!isOrganismInSelection) {
-                        // Remove the id if it does not obey the selection.
-                        delete this.result[id];
+                    if (isOrganismInSelection) {
+                        organismsIDsWithinDuration.push(id);
                     }
                 }
+                return organismsIDsWithinDuration;
             }
 
         }
