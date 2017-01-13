@@ -12,6 +12,18 @@ interface JQuery {
 namespace MigrationVisualization {
 
     export class CalendarMap {
+        private static width = 700;
+        private static height = 105;
+        private static cellSize = 12; // cell size
+        private static week_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        private static month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        private static day = d3.time.format("%w");
+        private static week = d3.time.format("%U");
+        private static percent = d3.format(".1%");
+        private static format = d3.time.format("%Y%m%d");
+        private static parseDate = d3.time.format("%Y%m%d").parse;
+
         private id: string;
         private range: Array<number>;
         private color;
@@ -24,29 +36,17 @@ namespace MigrationVisualization {
             this.id = id;
             this.range = d3.range(range[0], range[1] + 1);
 
-            const width = 700,
-                height = 105,
-                cellSize = 12, // cell size
-                week_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            const day = d3.time.format("%w"),
-                week = d3.time.format("%U"),
-                percent = d3.format(".1%"),
-                format = d3.time.format("%Y%m%d"),
-                parseDate = d3.time.format("%Y%m%d").parse;
-
             // Same palette as for coloring the nodes.
             this.palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
             this.color = d3.scale.quantize().range(this.palette)//(["white", '#002b53'])
                 .domain([0, 1]);
 
-            const svg = this.svg = d3.select('#' + id).selectAll("svg")
+            this.svg = d3.select('#' + id).selectAll("svg")
                 .data(this.range)
                 .enter().append("svg")
-                .attr("width", width)
+                .attr("width", CalendarMap.width)
                 .attr("data-height", '0.5678')
-                .attr("viewBox", '0 0 ' + width + ' ' + height)
+                .attr("viewBox", '0 0 ' + CalendarMap.width + ' ' +CalendarMap.height)
                 .attr("shape-rendering", "crispEdges")
                 .attr("class", "RdYlGn")
                 // year as id;
@@ -54,45 +54,45 @@ namespace MigrationVisualization {
                     return `year${d}`;
                 })
                 .append("g")
-                .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+                .attr("transform", "translate(" + ((CalendarMap.width - CalendarMap.cellSize * 53) / 2) + "," + (CalendarMap.height - CalendarMap.cellSize * 7 - 1) + ")");
 
-            svg.append("text")
-                .attr("transform", "translate(-38," + cellSize * 3.5 + ")rotate(-90)")
+            this.svg.append("text")
+                .attr("transform", "translate(-38," + CalendarMap.cellSize * 3.5 + ")rotate(-90)")
                 .style("text-anchor", "middle")
                 .text((d) => {
                     return d;
                 });
 
             for (let i = 0; i < 7; i++) {
-                svg.append("text")
-                    .attr("transform", "translate(-5," + cellSize * (i + 1) + ")")
+                this.svg.append("text")
+                    .attr("transform", "translate(-5," + CalendarMap.cellSize * (i + 1) + ")")
                     .style("text-anchor", "end")
                     .attr("dy", "-.25em")
                     .text((d) => {
-                        return week_days[i];
+                        return CalendarMap.week_days[i];
                     });
             }
 
-            const rect = this.rect = svg.selectAll(".day")
+            this.rect = this.svg.selectAll(".day")
                 .data((d) => {
                     return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1));
                 })
                 .enter()
                 .append("rect")
                 .attr("class", "day")
-                .attr("width", cellSize)
-                .attr("height", cellSize)
+                .attr("width", CalendarMap.cellSize)
+                .attr("height", CalendarMap.cellSize)
                 .attr("x", (d) => {
-                    return (<any>week(d)) * cellSize;
+                    return (<any>CalendarMap.week(d)) * CalendarMap.cellSize;
                 })
                 .attr("y", (d) => {
-                    return (<any>day(d)) * cellSize;
+                    return (<any>CalendarMap.day(d)) * CalendarMap.cellSize;
                 })
                 .attr("fill", '#fff')
-                .datum(format);
+                .datum(CalendarMap.format);
 
-            const legend = svg.selectAll(".legend")
-                .data(month)
+            const legend = this.svg.selectAll(".legend")
+                .data(CalendarMap.month)
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", (d, i) => {
@@ -101,22 +101,22 @@ namespace MigrationVisualization {
 
             legend.append("text")
                 .attr("class", function (d, i) {
-                    return month[i]
+                    return CalendarMap.month[i]
                 })
                 .style("text-anchor", "end")
                 .attr("dy", "-.25em")
                 .text(function (d, i) {
-                    return month[i]
+                    return CalendarMap.month[i]
                 });
 
-            svg.selectAll(".month")
+            this.svg.selectAll(".month")
                 .data(function (d) {
                     return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1));
                 })
                 .enter().append("path")
                 .attr("class", "month")
                 .attr("id", function (d, i) {
-                    return month[i]
+                    return CalendarMap.month[i]
                 })
                 .attr("d", monthPath);
 
@@ -124,22 +124,23 @@ namespace MigrationVisualization {
 
             function monthPath(t0) {
                 const t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
-                    d0 = +day(t0), w0 = +week(t0),
-                    d1 = +day(t1), w1 = +week(t1);
-                return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-                    + "H" + w0 * cellSize + "V" + 7 * cellSize
-                    + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-                    + "H" + (w1 + 1) * cellSize + "V" + 0
-                    + "H" + (w0 + 1) * cellSize + "Z";
+                    d0 = +CalendarMap.day(t0), w0 = +CalendarMap.week(t0),
+                    d1 = +CalendarMap.day(t1), w1 = +CalendarMap.week(t1);
+                return "M" + (w0 + 1) * CalendarMap.cellSize + "," + d0 * CalendarMap.cellSize
+                    + "H" + w0 * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
+                    + "H" + w1 * CalendarMap.cellSize + "V" + (d1 + 1) * CalendarMap.cellSize
+                    + "H" + (w1 + 1) * CalendarMap.cellSize + "V" + 0
+                    + "H" + (w0 + 1) * CalendarMap.cellSize + "Z";
             }
 
             const self = this;
             // Objects to maintain a time range as a selection.
-            let timeRange: [Date, Date] | undefined;
+            let timeRange: DurationRange | undefined;
             let rangeAsElem: [Element, Element] | undefined;
 
-            rect.on('click', function (d: string) {
-                const selectedDate = format.parse(d);
+            // Handle a single click action and/or selecting a range by clicking and using shift.
+            this.rect.on('click', function (d: string) {
+                const selectedDate = CalendarMap.format.parse(d);
                 const event: MouseEvent = <MouseEvent>d3.event;
                 if (event.shiftKey) {
                     const svgElement = d3.select(this);
@@ -229,19 +230,16 @@ namespace MigrationVisualization {
         }
 
         private drawSelectionContours(startDate: Date, endDate: Date): void {
-            const day = d3.time.format("%w"),
-                week = d3.time.format("%U"),
-                cellSize = 12;
-
-
-            function selectionPath() {
-                const d0 = +day(startDate), w0 = +week(startDate),
-                    d1 = +day(endDate), w1 = +week(endDate);
-                return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-                    + "H" + w0 * cellSize + "V" + 7 * cellSize
-                    + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-                    + "H" + (w1 + 1) * cellSize + "V" + 0
-                    + "H" + (w0 + 1) * cellSize + "Z";
+            console.log(startDate + " " + endDate);
+            function selectionPath(d) {
+                console.log(d);
+                const d0 = +CalendarMap.day(startDate), w0 = +CalendarMap.week(startDate),
+                    d1 = +CalendarMap.day(endDate), w1 = +CalendarMap.week(endDate);
+                return "M" + (w0 + 1) * CalendarMap.cellSize + "," + d0 * CalendarMap.cellSize
+                    + "H" + w0 * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
+                    + "H" + w1 * CalendarMap.cellSize + "V" + (d1 + 1) * CalendarMap.cellSize
+                    + "H" + (w1 + 1) * CalendarMap.cellSize + "V" + 0
+                    + "H" + (w0 + 1) * CalendarMap.cellSize + "Z";
             }
 
             const year = startDate.getFullYear();
@@ -362,7 +360,7 @@ namespace MigrationVisualization {
             for (let id in data) {
                 data[id] = data[id].toArray();
             }
-            
+
             this.visualizeCalendar(data, ids);
         }
 
