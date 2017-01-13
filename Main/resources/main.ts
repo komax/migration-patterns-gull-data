@@ -327,7 +327,7 @@ namespace  MigrationVisualization {
                 }
                 let ids: string[];
                 // Filter the ids within the duration if given.
-                if (this.timeRange !== undefined) {
+                if (this.timeRange !== undefined && this.nodes.length > 1) {
                     const [startSelection, endSelection] = this.timeRange;
                     ids = this.organismsWithinDuration(startSelection, endSelection);
                 } else {

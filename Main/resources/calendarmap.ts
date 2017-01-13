@@ -22,7 +22,6 @@ namespace MigrationVisualization {
         private static week = d3.time.format("%U");
         private static percent = d3.format(".1%");
         private static format = d3.time.format("%Y%m%d");
-        private static parseDate = d3.time.format("%Y%m%d").parse;
 
         private id: string;
         private range: Array<number>;
@@ -46,7 +45,7 @@ namespace MigrationVisualization {
                 .enter().append("svg")
                 .attr("width", CalendarMap.width)
                 .attr("data-height", '0.5678')
-                .attr("viewBox", '0 0 ' + CalendarMap.width + ' ' +CalendarMap.height)
+                .attr("viewBox", '0 0 ' + CalendarMap.width + ' ' + CalendarMap.height)
                 .attr("shape-rendering", "crispEdges")
                 .attr("class", "RdYlGn")
                 // year as id;
@@ -215,42 +214,73 @@ namespace MigrationVisualization {
                             rangeAsElem = [this, this];
                         }
                     }
-                    console.log(`Click+Shift: Selecting: ${timeRange}`);
-                } else {
-                    console.log("Simple click");
                 }
-                if (timeRange) {
-                    const [start, end] = timeRange;
-                    if (start.getTime() !== end.getTime()) {
-                        self.drawSelectionContours(start, end);
-                        Main.selectOrganismsWithinDuration(timeRange);
-                    }
+                if (timeRange && timeRange[0].getTime() !== timeRange[1].getTime()) {
+                    // Select a range of days.
+                    self.drawSelectionContours(timeRange[0], timeRange[1]);
+                    Main.selectOrganismsWithinDuration(timeRange);
                 }
-                // const gulls = self.stopoverGulls[d] || [];
-                // Main.selectGulls(gulls);
+                // else {
+                //     // Select a day
+                //     const gulls = self.stopoverGulls[d] || [];
+                //     Main.selectGulls(gulls);
+                // }
             });
 
             this.paintLegend();
         }
 
         private drawSelectionContours(startDate: Date, endDate: Date): void {
-            console.log(startDate + " " + endDate);
-            function selectionPath(d) {
-                console.log(d);
-                const d0 = +CalendarMap.day(startDate), w0 = +CalendarMap.week(startDate),
-                    d1 = +CalendarMap.day(endDate), w1 = +CalendarMap.week(endDate);
-                return "M" + (w0 + 1) * CalendarMap.cellSize + "," + d0 * CalendarMap.cellSize
-                    + "H" + w0 * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
-                    + "H" + w1 * CalendarMap.cellSize + "V" + (d1 + 1) * CalendarMap.cellSize
-                    + "H" + (w1 + 1) * CalendarMap.cellSize + "V" + 0
-                    + "H" + (w0 + 1) * CalendarMap.cellSize + "Z";
+            const startYear: number = startDate.getFullYear();
+            const endYear: number = endDate.getFullYear();
+
+            function selectionPath(year) {
+                if (year < startYear || endYear < year) {
+                    // Show no path if the year is not in the selection.
+                    return "";
+                }
+                let fromDay: number, fromWeek: number,
+                    toDay: number, toWeek: number;
+                if (year === startYear && year === endYear) {
+                    // Case start and end are within the same year.
+                    fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
+                        toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
+                } else if (year === startYear && year < endYear) {
+                    // Case start until the end of the year.
+                    const endDay = new Date(year, 11, 31);
+                    fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
+                        toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
+                }
+                if (startYear < year && year < endYear) {
+                    // Cover the whole year. start and end lie somewhere outside.
+                    const startDay = new Date(year, 0, 1);
+                    const endDay = new Date(year, 11, 31);
+                    fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
+                        toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
+                }
+                if (startYear < year && year === endYear) {
+                    // Cover cover the beginning of the year until the end date.
+                    const startDay = new Date(year, 0, 1);
+                    fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
+                        toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
+                } else {
+                    return "";
+                }
+                return "M" + (fromWeek + 1) * CalendarMap.cellSize + "," + fromDay * CalendarMap.cellSize
+                    + "H" + fromWeek * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
+                    + "H" + toWeek * CalendarMap.cellSize + "V" + (toDay + 1) * CalendarMap.cellSize
+                    + "H" + (toWeek + 1) * CalendarMap.cellSize + "V" + 0
+                    + "H" + (fromWeek + 1) * CalendarMap.cellSize + "Z";
             }
 
-            const year = startDate.getFullYear();
-            const selection = this.svg.selectAll(`#year${year}`);
-            selection
+            const data: number[] = [];
+            for (let year = startYear; year <= endYear; year++) {
+                data.push(year);
+            }
+
+            this.svg.selectAll("#RdYlGn")
                 .data(function (d) {
-                    return d3.time.months(startDate, endDate);
+                    return data;
                 })
                 .enter().append("path")
                 .attr("class", "selected-time-range")
@@ -337,7 +367,7 @@ namespace MigrationVisualization {
                 })
                 .attr("y", margin.top + innerHeight / 2)
                 .attr("font-size", 13)
-                .attr('font-family','sans-serif')
+                .attr('font-family', 'sans-serif')
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
                 .style("fill", "#000000")
