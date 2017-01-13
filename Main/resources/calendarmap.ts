@@ -259,31 +259,32 @@ namespace MigrationVisualization {
                 let fromDay: number, fromWeek: number,
                     toDay: number, toWeek: number;
                 if (year === startYear && year === endYear) {
+                    console.log("Case start and end are within the same year");
                     // Case start and end are within the same year.
                     fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
                         toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
                 } else if (year === startYear && year < endYear) {
+                    console.log("Case start until the end of the year.");
                     // Case start until the end of the year.
                     const endDay = new Date(year, 11, 31);
                     fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
                         toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
-                }
-                if (startYear < year && year < endYear) {
+                } else if (startYear < year && year < endYear) {
                     // Cover the whole year. start and end lie somewhere outside.
+                    console.log("Cover the whole year. start and end lie somewhere outside");
                     const startDay = new Date(year, 0, 1);
                     const endDay = new Date(year, 11, 31);
                     fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
                         toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
-                }
-                if (startYear < year && year === endYear) {
-                    // Cover cover the beginning of the year until the end date.
+                } else if (startYear < year && year === endYear) {
+                    // Case cover the beginning of the year until the end date.
+                    console.log("Case cover the beginning of the year until the end date");
                     const startDay = new Date(year, 0, 1);
                     fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
                         toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
                 } else {
                     return "";
                 }
-                console.log("found a valid path");
                 return "M" + (fromWeek + 1) * CalendarMap.cellSize + "," + fromDay * CalendarMap.cellSize
                     + "H" + fromWeek * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
                     + "H" + toWeek * CalendarMap.cellSize + "V" + (toDay + 1) * CalendarMap.cellSize
