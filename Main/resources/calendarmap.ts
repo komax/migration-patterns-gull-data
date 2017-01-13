@@ -36,6 +36,7 @@ namespace MigrationVisualization {
         constructor(id: string, range: [number, number]) {
             this.id = id;
             this.yearsRange = d3.range(range[0], range[1] + 1);
+            console.log(this.yearsRange);
 
             // Same palette as for coloring the nodes.
             this.palette = ['#f7fbff', '#deebf7', '#c6dbef', '#9ecae1', '#6baed6', '#4292c6', '#2171b5', '#08519c', '#08306b'];
@@ -135,13 +136,11 @@ namespace MigrationVisualization {
             }
 
             // Add the elements for the selected-time-range for each year.
-            this.selectionContours = this.svg.selectAll("#RdYlGn")
-                .data(function (d) {
-                    return this.yearsRange;
-                })
+            this.selectionContours = this.svg.selectAll(".selected-time-range")
+                .data(this.yearsRange)
                 .enter().append("path")
                 .attr("class", "selected-time-range")
-                .attr("d", this.selectionPath);
+                .attr("d", "");
 
             const self = this;
             // Objects to maintain a time range as a selection.
