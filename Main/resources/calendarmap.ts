@@ -225,7 +225,6 @@ namespace MigrationVisualization {
                     }
                 }
                 self.selectedDuration = newDuration;
-                console.log("Duration after updating"+self.selectedDuration);
                 if (self.selectedDuration && self.selectedDuration[0].getTime() !== self.selectedDuration[1].getTime()) {
                     // Update the selected range.
                     self.selectionContours
