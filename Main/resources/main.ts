@@ -387,8 +387,8 @@ namespace  MigrationVisualization {
             if (selected.length >= 1) {
                 return selectGulls(selected);
             } else {
-                // Recovering from the bad choice.
-                alert("Empty selection");
+                // If the duration yields an empty selection, report it to the user.
+                alert("No organisms found within this time span");
                 stopOverSeq.selectNoDuration();
             }
         }
