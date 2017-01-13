@@ -310,6 +310,11 @@ namespace  MigrationVisualization {
                 return this;
             }
 
+            selectNoDuration(): this {
+                this.timeRange = undefined;
+                return this;
+            }
+
             /**
              * Compute what organisms are visiting the the current selection from origin to its destination by
              * having at least one duration that visits the sequence as OD pair.
@@ -366,7 +371,7 @@ namespace  MigrationVisualization {
          * Trigger a selection of organisms based on their gender.
          * @param val : "All", "Females" or "Males" as values from the hmtl select.
          */
-        function doSelectOrganims(val: string): void {
+        function doSelectOrganisms(val: string): void {
             switch (val) {
                 case "All":
                     return selectGulls(stopOverSeq.selectGender(Gender.All).getSelection());
@@ -374,6 +379,17 @@ namespace  MigrationVisualization {
                     return selectGulls(stopOverSeq.selectGender(Gender.Female).getSelection());
                 case "Males":
                     return selectGulls(stopOverSeq.selectGender(Gender.Male).getSelection());
+            }
+        }
+
+        export function selectOrganismsWithinDuration(duration: DurationRange): void {
+            const selected = stopOverSeq.selectDuration(duration).getSelection();
+            if (selected.length >= 1) {
+                return selectGulls(selected, duration);
+            } else {
+                // Recovering from the bad choice.
+                alert("Empty selection");
+                stopOverSeq.selectNoDuration();
             }
         }
 
@@ -780,7 +796,7 @@ namespace  MigrationVisualization {
                 .queue((next) => {
                     // User interaction for the gender choice within an OD-selection.
                     $('#genders-od').on('change', function () {
-                        doSelectOrganims(this.value);
+                        doSelectOrganisms(this.value);
                     });
                     next();
                 })
@@ -795,7 +811,7 @@ namespace  MigrationVisualization {
                     schematic.stopoverSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         stopOverSeq.update(selectEvent);
                         const val = $('#genders-od').val();
-                        doSelectOrganims(val);
+                        doSelectOrganisms(val);
                     });
                     schematic.statisticsSelect.on('select', (selectEvent: ol.interaction.SelectEvent) => {
                         visualizeToolTipStatistics(selectEvent);
@@ -875,7 +891,7 @@ namespace  MigrationVisualization {
             renderGullList(Gender.All);
         }
 
-        export function selectGulls(selected: string[]): void {
+        export function selectGulls(selected: string[], duration: DurationRange | undefined = undefined): void {
             console.log(selected);
             gullSelection = selected;
 
@@ -902,7 +918,7 @@ namespace  MigrationVisualization {
                 }
             }
 
-            calendar.load(schematic.getNodes(), selected);
+            calendar.load(schematic.getNodes(), selected, duration);
 
             let newSelection: string[] = [];
             let list = d3.select('#gulls .gull-list').selectAll('li').data(selected);

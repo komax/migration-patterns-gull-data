@@ -220,7 +220,11 @@ namespace MigrationVisualization {
                     console.log("Simple click");
                 }
                 if (timeRange) {
-                    self.drawSelectionContours(timeRange[0], timeRange[1]);
+                    const [start, end] = timeRange;
+                    if (start.getTime() !== end.getTime()) {
+                        self.drawSelectionContours(start, end);
+                        Main.selectOrganismsWithinDuration(timeRange);
+                    }
                 }
                 // const gulls = self.stopoverGulls[d] || [];
                 // Main.selectGulls(gulls);
@@ -343,7 +347,7 @@ namespace MigrationVisualization {
 
         }
 
-        load(stops: ol.Feature[], ids: string[]) {
+        load(stops: ol.Feature[], ids: string[], duration: DurationRange | undefined) {
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};
@@ -362,6 +366,10 @@ namespace MigrationVisualization {
             }
 
             this.visualizeCalendar(data, ids);
+            if (duration !== undefined) {
+                const [start, end] = duration;
+                this.drawSelectionContours(start, end);
+            }
         }
 
         private visualizeCalendar(data, gullIDs) {
