@@ -106,7 +106,7 @@ namespace MigrationVisualization {
             });
         }
 
-        load(id) {
+        load(id, showStops: boolean = true) {
             $.ajax({
                 url: JSONfile(id),
                 dataType: 'jsonp',
@@ -123,9 +123,11 @@ namespace MigrationVisualization {
                     this.source1.addFeatures(features.filter(function (feature: Feature) {
                         return feature.get('type') != 'stop';
                     }));
-                    this.source2.addFeatures(features.filter(function (feature: Feature) {
-                        return feature.get('type') == 'stop';
-                    }));
+                    if (showStops) {
+                        this.source2.addFeatures(features.filter(function (feature: Feature) {
+                            return feature.get('type') == 'stop';
+                        }));
+                    }
                 },
             });
         };

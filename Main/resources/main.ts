@@ -684,7 +684,12 @@ namespace  MigrationVisualization {
                         }
                     })
                     .on('mouseover', (organism: Organism) => {
-                        journey.load(organism.id);
+                        const event: MouseEvent = <MouseEvent>d3.event;
+                        if (event.shiftKey) {
+                            journey.load(organism.id, false);
+                        } else {
+                            journey.load(organism.id, true);
+                        }
                     })
                     .on('mouseout', (organism: Organism) => {
                         const event: MouseEvent = <MouseEvent>d3.event;
@@ -696,6 +701,7 @@ namespace  MigrationVisualization {
             d3.select("body").on('keydown', () => {
                 // if ESC key is pressed.
                 if ((d3.event as any).keyCode === 27) {
+                    console.log("Escape pressed");
                     // release the selection.
                     newSelection = [];
                     // remove the selection class from the list as well.
@@ -936,7 +942,12 @@ namespace  MigrationVisualization {
                     return organisms[d].sex;
                 })
                 .on('mouseover', (id: string) => {
-                    journey.load(id);
+                    const event: MouseEvent = <MouseEvent>d3.event;
+                    if (event.shiftKey) {
+                        journey.load(id, false);
+                    } else {
+                        journey.load(id, true);
+                    }
                 })
                 .on('mouseout', (id: string) => {
                     const event: MouseEvent = <MouseEvent>d3.event;
