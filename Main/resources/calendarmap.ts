@@ -136,7 +136,7 @@ namespace MigrationVisualization {
 
             // Add the elements for the selected-time-range for each year.
             this.selectionContours = this.svg.selectAll(".selected-time-range")
-                .data(this.yearsRange)
+                .data(this.yearsRange.slice(0, 1))
                 .enter().append("path")
                 .attr("class", "selected-time-range")
                 .attr("d", "");
@@ -260,6 +260,7 @@ namespace MigrationVisualization {
         }
 
         private static selectionPath(year: number, self: CalendarMap): string {
+            console.log(year);
             if (self.selectedDuration === undefined) {
                 return "";
             } else {
@@ -400,6 +401,9 @@ namespace MigrationVisualization {
         load(stops: ol.Feature[], ids: string[]) {
             // Invalidate the current selected duration.
             this.selectedDuration = undefined;
+            // Deactivate the visual format of the selection.
+            const selectedTimeRange = d3.selectAll(".selected-time-range");
+            selectedTimeRange.classed(".selected-time-range", false);
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};
