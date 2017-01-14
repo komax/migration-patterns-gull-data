@@ -34,17 +34,17 @@ namespace MigrationVisualization {
         }),
         text: {
             fill: new ol.style.Fill({
-                color: 'white',
+                color: 'black',
             }),
             stroke: new ol.style.Stroke({
-                color: 'black',
+                color: 'white',
                 width: 2,
             }),
         },
         stop: new ol.style.Circle({
-            radius: 8,
+            radius: 22,
             fill: new ol.style.Fill({
-                color: [180, 220, 90, .8],
+                color: [145, 207, 96, 1.],
             }),
             stroke: new ol.style.Stroke({
                 color: 'white',
@@ -60,7 +60,7 @@ namespace MigrationVisualization {
             stamp = resolution > 500 ? dateStamp : timeStamp;
         return new ol.style.Style({
             text: new ol.style.Text({
-                font: '12px sans-serif',
+                font: 'bold 13px sans-serif',
                 text: stamp(new Date(top.get('date'))),
                 fill: defaults.text.fill,
                 stroke: defaults.text.stroke,
