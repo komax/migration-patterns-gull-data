@@ -32,8 +32,10 @@ namespace MigrationVisualization {
         private palette: string[];
         private selectedDuration: DurationRange | undefined;
         private selectionContours;
+        private organismsIDs: string[];
 
         constructor(id: string, range: [number, number]) {
+            this.organismsIDs = [];
             this.id = id;
             this.yearsRange = d3.range(range[0], range[1] + 1);
 
@@ -251,16 +253,25 @@ namespace MigrationVisualization {
                     // release the selection.
                     this.selectedDuration = newDuration = undefined;
                     // remove the selection class from the list as well.
-                    if (rangeAsElem !== undefined) {
-                        rangeAsElem.forEach((elem) => {
-                            d3.select(elem).classed('selected', false);
-                        });
-                        rangeAsElem = undefined;
-                    }
+                    this.rect.each(function (d,i) {
+                        d3.select(this).classed("selected", false);
+                    });
                 }
             });
 
             this.paintLegend();
+        }
+
+        private disposeCurrentSelection(): void {
+            // Clearing the contours
+            this.selectionContours
+                .attr("d",  "");
+            // Clearing the days.
+            this.rect.each(function (d,i) {
+                d3.select(this).classed("selected", false);
+            });
+            // Clearing the selection.
+            this.selectedDuration = undefined;
         }
 
         private static selectionPath(year: number, self: CalendarMap): string {
@@ -397,12 +408,29 @@ namespace MigrationVisualization {
 
         }
 
+        /**
+         * Is setA a subset of setB or setB of setA
+         * @param setA
+         * @param setB
+         * @returns {boolean}
+         */
+        private static isSubsetOf(setA: string[], setB: string[]): boolean {
+            return setB.every((elem, i) => {
+                return setA.indexOf(elem) >= 0;
+            }) || setA.every((elem, i) => {
+                return setB.indexOf(elem) >= 0;
+            });
+        }
+
         load(stops: ol.Feature[], ids: string[]) {
-            // Invalidate the current selected duration.
-            this.selectedDuration = undefined;
-            // Deactivate the visual format of the selection.
-            const selectedTimeRange = d3.selectAll(".selected-time-range");
-            selectedTimeRange.classed(".selected-time-range", false);
+            // If the current ids are empty or we deal NOT with a subset of previous ids, dispose the visualization of
+            // the current selection.
+            if (ids.length === 0 || !CalendarMap.isSubsetOf(this.organismsIDs, ids)) {
+                this.disposeCurrentSelection();
+            }
+
+            // Store the ids for the future calls.
+            this.organismsIDs = ids;
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};
