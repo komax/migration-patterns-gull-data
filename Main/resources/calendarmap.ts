@@ -135,11 +135,15 @@ namespace MigrationVisualization {
             }
 
             // Add the elements for the selected-time-range for each year.
-            this.selectionContours = this.svg.selectAll(".selected-time-range")
-                .data(this.yearsRange.slice(0, 1))
-                .enter().append("path")
-                .attr("class", "selected-time-range")
-                .attr("d", "");
+            this.svg.each(function (d, i) {
+                d3.select(this).selectAll(".selected-time-range")
+                    .data([d])
+                    .enter().append("path")
+                    .attr("class", "selected-time-range")
+                    .attr("d", "");
+            });
+
+            this.selectionContours = this.svg.selectAll(".selected-time-range");
 
             const self = this;
             // Objects to maintain a time range as a selection.
