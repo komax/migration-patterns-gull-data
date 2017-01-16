@@ -248,8 +248,9 @@ namespace MigrationVisualization {
             });
 
             d3.select("body").on('keydown', () => {
-                // if ESC key is pressed.
-                if ((d3.event as any).keyCode === 27) {
+                // if delete key is pressed.
+                if ((d3.event as any).keyCode === 46) {
+                    console.log("Delete has been pressed");
                     // release the selection.
                     this.selectedDuration = newDuration = undefined;
                     // remove the selection class from the list as well.
