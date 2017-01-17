@@ -30,7 +30,6 @@ namespace MigrationVisualization {
         private rect;
         private stopoverGulls;
         private palette: string[];
-        private selectedDuration: DurationRange | undefined;
         private selectionContours;
         private organismsIDs: string[];
 
@@ -230,15 +229,17 @@ namespace MigrationVisualization {
                         }
                     }
                 }
-                self.selectedDuration = newDuration;
-                if (self.selectedDuration && self.selectedDuration[0].getTime() !== self.selectedDuration[1].getTime()) {
-                    // Update the selected range.
-                    self.selectionContours
-                        .attr("d", (year) => {
-                            return CalendarMap.selectionPath(year, self);
-                        });
+                if (newDuration !== undefined) {
+                    let [startDate, endDate] = newDuration;
+                    if (startDate.getTime() !== endDate.getTime()) {
+                        // Update the selected range.
+                        self.selectionContours
+                            .attr("d", (year) => {
+                                return CalendarMap.selectionPath(year, startDate, endDate);
+                            });
 
-                    Main.selectOrganismsWithinDuration(self.selectedDuration);
+                        Main.selectOrganismsWithinDuration(newDuration);
+                    }
                 }
                 // else {
                 //     // Select a day
@@ -252,11 +253,9 @@ namespace MigrationVisualization {
                 if ((d3.event as any).keyCode === 46) {
                     console.log("Delete has been pressed");
                     // release the selection.
-                    this.selectedDuration = newDuration = undefined;
+                    newDuration = undefined;
                     // remove the selection class from the list as well.
-                    this.rect.each(function (d,i) {
-                        d3.select(this).classed("selected", false);
-                    });
+                    this.rect.classed("selected", false);
                 }
             });
 
@@ -266,58 +265,49 @@ namespace MigrationVisualization {
         private disposeCurrentSelection(): void {
             // Clearing the contours
             this.selectionContours
-                .attr("d",  "");
+                .attr("d", "");
             // Clearing the days.
-            this.rect.each(function (d,i) {
-                d3.select(this).classed("selected", false);
-            });
+            this.rect.classed("selected", false);
             // Clearing the selection.
-            this.selectedDuration = undefined;
         }
 
-        private static selectionPath(year: number, self: CalendarMap): string {
-            if (self.selectedDuration === undefined) {
+        private static selectionPath(year: number, startDate: Date, endDate: Date): string {
+            const startYear: number = startDate.getFullYear();
+            const endYear: number = endDate.getFullYear();
+            if (year < startYear || endYear < year) {
+                // Show no path if the year is not in the selection.
                 return "";
-            } else {
-                const [startDate, endDate] = self.selectedDuration;
-                const startYear: number = startDate.getFullYear();
-                const endYear: number = endDate.getFullYear();
-                if (year < startYear || endYear < year) {
-                    // Show no path if the year is not in the selection.
-                    return "";
-                }
-                let fromDay: number, fromWeek: number,
-                    toDay: number, toWeek: number;
-                if (year === startYear && year === endYear) {
-                    // Case start and end are within the same year.
-                    fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
-                        toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
-                } else if (year === startYear && year < endYear) {
-                    // Case start until the end of the year.
-                    const endDay = new Date(year, 11, 31);
-                    fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
-                        toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
-                } else if (startYear < year && year < endYear) {
-                    // Cover the whole year. start and end lie somewhere outside.
-                    const startDay = new Date(year, 0, 1);
-                    const endDay = new Date(year, 11, 31);
-                    fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
-                        toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
-                } else if (startYear < year && year === endYear) {
-                    // Case cover the beginning of the year until the end date.
-                    const startDay = new Date(year, 0, 1);
-                    fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
-                        toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
-                } else {
-                    return "";
-                }
-                return "M" + (fromWeek + 1) * CalendarMap.cellSize + "," + fromDay * CalendarMap.cellSize
-                    + "H" + fromWeek * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
-                    + "H" + toWeek * CalendarMap.cellSize + "V" + (toDay + 1) * CalendarMap.cellSize
-                    + "H" + (toWeek + 1) * CalendarMap.cellSize + "V" + 0
-                    + "H" + (fromWeek + 1) * CalendarMap.cellSize + "Z";
             }
-
+            let fromDay: number, fromWeek: number,
+                toDay: number, toWeek: number;
+            if (year === startYear && year === endYear) {
+                // Case start and end are within the same year.
+                fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
+                    toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
+            } else if (year === startYear && year < endYear) {
+                // Case start until the end of the year.
+                const endDay = new Date(year, 11, 31);
+                fromDay = +CalendarMap.day(startDate), fromWeek = +CalendarMap.week(startDate),
+                    toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
+            } else if (startYear < year && year < endYear) {
+                // Cover the whole year. start and end lie somewhere outside.
+                const startDay = new Date(year, 0, 1);
+                const endDay = new Date(year, 11, 31);
+                fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
+                    toDay = +CalendarMap.day(endDay), toWeek = +CalendarMap.week(endDay);
+            } else if (startYear < year && year === endYear) {
+                // Case cover the beginning of the year until the end date.
+                const startDay = new Date(year, 0, 1);
+                fromDay = +CalendarMap.day(startDay), fromWeek = +CalendarMap.week(startDay),
+                    toDay = +CalendarMap.day(endDate), toWeek = +CalendarMap.week(endDate);
+            } else {
+                return "";
+            }
+            return "M" + (fromWeek + 1) * CalendarMap.cellSize + "," + fromDay * CalendarMap.cellSize
+                + "H" + fromWeek * CalendarMap.cellSize + "V" + 7 * CalendarMap.cellSize
+                + "H" + toWeek * CalendarMap.cellSize + "V" + (toDay + 1) * CalendarMap.cellSize
+                + "H" + (toWeek + 1) * CalendarMap.cellSize + "V" + 0
+                + "H" + (fromWeek + 1) * CalendarMap.cellSize + "Z";
         }
 
         /**
@@ -417,10 +407,10 @@ namespace MigrationVisualization {
          */
         private static isSubsetOf(setA: string[], setB: string[]): boolean {
             return setB.every((elem, i) => {
-                return setA.indexOf(elem) >= 0;
-            }) || setA.every((elem, i) => {
-                return setB.indexOf(elem) >= 0;
-            });
+                    return setA.indexOf(elem) >= 0;
+                }) || setA.every((elem, i) => {
+                    return setB.indexOf(elem) >= 0;
+                });
         }
 
         load(stops: ol.Feature[], ids: string[]) {
