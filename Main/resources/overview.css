@@ -9,6 +9,11 @@
 #selection-overview {
     display: none;
     padding: 2em;
+    /* No select using shift */
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
 }
 
 #schema-settings {
@@ -81,11 +86,6 @@
     shape-rendering: crispEdges;
     width: 55%;
     z-index: 50;
-    /* No select using shift */
-    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
-    -moz-user-select: none; /* mozilla browsers */
-    -khtml-user-select: none; /* webkit (konqueror) browsers */
-    -ms-user-select: none; /* IE10+ */
 }
 
 .day {
