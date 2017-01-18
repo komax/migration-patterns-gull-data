@@ -364,7 +364,7 @@ namespace  MigrationVisualization {
                         const [startTimeDestination, endTimeDestination] = odSequence[odSequence.length - 1];
                         // Check whether the od sequence fits into the duration.
                         if (diffDateInHours(startDate, endTimeOrigin) >= 0 &&
-                            diffDateInHours(endDate, endTimeDestination) >= 0) {
+                            diffDateInHours(endTimeDestination, endDate) >= 0) {
                             isOrganismInSelection = true;
                         }
                     }
