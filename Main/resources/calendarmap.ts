@@ -248,16 +248,17 @@ namespace MigrationVisualization {
                 // }
             });
 
-            d3.select("body").on('keydown', () => {
+            // Press delete to remove the current selection.
+            const eventHandler = (e) => {
                 // if delete key is pressed.
-                if ((d3.event as any).keyCode === 46) {
-                    console.log("Delete has been pressed");
+                if (e.which === 46) {
                     // release the selection.
                     newDuration = undefined;
-                    // remove the selection class from the list as well.
-                    this.rect.classed("selected", false);
+                    this.disposeCurrentSelection();
                 }
-            });
+            };
+
+            document.addEventListener("keydown", eventHandler.bind(this));
 
             this.paintLegend();
         }
