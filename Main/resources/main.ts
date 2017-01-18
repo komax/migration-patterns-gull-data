@@ -695,11 +695,7 @@ namespace  MigrationVisualization {
                     })
                     .on('mouseover', (organism: Organism) => {
                         const event: MouseEvent = <MouseEvent>d3.event;
-                        if (event.shiftKey) {
-                            journey.load(organism.id, false);
-                        } else {
-                            journey.load(organism.id, true);
-                        }
+                        journey.load(organism.id);
                     })
                     .on('mouseout', (organism: Organism) => {
                         const event: MouseEvent = <MouseEvent>d3.event;
@@ -953,11 +949,7 @@ namespace  MigrationVisualization {
                 })
                 .on('mouseover', (id: string) => {
                     const event: MouseEvent = <MouseEvent>d3.event;
-                    if (event.shiftKey) {
-                        journey.load(id, false);
-                    } else {
-                        journey.load(id, true);
-                    }
+                    journey.load(id);
                 })
                 .on('mouseout', (id: string) => {
                     const event: MouseEvent = <MouseEvent>d3.event;

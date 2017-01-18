@@ -82,7 +82,7 @@ namespace MigrationVisualization {
         private layer1: ol.layer.Vector;
         private source2: ol.source.Vector;
         private layer2: ol.layer.Vector;
-        private layer: ol.layer.Group;
+        readonly layer: ol.layer.Group;
 
         private textLabelFeatures: ol.Feature[];
         private showTextLabel: boolean;
