@@ -33,6 +33,9 @@ namespace MigrationVisualization {
         private selectionContours;
         private organismsIDs: string[];
 
+        private stops: ol.Feature[];
+        private showOnlySelectedStopovers: boolean;
+
         constructor(id: string, range: [number, number]) {
             this.organismsIDs = [];
             this.id = id;
@@ -260,6 +263,23 @@ namespace MigrationVisualization {
 
             document.addEventListener("keydown", eventHandler.bind(this));
 
+            this.showOnlySelectedStopovers = false;
+
+            this.stops = [];
+
+            // Press delete to remove the current selection.
+            const handleSpace = (e) => {
+                // if space key is pressed.
+                if (e.which === 32) {
+                    // Toggle the last parameter.
+                    this.showOnlySelectedStopovers = !this.showOnlySelectedStopovers;
+                    // reload the calendar on the same selection.
+                    this.load(this.stops, this.organismsIDs);
+                }
+            };
+
+            document.addEventListener("keydown", handleSpace.bind(this));
+
             this.paintLegend();
         }
 
@@ -414,7 +434,7 @@ namespace MigrationVisualization {
                 });
         }
 
-        load(stops: ol.Feature[], ids: string[], showOnlySelectedStopovers: boolean = false) {
+        load(stops: ol.Feature[], ids: string[]) {
             // If the current ids are empty or we deal NOT with a subset of previous ids, dispose the visualization of
             // the current selection.
             if (ids.length === 0 || !CalendarMap.isSubsetOf(this.organismsIDs, ids)) {
@@ -422,11 +442,12 @@ namespace MigrationVisualization {
             }
 
             // Store the ids for the future calls.
+            this.stops = stops;
             this.organismsIDs = ids;
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};
-                if (showOnlySelectedStopovers && stops[i].get('selectionNumber') === undefined) {
+                if (this.showOnlySelectedStopovers && stops[i].get('selectionNumber') === undefined) {
                     // Skip if showing only selected stopovers the ones without a selectionNumber.
                     continue;
                 }
@@ -446,28 +467,6 @@ namespace MigrationVisualization {
 
 
             this.visualizeCalendar(data, ids);
-
-            this.rect.on('dblclick', (d) => {
-                        const event: any = d3.event;
-                        console.log("Double click");
-
-                        // if space key is pressed.
-                        if (event.ctrlKey) {
-                            this.load(stops, ids, !showOnlySelectedStopovers);
-                        }
-            });
-            // $(document).ready(() => {
-            //     d3.select("body").on('keydown', function () {
-            //         const event: any = d3.event;
-            //
-            //         // if space key is pressed.
-            //         // if (event.which === 32) {
-            //         console.log("space has been pressed");
-            //         // Toggle the current showing only the selected stopovers.
-            //
-            //         // }
-            //     });
-            // });
         }
 
         private visualizeCalendar(data, gullIDs) {
