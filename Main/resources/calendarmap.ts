@@ -413,7 +413,7 @@ namespace MigrationVisualization {
                 });
         }
 
-        load(stops: ol.Feature[], ids: string[]) {
+        load(stops: ol.Feature[], ids: string[], showOnlySelectedStopovers: boolean = false) {
             // If the current ids are empty or we deal NOT with a subset of previous ids, dispose the visualization of
             // the current selection.
             if (ids.length === 0 || !CalendarMap.isSubsetOf(this.organismsIDs, ids)) {
@@ -425,6 +425,10 @@ namespace MigrationVisualization {
             const data = {};
             for (let i = stops.length - 1; i >= 0; --i) {
                 const events: Stopover = stops[i].get('events') || {};
+                if (showOnlySelectedStopovers && stops[i].get('selectionNumber') === undefined) {
+                    // Skip if showing only selected stopovers the ones without a selectionNumber.
+                    continue;
+                }
                 for (let id in events) {
                     if (!(id in data)) {
                         data[id] = new Range();
@@ -439,7 +443,30 @@ namespace MigrationVisualization {
                 data[id] = data[id].toArray();
             }
 
+
             this.visualizeCalendar(data, ids);
+
+            this.rect.on('dblclick', (d) => {
+                        const event: any = d3.event;
+                        console.log("Double click");
+
+                        // if space key is pressed.
+                        if (event.ctrlKey) {
+                            this.load(stops, ids, !showOnlySelectedStopovers);
+                        }
+            });
+            // $(document).ready(() => {
+            //     d3.select("body").on('keydown', function () {
+            //         const event: any = d3.event;
+            //
+            //         // if space key is pressed.
+            //         // if (event.which === 32) {
+            //         console.log("space has been pressed");
+            //         // Toggle the current showing only the selected stopovers.
+            //
+            //         // }
+            //     });
+            // });
         }
 
         private visualizeCalendar(data, gullIDs) {
