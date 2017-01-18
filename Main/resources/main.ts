@@ -124,6 +124,7 @@ namespace  MigrationVisualization {
                     });
             }
         }
+
         /**
          * Maintaining the selection and deselection of nodes within the schematic map.
          */
@@ -237,6 +238,17 @@ namespace  MigrationVisualization {
                 // If nothing is selected, return an empty object.
                 if (this.nodes.length === 0) {
                     this.result = {};
+                } else if (this.nodes.length === 1) {
+                    // Compute the selection first.
+                    const events: Stopover = this.nodes[0].get('events');
+                    this.result = {};
+
+                    for (const id in events) {
+                        if (events.hasOwnProperty(id)) {
+                            // Copy each duration
+                            this.result[id] = [[<any>events[id]]];
+                        }
+                    }
                 } else {
                     // Compute the selection first.
                     const events: Stopover = this.nodes[0].get('events');
@@ -329,7 +341,7 @@ namespace  MigrationVisualization {
                 }
                 let ids: string[];
                 // Filter the ids within the duration if given.
-                if (this.selectedDuration !== undefined && this.nodes.length > 1) {
+                if (this.selectedDuration !== undefined) {
                     const [startSelection, endSelection] = this.selectedDuration;
                     ids = this.organismsWithinDuration(startSelection, endSelection);
                 } else {
@@ -351,8 +363,8 @@ namespace  MigrationVisualization {
                         const [startTimeOrigin, endTimeOrigin] = odSequence[0];
                         const [startTimeDestination, endTimeDestination] = odSequence[odSequence.length - 1];
                         // Check whether the od sequence fits into the duration.
-                        if (diffDateInHours(startDate, startTimeOrigin) >= 0 &&
-                            diffDateInHours(endTimeDestination, endDate) >= 0) {
+                        if (diffDateInHours(startDate, endTimeOrigin) >= 0 &&
+                            diffDateInHours(endDate, endTimeDestination) >= 0) {
                             isOrganismInSelection = true;
                         }
                     }
@@ -365,8 +377,6 @@ namespace  MigrationVisualization {
 
         }
         const stopOverSeq: StopoverSequence = new StopoverSequence();
-
-
 
 
         /**
@@ -509,7 +519,7 @@ namespace  MigrationVisualization {
                     })
                     .attr("y", margin.top + innerHeight / 2)
                     .attr("font-size", 20)
-                    .attr('font-family','sans-serif')
+                    .attr('font-family', 'sans-serif')
                     .style("text-anchor", "middle")
                     .style("alignment-baseline", "middle")
                     .style("fill", "#ffffff")
@@ -621,7 +631,7 @@ namespace  MigrationVisualization {
                     return x(d.w / 2 + d.x);
                 })
                 .attr("y", margin.top + innerHeight / 2)
-                .attr('font-family','sans-serif')
+                .attr('font-family', 'sans-serif')
                 .attr("font-size", 20)
                 .style("text-anchor", "middle")
                 .style("alignment-baseline", "middle")
@@ -693,7 +703,7 @@ namespace  MigrationVisualization {
                     })
                     .on('mouseout', (organism: Organism) => {
                         const event: MouseEvent = <MouseEvent>d3.event;
-                        if(!event.altKey) {
+                        if (!event.altKey) {
                             journey.clear();
                         }
                     });
@@ -951,8 +961,8 @@ namespace  MigrationVisualization {
                 })
                 .on('mouseout', (id: string) => {
                     const event: MouseEvent = <MouseEvent>d3.event;
-                    if(!event.altKey) {
-                      journey.clear();
+                    if (!event.altKey) {
+                        journey.clear();
                     }
                 })
                 .on('click', function (id: string) {
