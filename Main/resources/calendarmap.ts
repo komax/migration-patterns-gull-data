@@ -400,7 +400,10 @@ namespace MigrationVisualization {
                     }
                 })
                 .attr("x", (d, i) => {
-                    return x(d.w / 2 + d.x);
+                    if (i === extendedPalette.length - 1 ) {
+                        return x(d.w / 2 + d.x + 2 * margin.right);
+                    }
+                    return x(d.w / 2 + d.x - 2 * margin.right);
                     // if (i === 0) {
                     //     return x(d.w + d.x);
                     // } else {
