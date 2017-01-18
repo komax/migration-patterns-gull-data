@@ -82,7 +82,10 @@ namespace MigrationVisualization {
         private layer1: ol.layer.Vector;
         private source2: ol.source.Vector;
         private layer2: ol.layer.Vector;
-        readonly layer: ol.layer.Group;
+        private layer: ol.layer.Group;
+
+        private textLabelFeatures: ol.Feature[];
+        private showTextLabel: boolean;
 
         constructor() {
             this.source1 = new ol.source.Vector({});
@@ -104,9 +107,27 @@ namespace MigrationVisualization {
             this.layer = new ol.layer.Group({
                 layers: [this.layer1, this.layer2],
             });
+
+            this.showTextLabel = true;
+
+            // Press delete to remove the current selection.
+            const eventHandler = (e) => {
+                // if t key is pressed.
+                if (e.which === 84) {
+                    if (this.showTextLabel) {
+                        this.textLabelFeatures = this.source2.getFeatures();
+                        this.source2.clear(true);
+                    } else {
+                        this.source2.addFeatures(this.textLabelFeatures);
+                    }
+                    this.showTextLabel = !this.showTextLabel;
+                }
+            };
+
+            document.addEventListener("keydown", eventHandler.bind(this));
         }
 
-        load(id, showStops: boolean = true) {
+        load(id) {
             $.ajax({
                 url: JSONfile(id),
                 dataType: 'jsonp',
@@ -123,10 +144,11 @@ namespace MigrationVisualization {
                     this.source1.addFeatures(features.filter(function (feature: Feature) {
                         return feature.get('type') != 'stop';
                     }));
-                    if (showStops) {
-                        this.source2.addFeatures(features.filter(function (feature: Feature) {
-                            return feature.get('type') == 'stop';
-                        }));
+                    this.textLabelFeatures = features.filter(function (feature: Feature) {
+                        return feature.get('type') == 'stop';
+                    });
+                    if (this.showTextLabel) {
+                        this.source2.addFeatures(this.textLabelFeatures);
                     }
                 },
             });
