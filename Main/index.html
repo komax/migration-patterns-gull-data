@@ -24,6 +24,18 @@
 </header>
 <div id="content">
     <div id="views">
+        <div id="right-view">
+            <div id="right-toolbar">
+                <label for="sat-slider-left">Satellite opacity:</label>
+                <input type="range" id="sat-slider-right" min="0" , max="100">
+                <!--<label for="placenames-right">Place names:</label>-->
+                <!--<input id="placenames-right" type="checkbox">-->
+            </div>
+            <div id="right-map" class="map">
+                <div id="stopover-statistics"></div>
+            </div>
+        </div>
+        <div id="hdivider" class="ui-resizable-handle ui-resizable-e">&nbsp;</div>
         <div id="left-view">
             <div id="left-toolbar">
                 <label for="sat-slider-left">Satellite opacity:</label>
@@ -36,18 +48,6 @@
             <div id="left-map" class="map">
                 <div id="heatmap-legend">
                 </div>
-            </div>
-        </div>
-        <div id="hdivider" class="ui-resizable-handle ui-resizable-e">&nbsp;</div>
-        <div id="right-view">
-            <div id="right-toolbar">
-                <label for="sat-slider-left">Satellite opacity:</label>
-                <input type="range" id="sat-slider-right" min="0" , max="100">
-                <!--<label for="placenames-right">Place names:</label>-->
-                <!--<input id="placenames-right" type="checkbox">-->
-            </div>
-            <div id="right-map" class="map">
-                <div id="stopover-statistics"></div>
             </div>
         </div>
     </div>
