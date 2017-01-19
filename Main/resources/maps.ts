@@ -70,8 +70,8 @@ namespace MigrationVisualization {
         maps.left = new ol.Map({
             controls: ol.control.defaults()
                 .extend([
-                    new window.interface.expandControl('#left-view', '#right-view', '_|', '_|_'),
-                    new window.interface.settingsControl('#left-toolbar', '#right-view', '_|', '_|_'),
+                    new window.interface.expandControl('#left-view', '#right-view', '|_', '_|_'),
+                    new window.interface.settingsControl('#left-toolbar', '#right-view', '|_', '_|_'),
                     new ol.control.ScaleLine(),
                 ]),
             target: 'left-map',
@@ -85,7 +85,7 @@ namespace MigrationVisualization {
         maps.right = new ol.Map({
             controls: ol.control.defaults()
                 .extend([
-                    new window.interface.expandControl('#right-view', '#left-view', '|_', '_|_'),
+                    new window.interface.expandControl('#right-view', '#left-view', '_|', '_|_'),
                     new window.interface.settingsControl('#right-toolbar', '#right-view', '_|', '_|_'),
                     new window.interface.paneControl('#pane', '45%', '=', '_'),
                     new ol.control.ScaleLine(),
