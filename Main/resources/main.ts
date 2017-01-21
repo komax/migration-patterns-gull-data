@@ -39,6 +39,14 @@ namespace  MigrationVisualization {
         document.addEventListener('keydown', eventHandler.bind(this));
     }
 
+    function showPopUpInformation(infoMessage: string): void {
+        $('#popup-information').empty().append(`<h1>${infoMessage}</h1>`);
+        $('#info-page').removeClass('hidden');
+        setTimeout(() => {
+            $('#info-page').addClass('hidden');
+        }, 2000);
+    }
+
 //------------------------------------------------------------------------------
     export namespace Main {
         export let organisms: any = {};
@@ -411,7 +419,7 @@ namespace  MigrationVisualization {
                 return selectGulls(selected);
             } else {
                 // If the duration yields an empty selection, report it to the user.
-                alert("No organisms found within this time span");
+                showPopUpInformation("No gulls found within this time span.");
                 stopOverSeq.selectNoDuration();
             }
         }
