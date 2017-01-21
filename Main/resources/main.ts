@@ -28,6 +28,17 @@ namespace  MigrationVisualization {
         [id: string]: number[];
     }
 
+    function handleHelppage() {
+        const eventHandler = (e) => {
+            // Toggle showing the help page by pressing f2.
+            if (e.which === 113) {
+                console.log("f2 has been pressed");
+                $('#help-page').toggleClass('hidden');
+            }
+        };
+        document.addEventListener('keydown', eventHandler.bind(this));
+    }
+
 //------------------------------------------------------------------------------
     export namespace Main {
         export let organisms: any = {};
@@ -868,6 +879,10 @@ namespace  MigrationVisualization {
                                 heatmap.setOpacity(opacity);
                             })
                         ;
+                    next();
+                })
+                .queue((next) => {
+                    handleHelppage();
                     next();
                 })
                 // .queue((next) => {

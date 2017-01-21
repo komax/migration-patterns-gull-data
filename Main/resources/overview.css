@@ -125,8 +125,14 @@
     justify-content: center;
     align-items: center;
     background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .overlay.hidden {
     display: none;
+}
+
+th, td {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 15px;
 }
