@@ -74,7 +74,7 @@ namespace MigrationVisualization {
                     new window.interface.settingsControl('#left-toolbar', '#right-view', '|_', '_|_'),
                     new ol.control.ScaleLine(),
                 ]),
-            target: 'left-map',
+            target: 'density-map',
             layers: <Layer[]>[layers.positron, layers.satelliteLeft]
                 .concat(heatmap.layers as any)
                 .concat([layers.topologyLeft, journey.layer] as any),
@@ -90,7 +90,7 @@ namespace MigrationVisualization {
                     new window.interface.paneControl('#pane', '45%', '=', '_'),
                     new ol.control.ScaleLine(),
                 ]),
-            target: 'right-map',
+            target: 'stopover-map',
             layers: [layers.positron, layers.satelliteRight, layers.topologyRight, layers.schematic],
             view: maps.view,
             interactions: ol.interaction.defaults()
