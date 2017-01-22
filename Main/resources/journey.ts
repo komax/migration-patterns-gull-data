@@ -117,8 +117,10 @@ namespace MigrationVisualization {
                     if (this.showTextLabel) {
                         this.textLabelFeatures = this.source2.getFeatures();
                         this.source2.clear(true);
+                        showPopUpInformation("Show stopovers as text labels within the trajectory", 1500);
                     } else {
                         this.source2.addFeatures(this.textLabelFeatures);
+                        showPopUpInformation("Turn off text labels within the trajectory", 1500);
                     }
                     this.showTextLabel = !this.showTextLabel;
                 }

@@ -39,12 +39,17 @@ namespace  MigrationVisualization {
         document.addEventListener('keydown', eventHandler.bind(this));
     }
 
-    function showPopUpInformation(infoMessage: string): void {
+    /**
+     * Show a page for a popup
+     * @param infoMessage the message that will be shown.
+     * @param duration of how long the message will be shown (Default: 2 seconds)
+     */
+    export function showPopUpInformation(infoMessage: string, duration: number = 2000): void {
         $('#popup-information').empty().append(`<h1>${infoMessage}</h1>`);
         $('#info-page').removeClass('hidden');
         setTimeout(() => {
             $('#info-page').addClass('hidden');
-        }, 2000);
+        }, duration);
     }
 
 //------------------------------------------------------------------------------

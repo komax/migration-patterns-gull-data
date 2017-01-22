@@ -275,6 +275,12 @@ namespace MigrationVisualization {
                     this.showOnlySelectedStopovers = !this.showOnlySelectedStopovers;
                     // reload the calendar on the same selection.
                     this.load(this.stops, this.organismsIDs);
+                    // Inform the user on the update.
+                    if (this.showOnlySelectedStopovers) {
+                        showPopUpInformation("Distribution at the selected stopovers are shown in the calendar.", 1500);
+                    } else {
+                        showPopUpInformation("Distribution at all stopovers are shown in the calendar.", 1500);
+                    }
                 }
             };
 
