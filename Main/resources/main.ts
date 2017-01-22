@@ -32,7 +32,6 @@ namespace  MigrationVisualization {
         const eventHandler = (e) => {
             // Toggle showing the help page by pressing f2.
             if (e.which === 113) {
-                console.log("f2 has been pressed");
                 $('#help-page').toggleClass('hidden');
             }
         };
@@ -198,7 +197,6 @@ namespace  MigrationVisualization {
                 return this.nodes.map((d: Feature) => {
                     // console.log(d.getKeys());
                     // console.log(d.get('type'));
-                    console.log(d.get('events'));
                     return Object.keys(d.get('events'));
                 });
             }
@@ -731,7 +729,6 @@ namespace  MigrationVisualization {
             d3.select("body").on('keydown', () => {
                 // if ESC key is pressed.
                 if ((d3.event as any).keyCode === 27) {
-                    console.log("Escape pressed");
                     // release the selection.
                     newSelection = [];
                     // remove the selection class from the list as well.
