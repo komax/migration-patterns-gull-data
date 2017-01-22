@@ -937,7 +937,6 @@ namespace  MigrationVisualization {
         }
 
         export function selectGulls(selected: string[]): void {
-            console.log(selected);
             gullSelection = selected;
 
             schematic.refresh();
