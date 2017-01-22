@@ -114,15 +114,15 @@ namespace MigrationVisualization {
             const eventHandler = (e) => {
                 // if t key is pressed.
                 if (e.which === 84) {
+                    this.showTextLabel = !this.showTextLabel;
                     if (this.showTextLabel) {
-                        this.textLabelFeatures = this.source2.getFeatures();
-                        this.source2.clear(true);
+                        this.source2.addFeatures(this.textLabelFeatures);
                         showPopUpInformation("Show stopovers as text labels within the trajectory", 1500);
                     } else {
-                        this.source2.addFeatures(this.textLabelFeatures);
+                        this.textLabelFeatures = this.source2.getFeatures();
+                        this.source2.clear(true);
                         showPopUpInformation("Turn off text labels within the trajectory", 1500);
                     }
-                    this.showTextLabel = !this.showTextLabel;
                 }
             };
 
