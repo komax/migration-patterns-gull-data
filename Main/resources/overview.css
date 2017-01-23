@@ -132,6 +132,10 @@
     display: none;
 }
 
+#shortcuts {
+    background: rgba(77,88,99,0.8);
+}
+
 th, td {
     color: rgba(255, 255, 255, 0.9);
     padding: 15px;
