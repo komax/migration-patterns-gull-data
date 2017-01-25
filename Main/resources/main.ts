@@ -28,6 +28,24 @@ namespace  MigrationVisualization {
         [id: string]: number[];
     }
 
+    let popupActivated = true;
+
+    function handlePopUps() {
+        const eventHandler = (e) => {
+            // Toggle showing the help page by pressing p.
+            if (e.which === 80) {
+                if (popupActivated) {
+                    showPopUpInformation("Pop ups are turned off.");
+                    popupActivated = false;
+                } else {
+                    popupActivated = true;
+                    showPopUpInformation("Pop ups are turned on.");
+                }
+            }
+        };
+        document.addEventListener('keydown', eventHandler.bind(this));
+    }
+
     function handleHelppage() {
         const eventHandler = (e) => {
             // Toggle showing the help page by pressing f2.
@@ -44,11 +62,13 @@ namespace  MigrationVisualization {
      * @param duration of how long the message will be shown (Default: 2 seconds)
      */
     export function showPopUpInformation(infoMessage: string, duration: number = 2000): void {
-        $('#popup-information').empty().append(`<h1>${infoMessage}</h1>`);
-        $('#info-page').removeClass('hidden');
-        setTimeout(() => {
-            $('#info-page').addClass('hidden');
-        }, duration);
+        if (popupActivated) {
+            $('#popup-information').empty().append(`<h1>${infoMessage}</h1>`);
+            $('#info-page').removeClass('hidden');
+            setTimeout(() => {
+                $('#info-page').addClass('hidden');
+            }, duration);
+        }
     }
 
 //------------------------------------------------------------------------------
@@ -893,6 +913,7 @@ namespace  MigrationVisualization {
                 })
                 .queue((next) => {
                     handleHelppage();
+                    handlePopUps();
                     next();
                 })
                 // .queue((next) => {
